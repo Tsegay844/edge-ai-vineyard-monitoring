@@ -35,3 +35,7 @@ __pycache__/
 # OS
 .DS_Store
 Thumbs.db
+
+# Large calibration data files (>100MB)
+*.npy
+YOLOV5/yolov5/

@@ -1,0 +1,36 @@
+
+═══════════════════════════════════════════════════════════════
+YOLOv11n vs YOLOv5n FOR ESP32-S3 WROOM-1
+═══════════════════════════════════════════════════════════════
+
+╔══════════════════════╦═══════════════╦═══════════════╗
+║ Metric               ║ YOLOv5n       ║ YOLOv11n      ║
+╠══════════════════════╬═══════════════╬═══════════════╣
+║ Parameters           ║ 1.9M          ║ 2.6M          ║
+║ Model Size (INT8)    ║ ~2 MB         ║ ~2.6 MB       ║
+║ Architecture         ║ CSPDarknet    ║ C3k2 backbone ║
+║ mAP Improvement      ║ Baseline      ║ +2-5%         ║
+║ ESP32-S3 @ 640×640   ║ ~300-500ms    ║ ~400-600ms    ║
+║ ESP32-S3 @ 416×416   ║ ~150-250ms    ║ ~200-300ms    ║
+║ Deployment Maturity  ║ Mature        ║ Newer         ║
+╚══════════════════════╩═══════════════╩═══════════════╝
+
+YOLOV11N ADVANTAGES
+✓ Better mAP (2-5% improvement)
+✓ Better small object detection
+✓ Efficient C3k2 blocks
+✓ Better quantization resilience
+
+ESP32-S3 CONSIDERATIONS
+⚠ Slower than YOLOv5n (30% more parameters)
+⚠ Fewer ESP-DL deployment examples
+⚠ Requires 416×416 for real-time
+⚠ NO NPU acceleration available
+
+RECOMMENDATION
+→ Use YOLOv11n for better accuracy (vineyard monitoring)
+→ Use YOLOv5n for simpler deployment
+→ Retrain at 416×416 for real-time performance
+→ Expected: 2-5 FPS sufficient for agricultural monitoring
+
+═══════════════════════════════════════════════════════════════

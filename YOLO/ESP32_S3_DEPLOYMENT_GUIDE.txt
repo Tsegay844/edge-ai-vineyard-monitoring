@@ -1,0 +1,65 @@
+
+═══════════════════════════════════════════════════════════════
+ESP32-S3 WROOM-1 DEPLOYMENT GUIDE
+═══════════════════════════════════════════════════════════════
+
+1. PREREQUISITES
+   ├── ESP-IDF v5.1+
+   ├── ESP-DL library (https://github.com/espressif/esp-dl)
+   ├── INT8 quantized TFLite model
+   └── ESP32-S3 WROOM-1 with 8MB PSRAM
+
+2. MODEL CONVERSION (TFLite → ESP-DL)
+   $ cd esp-dl/tools
+   $ python tflite2esp.py \
+       --model_path ../../yolo11n_int8_esp32.tflite \
+       --output_path yolo11n_esp32_s3.espdl \
+       --compress
+
+3. ESP32-S3 DEPLOYMENT
+   ├── Flash model to SPIFFS/LittleFS (4MB partition)
+   ├── Enable PSRAM in menuconfig
+   ├── Adapt esp-dl/examples/human_face_detection
+   └── Modify for single-class YOLO detection
+
+4. RESOLUTION OPTIMIZATION (IMPORTANT!)
+   ├── 640×640: ~400-600ms (trained resolution)
+   ├── 416×416: ~200-300ms (RECOMMENDED)
+   ├── 320×320: ~150-200ms (fastest)
+   └── Retrain at 416×416 for best performance
+
+5. ESP32-S3 OPTIMIZATIONS
+   ├── Enable Xtensa LX7 vector instructions
+   ├── Use PSRAM for model, SRAM for activations
+   ├── Enable DMA for camera transfers
+   ├── Batch size = 1 only
+   └── Simplify NMS (reduce IoU checks)
+
+6. EXPECTED PERFORMANCE
+   ├── Inference @ 640×640: 400-600ms (1-2 FPS)
+   ├── Inference @ 416×416: 200-300ms (3-5 FPS)
+   ├── Memory: ~512KB SRAM, ~3-4MB PSRAM
+   └── Power: ~400-600mW during inference
+
+7. ESP32-CAM INTEGRATION
+   ├── Camera module: OV2640/OV5640
+   ├── Capture at 800×600, crop to 416×416
+   ├── Preprocess: normalize to INT8
+   ├── Run inference
+   └── Post-process: NMS (IoU=0.6, conf=0.25)
+
+8. TO RETRAIN FOR 416×416
+   ├── Change 'imgsz': 416 in hyperparameters
+   ├── Re-run training cells
+   ├── Re-export to ONNX/TFLite
+   └── Expected: ~2× faster on ESP32-S3
+
+═══════════════════════════════════════════════════════════════
+REFERENCES
+═══════════════════════════════════════════════════════════════
+• ESP-DL: https://github.com/espressif/esp-dl
+• esp-detection: https://github.com/espressif/esp-detection
+• ESP32-S3 Datasheet: https://espressif.com/esp32-s3
+
+⚠ IMPORTANT: ESP32-S3 has NO NPU - inference slower than ESP32-P4
+═══════════════════════════════════════════════════════════════

@@ -1,0 +1,12 @@
+train: /home/ubuntu/edge-ai-vineyard-monitoring/YOLOV5/Data_yolov5pytorch/train/images
+val: /home/ubuntu/edge-ai-vineyard-monitoring/YOLOV5/Data_yolov5pytorch/valid/images
+test: /home/ubuntu/edge-ai-vineyard-monitoring/YOLOV5/Data_yolov5pytorch/test/images
+nc: 1
+names:
+- leaf
+roboflow:
+  workspace: grape-disease-rxjfx
+  project: grape-leaf-roi-detection
+  version: 2
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/grape-disease-rxjfx/grape-leaf-roi-detection/dataset/2
