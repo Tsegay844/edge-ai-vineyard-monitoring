@@ -1,0 +1,149 @@
+如何部署流式模型
+================
+
+:link_to_translation:`en:[English]`
+
+时间序列模型如今被应用在许多领域，例如，音频领域。而音频模型在部署时通常有两种模式：
+
+- Offline模式：模型需要一次性接收完整的音频数据（例如整个语音文件），然后进行整体处理。
+- Streaming模式：流式模式下，模型逐帧（逐块）接收音频数据，实时处理并输出中间结果。
+
+在本教程中，我们来介绍如何使用 ESP-PPQ 量化流式模型，并使用 ESP-DL 部署量化后的流式模型。
+
+.. contents::
+  :local:
+  :depth: 2
+
+准备工作
+-----------
+
+1. :ref:`安装 ESP_IDF <requirements_esp_idf>`
+2. :ref:`安装 ESP_PPQ <requirements_esp_ppq>`
+
+.. _how_to_quantize_streaming_model:
+
+模型量化
+-----------
+
+:project:`参考示例 <examples/tutorial/how_to_deploy_streaming_model>`
+
+如何转换为流式模型
+^^^^^^^^^^^^^^^^^^
+
+时间序列模型种类繁多，这里仅以 Temporal Convolutional Network(TCN) 为例，不熟悉的可自行查找资料了解，这里不过多介绍其细节。其它模型需根据自身情况，量体裁衣。
+
+该示例代码中构建了一个 TCN 模型： :project_file:`models.py <examples/tutorial/how_to_deploy_streaming_model/quantize_streaming_model/models.py>` (模型非完整，仅用于演示)。
+
+ESP-PPQ 提供了自动流式转换功能，可以简化创建流式模型的过程。通过 ``auto_streaming=True`` 参数，ESP-PPQ 自动处理流式推理所需的模型转换。
+
+.. note::
+
+   - Offline 模式，模型输入是一段完整数据，input shape 在时间维度上的 size 一般比较大（例如 ``[1, 16, 15]``）。
+   - Streaming 模式，模型输入是连续数据，在时间维度上的 size 较小，匹配实时处理的块大小（例如 ``[1, 16, 3]``）。
+
+自动流式转换
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+ESP-PPQ 通过量化过程中的 ``auto_streaming=True`` 参数提供自动流式转换功能。启用此标志后，ESP-PPQ 会自动转换模型以支持流式推理：
+
+1. 分析模型结构以识别适当的分块点
+2. 创建内部状态管理以在块之间保持上下文
+3. 生成适合流式场景的优化代码
+
+以下是如何使用自动流式功能的示例：
+
+.. code-block:: python
+
+    # 导出非流式模型
+    quant_ppq_graph = espdl_quantize_torch(
+        model=model,
+        espdl_export_file=ESPDL_MODEL_PATH,
+        calib_dataloader=dataloader,
+        calib_steps=32,  # 校准步数
+        input_shape=INPUT_SHAPE,  # 离线模式的输入形状
+        inputs=None,
+        target=TARGET,  # 量化目标类型
+        num_of_bits=NUM_OF_BITS,  # 量化位数
+        dispatching_override=None,
+        device=DEVICE,
+        error_report=True,
+        skip_export=False,
+        export_test_values=True,
+        verbose=1,  # 输出详细日志信息
+    )
+
+    # 使用自动转换导出流式模型
+    quant_ppq_graph = espdl_quantize_torch(
+        model=model,
+        espdl_export_file=ESPDL_STEAMING_MODEL_PATH,
+        calib_dataloader=dataloader,
+        calib_steps=32,
+        input_shape=INPUT_SHAPE,
+        inputs=None,
+        target=TARGET,
+        num_of_bits=NUM_OF_BITS,
+        dispatching_override=None,
+        device=DEVICE,
+        error_report=True,
+        skip_export=False,
+        export_test_values=False,
+        verbose=1,
+        auto_streaming=True,  # 启用自动流式转换
+        streaming_input_shape=[1, 16, 3],  # 流式模式的输入形状
+        streaming_table=None,
+    )
+
+
+.. _how_to_deploy_streaming_model:
+
+模型部署
+------------
+
+:project:`参考示例 <examples/tutorial/how_to_deploy_streaming_model>`, 该示例使用预生成的数据来模拟实时数据流。
+
+.. note::
+
+    基础的模型加载和推理方法，可参考其它文档，这里不再赘述：
+
+    - :doc:`如何加载和测试模型 </tutorials/how_to_load_test_profile_model>`
+    - :doc:`如何进行模型推理 </tutorials/how_to_run_model>`
+
+在流式模式下，模型按时间接收数据块，而不是要求一次性获得整个输入。流式模型依次处理这些块，同时在块之间保持内部状态。部署代码负责将输入分解为适当的块并将其馈送到模型。见 :project_file:`app_main.cpp <examples/tutorial/how_to_deploy_streaming_model/test_streaming_model/main/app_main.cpp>` 如下代码块：
+
+.. code-block:: cpp
+
+    dl::TensorBase *run_streaming_model(dl::Model *model, dl::TensorBase *test_input)
+    {
+        std::map<std::string, dl::TensorBase *> model_inputs = model->get_inputs();
+        dl::TensorBase *model_input = model_inputs.begin()->second;
+        std::map<std::string, dl::TensorBase *> model_outputs = model->get_outputs();
+        dl::TensorBase *model_output = model_outputs.begin()->second;
+
+        if (!test_input) {
+            ESP_LOGE(TAG,
+                     "Model input doesn't have a corresponding test input. Please enable export_test_values option "
+                     "in esp-ppq when export espdl model.");
+            return nullptr;
+        }
+
+        int test_input_size = test_input->get_bytes();
+        uint8_t *test_input_ptr = (uint8_t *)test_input->data;
+        int model_input_size = model_input->get_bytes();
+        uint8_t *model_input_ptr = (uint8_t *)model_input->data;
+        int chunks = test_input_size / model_input_size;
+        for (int i = 0; i < chunks; i++) {
+            // assign chunk data to model input
+            memcpy(model_input_ptr, test_input_ptr + i * model_input_size, model_input_size);
+            model->run(model_input);
+        }
+
+        return model_output;
+    }
+
+这种方法允许模型通过将长序列分解为更小、更易管理的块来高效处理。每个块依次馈送到模型中，内部状态自动维护以确保跨块的连续性。
+
+.. note::
+
+    - 块的数量是根据完整输入大小与流式模型输入大小的比率计算的。
+    - ESP-DL 流式模型自动处理内部状态管理，使部署变得简单。
+    - 流式模型的输出应与等效离线模型输出的最后部分匹配。
