@@ -13,20 +13,9 @@ elseif (IDF_TARGET STREQUAL "esp32p4")
                          esp_lcd)
 endif()
 
-# DIRECT MODEL EMBEDDING FIX (Simplified for Windows compatibility)
-# The model file path (relative to this CMakeLists.txt)
-set(model_file ${CMAKE_CURRENT_LIST_DIR}/../../../models/grape_leaf_detect/models/s3/espdet_pico_224_224_grape_leaf.espdl)
-
-if(EXISTS ${model_file})
-    message(STATUS "🔧 DIRECT EMBED: Found model at ${model_file}")
-    # Directly set the model file for embedding
-    set(embed_files ${model_file})
-    message(STATUS "🔧 DIRECT EMBED: Will embed ${model_file} as RODATA")
-else()
-    message(FATAL_ERROR "❌ Model file not found at ${model_file}")
-endif()
-
+# ✅ FIX: Use component-based model loading (working approach from grape_leaf_detect_no_camera)
+# Model is loaded via grape_leaf_detect component's CMakeLists.txt
+# This avoids ESP-IDF v5.3.3 cache bug with direct RODATA embedding
 idf_component_register(SRC_DIRS ${src_dirs} 
                        INCLUDE_DIRS ${include_dirs} 
-                       REQUIRES ${requires} 
-                       EMBED_FILES ${embed_files})
+                       REQUIRES ${requires})

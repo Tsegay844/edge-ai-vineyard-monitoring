@@ -1,414 +1,159 @@
 #include "espdet_detect.hpp"
-#include "dl_image_jpeg.hpp"
+#include "esp_camera.h"
 #include "esp_log.h"
-#include "bsp/esp-bsp.h"
 #include "esp_system.h"
 #include "esp_chip_info.h"
 #include "esp_timer.h"
 #include "esp_heap_caps.h"
 #include "esp_flash.h"
-#include "esp_camera.h"
+#include "dl_image_jpeg.hpp"
 #include "nvs_flash.h"
-#include "nvs.h"
 #include <algorithm>
-#include <vector>
 
-const char *TAG = "grape_leaf_detect";
+static const char *TAG = "grape_leaf_ai";
 
-// Freenove ESP32-S3 WROOM-1 Camera Configuration (OV2660)
+// Freenove ESP32-S3 Camera Pins
+#define CAM_PIN_D0      11
+#define CAM_PIN_D1      9
+#define CAM_PIN_D2      8
+#define CAM_PIN_D3      10
+#define CAM_PIN_D4      12
+#define CAM_PIN_D5      18
+#define CAM_PIN_D6      17
+#define CAM_PIN_D7      16
+#define CAM_PIN_XCLK    15
+#define CAM_PIN_PCLK    13
+#define CAM_PIN_VSYNC   6
+#define CAM_PIN_HREF    7
+#define CAM_PIN_SIOD    4
+#define CAM_PIN_SIOC    5
+
+// Arduino camera config (JPEG + PSRAM + GRAB_LATEST)
 static camera_config_t camera_config = {
-    .pin_pwdn = -1,
+    .pin_pwdn  = -1,
     .pin_reset = -1,
-    .pin_xclk = 15,
-    .pin_sccb_sda = 4,
-    .pin_sccb_scl = 5,
-    .pin_d7 = 18,
-    .pin_d6 = 12,
-    .pin_d5 = 10,
-    .pin_d4 = 8,
-    .pin_d3 = 9,
-    .pin_d2 = 11,
-    .pin_d1 = -1,
-    .pin_d0 = -1,
-    .pin_vsync = 6,
-    .pin_href = 7,
-    .pin_pclk = 13,
-    
+    .pin_xclk = CAM_PIN_XCLK,
+    .pin_sccb_sda = CAM_PIN_SIOD,
+    .pin_sccb_scl = CAM_PIN_SIOC,
+    .pin_d7 = CAM_PIN_D7,
+    .pin_d6 = CAM_PIN_D6,
+    .pin_d5 = CAM_PIN_D5,
+    .pin_d4 = CAM_PIN_D4,
+    .pin_d3 = CAM_PIN_D3,
+    .pin_d2 = CAM_PIN_D2,
+    .pin_d1 = CAM_PIN_D1,
+    .pin_d0 = CAM_PIN_D0,
+    .pin_vsync = CAM_PIN_VSYNC,
+    .pin_href = CAM_PIN_HREF,
+    .pin_pclk = CAM_PIN_PCLK,
     .xclk_freq_hz = 20000000,
     .ledc_timer = LEDC_TIMER_0,
     .ledc_channel = LEDC_CHANNEL_0,
-    
     .pixel_format = PIXFORMAT_JPEG,
-    .frame_size = FRAMESIZE_VGA,        // 640x480
+    .frame_size = FRAMESIZE_QVGA,
     .jpeg_quality = 12,
     .fb_count = 2,
     .fb_location = CAMERA_FB_IN_PSRAM,
-    .grab_mode = CAMERA_GRAB_WHEN_EMPTY,
-    .sccb_i2c_port = 0
+    .grab_mode = CAMERA_GRAB_LATEST,
+    .sccb_i2c_port = 1
 };
-
-// Crop a bounding box from RGB888 image
-uint8_t* crop_bbox(const dl::image::img_t &img, int x1, int y1, int x2, int y2, int &crop_width, int &crop_height) {
-    // Clamp coordinates to image bounds
-    x1 = std::max(0, std::min(x1, (int)img.width - 1));
-    y1 = std::max(0, std::min(y1, (int)img.height - 1));
-    x2 = std::max(0, std::min(x2, (int)img.width));
-    y2 = std::max(0, std::min(y2, (int)img.height));
-    
-    crop_width = x2 - x1;
-    crop_height = y2 - y1;
-    
-    if (crop_width <= 0 || crop_height <= 0) {
-        ESP_LOGW(TAG, "Invalid crop dimensions: %dx%d", crop_width, crop_height);
-        return nullptr;
-    }
-    
-    // Allocate crop buffer in PSRAM
-    size_t crop_size = crop_width * crop_height * 3;  // RGB888
-    uint8_t *crop_data = (uint8_t*)heap_caps_malloc(crop_size, MALLOC_CAP_SPIRAM);
-    if (!crop_data) {
-        ESP_LOGE(TAG, "Failed to allocate %d bytes for crop", crop_size);
-        return nullptr;
-    }
-    
-    // Copy rows from source image
-    for (int y = 0; y < crop_height; y++) {
-        int src_offset = ((y1 + y) * img.width + x1) * 3;
-        int dst_offset = y * crop_width * 3;
-        memcpy(crop_data + dst_offset, (uint8_t*)img.data + src_offset, crop_width * 3);
-    }
-    
-    return crop_data;
-}
-
-// Convert RGB crop to JPEG
-uint8_t* rgb_to_jpeg(uint8_t *rgb_data, int width, int height, size_t &jpeg_len) {
-    // Create image struct for encoder
-    dl::image::img_t crop_img;
-    crop_img.width = width;
-    crop_img.height = height;
-    crop_img.pix_type = dl::image::DL_IMAGE_PIX_TYPE_RGB888;
-    crop_img.data = rgb_data;
-    
-    // Encode to JPEG (quality 10 for small size)
-    dl::image::jpeg_img_t jpeg_result = dl::image::sw_encode_jpeg(crop_img, MALLOC_CAP_SPIRAM, 10);
-    
-    if (jpeg_result.data == nullptr || jpeg_result.data_len == 0) {
-        ESP_LOGE(TAG, "JPEG encoding failed");
-        return nullptr;
-    }
-    
-    // Copy the encoded JPEG data
-    uint8_t *jpeg_buf = (uint8_t*)malloc(jpeg_result.data_len);
-    if (!jpeg_buf) {
-        ESP_LOGE(TAG, "Failed to allocate JPEG buffer");
-        free(jpeg_result.data);
-        return nullptr;
-    }
-    
-    memcpy(jpeg_buf, jpeg_result.data, jpeg_result.data_len);
-    jpeg_len = jpeg_result.data_len;
-    
-    // Free the original encoded data
-    free(jpeg_result.data);
-    
-    return jpeg_buf;
-}
-
-// Clear all old crops from flash NVS (to replace with new ones)
-esp_err_t clear_old_crops() {
-    nvs_handle_t nvs;
-    esp_err_t err = nvs_open("crops", NVS_READWRITE, &nvs);
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to open NVS for clearing: %s", esp_err_to_name(err));
-        return err;
-    }
-    
-    // Erase all crops (c0 through c9)
-    for (int i = 0; i < 10; i++) {
-        char key[8];
-        snprintf(key, sizeof(key), "c%d", i);
-        nvs_erase_key(nvs, key);  // Ignore errors if key doesn't exist
-    }
-    
-    err = nvs_commit(nvs);
-    nvs_close(nvs);
-    
-    ESP_LOGI(TAG, "🗑️  Cleared old crops from flash");
-    return err;
-}
-
-// Save crop to flash NVS
-esp_err_t save_crop_to_flash(const uint8_t *data, size_t len, int crop_idx) {
-    nvs_handle_t nvs;
-    esp_err_t err = nvs_open("crops", NVS_READWRITE, &nvs);
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to open NVS: %s", esp_err_to_name(err));
-        return err;
-    }
-    
-    // Simple key: c0, c1, c2, ... c9 (always overwrite)
-    char key[8];
-    snprintf(key, sizeof(key), "c%d", crop_idx);
-    
-    // Save blob
-    err = nvs_set_blob(nvs, key, data, len);
-    if (err == ESP_OK) {
-        err = nvs_commit(nvs);
-        if (err == ESP_OK) {
-            ESP_LOGI(TAG, "    ✓ Crop %d saved: %d bytes [%s]", crop_idx, len, key);
-        }
-    } else {
-        ESP_LOGE(TAG, "    ✗ Failed to save crop %d: %s", crop_idx, esp_err_to_name(err));
-    }
-    
-    nvs_close(nvs);
-    return err;
-}
-
-// Save full frame to flash NVS
-esp_err_t save_frame_to_flash(const uint8_t *data, size_t len, int frame_num) {
-    nvs_handle_t nvs;
-    esp_err_t err = nvs_open("frames", NVS_READWRITE, &nvs);
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to open frames NVS: %s", esp_err_to_name(err));
-        return err;
-    }
-    
-    char key[32];
-    snprintf(key, sizeof(key), "frame_%d", frame_num);
-    
-    err = nvs_set_blob(nvs, key, data, len);
-    if (err == ESP_OK) {
-        err = nvs_commit(nvs);
-        if (err == ESP_OK) {
-            ESP_LOGI(TAG, "  Frame %d saved: %d bytes", frame_num, len);
-        }
-    }
-    
-    nvs_close(nvs);
-    return err;
-}
-
-static void print_system_info()
-{
-    esp_chip_info_t chip_info;
-    esp_chip_info(&chip_info);
-    
-    uint32_t flash_size;
-    esp_flash_get_size(NULL, &flash_size);
-    
-    ESP_LOGI(TAG, "╔════════════════════════════════════════════════╗");
-    ESP_LOGI(TAG, "║    GRAPE LEAF DETECTION - CAMERA + CROP       ║");
-    ESP_LOGI(TAG, "╠════════════════════════════════════════════════╣");
-    ESP_LOGI(TAG, "║ Chip: ESP32-%s                                 ", CONFIG_IDF_TARGET);
-    ESP_LOGI(TAG, "║ Cores: %d                                      ", chip_info.cores);
-    ESP_LOGI(TAG, "║ Silicon Rev: %d                                ", chip_info.revision);
-    ESP_LOGI(TAG, "║ Flash: %uMB %s                                 ", 
-             (unsigned int)(flash_size / (1024 * 1024)),
-             (chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embedded" : "external");
-    ESP_LOGI(TAG, "║ PSRAM: %s                                      ",
-             (chip_info.features & CHIP_FEATURE_EMB_PSRAM) ? "Yes" : "No");
-    ESP_LOGI(TAG, "║ Camera: OV2660 (640x480 VGA)                   ");
-    ESP_LOGI(TAG, "║ Free Heap: %u bytes                            ", 
-             (unsigned int)esp_get_free_heap_size());
-    ESP_LOGI(TAG, "║ Free PSRAM: %u bytes                           ", 
-             (unsigned int)heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
-    ESP_LOGI(TAG, "╚════════════════════════════════════════════════╝");
-}
 
 extern "C" void app_main(void)
 {
-    // Initialize NVS
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
         ESP_ERROR_CHECK(nvs_flash_erase());
         ret = nvs_flash_init();
     }
     ESP_ERROR_CHECK(ret);
-    
-    print_system_info();
 
-#if CONFIG_ESPDET_DETECT_MODEL_IN_SDCARD
-    ESP_ERROR_CHECK(bsp_sdcard_mount());
-#endif
-
-    // ========== Camera Initialization ==========
-    ESP_LOGI(TAG, "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-    ESP_LOGI(TAG, "📷 Initializing Camera (OV2660)...");
+    esp_chip_info_t chip_info;
+    esp_chip_info(&chip_info);
     
+    ESP_LOGI(TAG, "╔═══════════════════════════════════════════════╗");
+    ESP_LOGI(TAG, "║  GRAPE LEAF - ARDUINO CAMERA + ESP-DL MODEL  ║");
+    ESP_LOGI(TAG, "╠═══════════════════════════════════════════════╣");
+    ESP_LOGI(TAG, "║ ESP32-S3 | Cores:%d | Rev:%d", chip_info.cores, chip_info.revision);
+    ESP_LOGI(TAG, "║ Free Heap: %u KB | Free PSRAM: %u KB", 
+             (unsigned int)(esp_get_free_heap_size() / 1024),
+             (unsigned int)(heap_caps_get_free_size(MALLOC_CAP_SPIRAM) / 1024));
+    ESP_LOGI(TAG, "╚═══════════════════════════════════════════════╝");
+
+    ESP_LOGI(TAG, "\n🧠 Loading AI Model...");
+    int64_t init_start = esp_timer_get_time();
+    ESPDetDetect *detect = new ESPDetDetect();
+    int64_t init_time = (esp_timer_get_time() - init_start) / 1000;
+    ESP_LOGI(TAG, "✓ Model loaded (%lld ms)", init_time);
+
+    ESP_LOGI(TAG, "\n📷 Initializing Camera (Arduino JPEG mode)...");
     esp_err_t err = esp_camera_init(&camera_config);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG, "Camera initialization failed: 0x%x", err);
+        ESP_LOGE(TAG, "❌ Camera init failed: 0x%x", err);
         return;
     }
-    ESP_LOGI(TAG, "✓ Camera initialized successfully");
-    
-    // ========== Model Initialization ==========
-    ESP_LOGI(TAG, "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-    ESP_LOGI(TAG, "🧠 Initializing Detection Model...");
-    int64_t init_start = esp_timer_get_time();
-    
-    ESPDetDetect *detect = new ESPDetDetect();
-    
-    int64_t init_time = (esp_timer_get_time() - init_start) / 1000;
-    ESP_LOGI(TAG, "✓ Model initialized in %lld ms", init_time);
-    ESP_LOGI(TAG, "  Free heap after init: %u KB", (unsigned int)(esp_get_free_heap_size() / 1024));
-    
-    // ========== Main Detection Loop ==========
-    ESP_LOGI(TAG, "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-    ESP_LOGI(TAG, "🔄 Starting Detection Loop (capture every 5 minutes)...\n");
-    
-    int frame_count = 0;
-    const int MAX_CROPS_PER_FRAME = 10;
-    const int CAPTURE_INTERVAL_SEC = 300;  // 5 minutes = 300 seconds
-    
+
+    sensor_t *sensor = esp_camera_sensor_get();
+    if (sensor && sensor->id.PID == OV3660_PID) {
+        sensor->set_vflip(sensor, 1);
+        sensor->set_brightness(sensor, 1);
+        sensor->set_saturation(sensor, -2);
+    }
+    ESP_LOGI(TAG, "✓ Camera ready (JPEG/PSRAM/GRAB_LATEST)\n");
+
+    int frame_num = 0;
     while (true) {
-        frame_count++;
-        int64_t frame_start = esp_timer_get_time();
-        
-        ESP_LOGI(TAG, "╔════════════════ FRAME %d ════════════════╗", frame_count);
-        ESP_LOGI(TAG, "📅 Time: %lld seconds since boot", esp_timer_get_time() / 1000000);
-        ESP_LOGI(TAG, "⏰ Next capture in %d minutes\n", CAPTURE_INTERVAL_SEC / 60);
-        
-        // ========== Capture Image ==========
-        int64_t capture_start = esp_timer_get_time();
+        frame_num++;
+        ESP_LOGI(TAG, "═══ FRAME %d ═══", frame_num);
+
+        // Capture JPEG
+        int64_t cap_start = esp_timer_get_time();
         camera_fb_t *fb = esp_camera_fb_get();
-        int64_t capture_time = (esp_timer_get_time() - capture_start) / 1000;
+        int64_t cap_time = (esp_timer_get_time() - cap_start) / 1000;
         
         if (!fb) {
-            ESP_LOGE(TAG, "Camera capture failed!");
-            vTaskDelay(pdMS_TO_TICKS(1000));
+            ESP_LOGE(TAG, "Capture failed!");
+            vTaskDelay(1000 / portTICK_PERIOD_MS);
             continue;
         }
         
-        ESP_LOGI(TAG, "📸 Captured: %dx%d, %u bytes (%lld ms)", 
-                 fb->width, fb->height, fb->len, capture_time);
-        
-        // Save full frame to flash
-        save_frame_to_flash(fb->buf, fb->len, frame_count);
-        
-        // ========== Decode JPEG ==========
-        int64_t decode_start = esp_timer_get_time();
-        dl::image::jpeg_img_t jpeg_img = {.data = (void *)fb->buf, .data_len = fb->len};
+        ESP_LOGI(TAG, "📸 Captured %dx%d (%zu bytes, %lld ms)", 
+                 fb->width, fb->height, fb->len, cap_time);
+
+        // Decode JPEG
+        int64_t dec_start = esp_timer_get_time();
+        dl::image::jpeg_img_t jpeg_img = {.data = fb->buf, .data_len = fb->len};
         auto img = dl::image::sw_decode_jpeg(jpeg_img, dl::image::DL_IMAGE_PIX_TYPE_RGB888);
-        int64_t decode_time = (esp_timer_get_time() - decode_start) / 1000;
+        int64_t dec_time = (esp_timer_get_time() - dec_start) / 1000;
         
         if (!img.data) {
-            ESP_LOGE(TAG, "JPEG decode failed!");
+            ESP_LOGE(TAG, "Decode failed!");
             esp_camera_fb_return(fb);
-            vTaskDelay(pdMS_TO_TICKS(1000));
             continue;
         }
+        ESP_LOGI(TAG, "🖼️  Decoded %dx%d RGB888 (%lld ms)", img.width, img.height, dec_time);
+
+        // Run AI detection
+        int64_t det_start = esp_timer_get_time();
+        std::list<dl::detect::result_t> &results = detect->run(img);
+        int64_t det_time = (esp_timer_get_time() - det_start) / 1000;
         
-        ESP_LOGI(TAG, "🖼️  Decoded: %dx%d RGB888 (%lld ms)", 
-                 img.width, img.height, decode_time);
-        
-        // Return frame buffer
-        esp_camera_fb_return(fb);
-        
-        // ========== Run Inference ==========
-        int64_t inference_start = esp_timer_get_time();
-        auto &detect_results = detect->run(img);
-        int64_t inference_time = (esp_timer_get_time() - inference_start) / 1000;
-        
-        ESP_LOGI(TAG, "🔍 Detected %d objects (%lld ms)", 
-                 detect_results.size(), inference_time);
-        
-        // ========== Sort by Confidence ==========
-        if (detect_results.size() > 0) {
-            // Convert list to vector for sorting
-            std::vector<dl::detect::result_t> results_vec(detect_results.begin(), detect_results.end());
-            
-            // Sort detections by score (descending)
-            std::sort(results_vec.begin(), results_vec.end(),
-                [](const dl::detect::result_t &a, const dl::detect::result_t &b) {
-                    return a.score > b.score;
-                });
-            
-            ESP_LOGI(TAG, "✓ Sorted by confidence (highest first)");
-            
-            // ========== Crop Top 10 Detections ==========
-            int crops_to_save = std::min((int)results_vec.size(), MAX_CROPS_PER_FRAME);
-            
-            // Clear old crops before saving new ones
-            clear_old_crops();
-            
-            ESP_LOGI(TAG, "\n📦 Processing top %d detections:", crops_to_save);
-            
-            int64_t crop_start = esp_timer_get_time();
-            int successful_crops = 0;
-            
-            for (int i = 0; i < crops_to_save; i++) {
-                const auto &res = results_vec[i];
-                
-                // Extract box coordinates: box[0]=x1, box[1]=y1, box[2]=x2, box[3]=y2
-                int x1 = res.box[0];
-                int y1 = res.box[1];
-                int x2 = res.box[2];
-                int y2 = res.box[3];
-                
-                ESP_LOGI(TAG, "  [%d] Confidence: %.3f, BBox: [%d,%d,%d,%d]",
-                         i, res.score, x1, y1, x2, y2);
-                
-                // Crop bounding box
-                int crop_width, crop_height;
-                uint8_t *crop_rgb = crop_bbox(img, x1, y1, x2, y2,
-                                              crop_width, crop_height);
-                
-                if (crop_rgb) {
-                    // Convert to JPEG
-                    size_t jpeg_len;
-                    uint8_t *crop_jpeg = rgb_to_jpeg(crop_rgb, crop_width, crop_height, jpeg_len);
-                    
-                    if (crop_jpeg) {
-                        // Save to flash (simplified keys: c0, c1, ..., c9)
-                        esp_err_t save_ret = save_crop_to_flash(crop_jpeg, jpeg_len, i);
-                        if (save_ret == ESP_OK) {
-                            successful_crops++;
-                        }
-                        
-                        free(crop_jpeg);
-                    }
-                    
-                    free(crop_rgb);
-                }
+        ESP_LOGI(TAG, "🔍 Detected %zu objects (%lld ms)", results.size(), det_time);
+
+        if (!results.empty()) {
+            int i = 0;
+            for (const auto &det : results) {
+                ESP_LOGI(TAG, "  [%d] Confidence:%.3f BBox:[%d,%d,%d,%d]",
+                         i++, det.score, det.box[0], det.box[1], det.box[2], det.box[3]);
             }
-            
-            int64_t crop_time = (esp_timer_get_time() - crop_start) / 1000;
-            ESP_LOGI(TAG, "✓ Saved %d/%d crops (%lld ms)", 
-                     successful_crops, crops_to_save, crop_time);
-            ESP_LOGI(TAG, "💾 Flash now contains ONLY the latest %d crops (c0-c%d)", 
-                     successful_crops, successful_crops - 1);
-        } else {
-            ESP_LOGI(TAG, "No detections found");
         }
-        
-        // Free decoded image
-        if (img.data) {
-            free(img.data);
-        }
-        
-        // ========== Performance Summary ==========
-        int64_t total_time = (esp_timer_get_time() - frame_start) / 1000;
-        float fps = 1000.0f / total_time;
-        
-        ESP_LOGI(TAG, "\n⏱️  Performance:");
-        ESP_LOGI(TAG, "    Capture:   %lld ms", capture_time);
-        ESP_LOGI(TAG, "    Decode:    %lld ms", decode_time);
-        ESP_LOGI(TAG, "    Inference: %lld ms", inference_time);
-        if (detect_results.size() > 0) {
-            ESP_LOGI(TAG, "    Crop+Save: %lld ms", 
-                     (total_time - capture_time - decode_time - inference_time));
-        }
-        ESP_LOGI(TAG, "    TOTAL:     %lld ms (%.2f FPS)", total_time, fps);
-        ESP_LOGI(TAG, "    Free PSRAM: %u KB", 
-                 (unsigned int)(heap_caps_get_free_size(MALLOC_CAP_SPIRAM) / 1024));
-        ESP_LOGI(TAG, "╚══════════════════════════════════════════════╝\n");
-        
-        // Wait 5 minutes before next capture
-        ESP_LOGI(TAG, "⏸️  Sleeping for %d minutes...", CAPTURE_INTERVAL_SEC / 60);
-        ESP_LOGI(TAG, "💤 Next capture at: ~%lld seconds\n", (esp_timer_get_time() / 1000000) + CAPTURE_INTERVAL_SEC);
-        vTaskDelay(pdMS_TO_TICKS(CAPTURE_INTERVAL_SEC * 1000));  // 5 minutes = 300,000 ms
+
+        // Cleanup
+        free(img.data);
+        esp_camera_fb_return(fb);
+
+        int64_t total_time = (esp_timer_get_time() - cap_start) / 1000;
+        ESP_LOGI(TAG, "⏱️  Total: %lld ms (%.2f FPS)\n", total_time, 1000.0/total_time);
+
+        vTaskDelay(30000 / portTICK_PERIOD_MS);
     }
 }

@@ -481,3 +481,12 @@ Every 5 minutes:
 **Version:** 1.0 (Local Windows Build)  
 **ESP-IDF:** v5.3.3  
 **Platform:** Windows + VS Code
+
+
+
+
+
+
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+
+C:\Espressif\frameworks\esp-idf-v5.3.3\export.ps1
