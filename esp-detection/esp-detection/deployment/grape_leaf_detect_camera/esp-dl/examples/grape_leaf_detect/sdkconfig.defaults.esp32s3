@@ -18,8 +18,12 @@ CONFIG_ESP_TASK_WDT_TIMEOUT_S=40
 CONFIG_FATFS_LFN_HEAP=y
 CONFIG_BSP_SD_FORMAT_ON_MOUNT_FAIL=y
 
-# Model Configuration - DIRECT EMBEDDING in main/CMakeLists.txt
-# NOTE: Model is now embedded directly via EMBED_FILES in main component
-# This bypasses Kconfig issues that were preventing model embedding
+# Model Configuration - Back to FLASH_RODATA (224x224 working method)
 CONFIG_ESPDET_DETECT_MODEL_IN_SDCARD=n
 CONFIG_ESPDET_DETECT_MODEL_IN_FLASH_RODATA=y
+CONFIG_ESPDET_DETECT_MODEL_IN_FLASH_PARTITION=n
+CONFIG_ESPDET_DETECT_MODEL_LOCATION=0
+
+# Cache configuration
+CONFIG_ESP32S3_INSTRUCTION_CACHE_32KB=y
+CONFIG_ESP32S3_DATA_CACHE_64KB=y

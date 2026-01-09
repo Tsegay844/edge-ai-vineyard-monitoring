@@ -1,0 +1,1 @@
+esptool.py --chip esp32s3 --port COM6 --baud 460800 --before default_reset --after hard_reset write_flash --flash_mode dio --flash_freq 80m --flash_size 16MB 0x0 bootloader.bin 0x8000 partition-table.bin 0x10000 grape_leaf_detect.bin

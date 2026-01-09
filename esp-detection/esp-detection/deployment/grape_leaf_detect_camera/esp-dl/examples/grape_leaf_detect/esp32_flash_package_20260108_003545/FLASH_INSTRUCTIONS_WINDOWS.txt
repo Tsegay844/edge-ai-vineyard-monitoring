@@ -1,0 +1,139 @@
+╔═══════════════════════════════════════════════════════════════════════════╗
+║          ESP32-S3 GRAPE LEAF DETECTION - WINDOWS FLASH GUIDE            ║
+║                    Commit: 15d150d (Dec 30, 2025)                       ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+📦 PACKAGE CONTENTS:
+├── bootloader.bin           (23 KB)  - ESP32-S3 bootloader
+├── partition-table.bin      (3 KB)   - Partition layout
+├── grape_leaf_detect.bin    (1.9 MB) - Main application
+└── FLASH_INSTRUCTIONS_WINDOWS.txt    - This file
+
+═══════════════════════════════════════════════════════════════════════════
+
+🔧 OPTION 1: FLASH USING ESP-IDF TOOLS (Recommended)
+═══════════════════════════════════════════════════════════════════════════
+
+1. Install Python 3.8+ from https://www.python.org/downloads/
+
+2. Install esptool:
+   pip install esptool
+
+3. Connect your ESP32-S3 via USB
+
+4. Find your COM port:
+   - Open Device Manager
+   - Look under "Ports (COM & LPT)"
+   - Note the COM port (e.g., COM3, COM4)
+
+5. Flash the firmware:
+   esptool.py --chip esp32s3 --port COM3 --baud 460800 ^
+   --before default_reset --after hard_reset write_flash ^
+   --flash_mode dio --flash_size 8MB --flash_freq 80m ^
+   0x0 bootloader.bin ^
+   0x8000 partition-table.bin ^
+   0x10000 grape_leaf_detect.bin
+
+   ⚠️ Replace COM3 with your actual port
+
+═══════════════════════════════════════════════════════════════════════════
+
+🖥️  OPTION 2: FLASH USING ESP FLASH TOOL (GUI)
+═══════════════════════════════════════════════════════════════════════════
+
+1. Download Flash Download Tools:
+   https://www.espressif.com/en/support/download/other-tools
+
+2. Open Flash Download Tools, select:
+   - Chip Type: ESP32-S3
+   - WorkMode: Develop
+
+3. Add binaries:
+   ┌─────────────────────────────────────┬──────────┐
+   │ File                                │ Address  │
+   ├─────────────────────────────────────┼──────────┤
+   │ bootloader.bin                      │ 0x0      │
+   │ partition-table.bin                 │ 0x8000   │
+   │ grape_leaf_detect.bin               │ 0x10000  │
+   └─────────────────────────────────────┴──────────┘
+
+4. Configure settings:
+   - SPI SPEED: 80MHz
+   - SPI MODE: DIO
+   - FLASH SIZE: 8MB
+   - COM: (select your port)
+   - BAUD: 460800
+
+5. Click "START" to flash
+
+═══════════════════════════════════════════════════════════════════════════
+
+✅ VERIFICATION
+═══════════════════════════════════════════════════════════════════════════
+
+After flashing, open Serial Monitor (115200 baud) to see:
+
+╔═══════════════════════════════════════════════╗
+║  GRAPE LEAF - ARDUINO CAMERA + ESP-DL MODEL  ║
+╠═══════════════════════════════════════════════╣
+║ ESP32-S3 | Cores:2 | Rev:0
+║ Free Heap: XXX KB | Free PSRAM: XXX KB
+╚═══════════════════════════════════════════════╝
+
+🧠 Loading AI Model...
+✓ Model loaded (XXX ms)
+
+📷 Initializing Camera (Arduino JPEG mode)...
+✓ Camera ready (JPEG/PSRAM/GRAB_LATEST)
+
+═══ FRAME 1 ═══
+📸 Captured 320x240 (XXXX bytes, XX ms)
+🖼️  Decoded 320x240 RGB888 (XX ms)
+🔍 Detected X objects (XXX ms)
+
+═══════════════════════════════════════════════════════════════════════════
+
+📝 HARDWARE DETAILS
+═══════════════════════════════════════════════════════════════════════════
+
+Board: Freenove ESP32-S3 WROOM-1
+Camera: OV3660 (QQVGA 160×120 RGB565)
+Resolution: QVGA (320×240) for detection
+Frame Rate: ~30 second intervals
+Detection Model: ESPDet Pico (224×224 grape leaf)
+
+═══════════════════════════════════════════════════════════════════════════
+
+🔧 TROUBLESHOOTING
+═══════════════════════════════════════════════════════════════════════════
+
+Problem: "Failed to connect"
+└─► Solution: Press and hold BOOT button while connecting
+
+Problem: "Permission denied" on COM port
+└─► Solution: Close Arduino IDE, PlatformIO, or other serial monitors
+
+Problem: Flash verification failed
+└─► Solution: Erase flash first:
+    esptool.py --chip esp32s3 --port COM3 erase_flash
+
+Problem: Brown-out detector triggered
+└─► Solution: Use powered USB hub or external 5V power supply
+
+═══════════════════════════════════════════════════════════════════════════
+
+📚 MORE INFORMATION
+═══════════════════════════════════════════════════════════════════════════
+
+- ESP-IDF Documentation: https://docs.espressif.com/projects/esp-idf/
+- ESP32-S3 Datasheet: https://www.espressif.com/en/products/socs/esp32-s3
+- Esptool Documentation: https://github.com/espressif/esptool
+
+═══════════════════════════════════════════════════════════════════════════
+
+Built: January 8, 2026 00:35:45 UTC
+Commit: 15d150d - "YOLO Model + camera image complete imptementation"
+ESP-IDF: v5.3.3
+Target: ESP32-S3
+
+═══════════════════════════════════════════════════════════════════════════

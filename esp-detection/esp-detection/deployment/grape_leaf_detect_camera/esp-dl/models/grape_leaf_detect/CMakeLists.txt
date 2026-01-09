@@ -26,8 +26,8 @@ if (NOT CONFIG_ESPDET_DETECT_MODEL_IN_SDCARD)
 
     file(MAKE_DIRECTORY ${BUILD_DIR}/espdl_models)
     set(models)
-    if(CONFIG_FLASH_ESPDET_PICO_224_224_GRAPE_LEAF)
-        list(APPEND models ${models_dir}/espdet_pico_224_224_grape_leaf.espdl)
+    if(CONFIG_FLASH_ESPDET_PICO_320_320_GRAPE_LEAF)
+        list(APPEND models ${models_dir}/espdet_pico_320_320_grape_leaf.espdl)
     endif()
 
 
@@ -44,8 +44,7 @@ if (NOT CONFIG_ESPDET_DETECT_MODEL_IN_SDCARD)
     endif()
 
     if(CONFIG_ESPDET_DETECT_MODEL_IN_FLASH_PARTITION)
-        add_grape_leaf_target(ESPDET_DETECT_MODEL ALL DEPENDS ${packed_model})
-        add_dependencies(flash ESPDET_DETECT_MODEL)
-        esptool_py_flash_to_partition(flash "espdet_det" ${packed_model})
+        # Model will be flashed separately to espdet_det partition
+        message(STATUS "Model will be flashed to espdet_det partition separately")
     endif()
 endif()
