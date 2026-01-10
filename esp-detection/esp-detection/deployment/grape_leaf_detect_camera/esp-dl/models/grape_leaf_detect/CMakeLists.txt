@@ -29,7 +29,9 @@ if (NOT CONFIG_ESPDET_DETECT_MODEL_IN_SDCARD)
     if(CONFIG_FLASH_ESPDET_PICO_320_320_GRAPE_LEAF)
         list(APPEND models ${models_dir}/espdet_pico_320_320_grape_leaf.espdl)
     endif()
-
+    
+    # Add MobileNetV2 disease classification model
+    list(APPEND models ${models_dir}/mobilenetv2_128_grape_leaf.espdl)
 
     set(pack_model_exe ${espdl_dir}/fbs_loader/pack_espdl_models.py)
     add_custom_command(
