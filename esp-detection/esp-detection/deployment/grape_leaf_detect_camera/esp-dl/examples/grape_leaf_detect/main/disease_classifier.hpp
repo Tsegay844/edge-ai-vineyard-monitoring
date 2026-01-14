@@ -13,6 +13,11 @@ struct DiseaseResult {
     float confidence;
     const char* class_name;
     std::vector<std::pair<int, float>> all_classes; // All classes with their probabilities
+    
+    // Timing breakdown (microseconds)
+    int64_t setup_us;       // Input tensor setup
+    int64_t inference_us;   // Model forward pass
+    int64_t postprocess_us; // Softmax + sorting
 };
 
 class DiseaseClassifier {
@@ -37,7 +42,8 @@ private:
     
 public:
     DiseaseClassifier() : model(nullptr), input_buffer_128x128(nullptr) {}
-    
+    // Destructor
+    // Cleans up model and input buffer
     ~DiseaseClassifier() {
         if (model) {
             delete model;
@@ -74,7 +80,7 @@ public:
         ESP_LOGI(TAG, "   Size:  %u bytes (%.2f MB)", packed_size, packed_size / (1024.0 * 1024.0));
         
         if (packed_size == 0) {
-            ESP_LOGE(TAG, "❌ Packed binary is empty! Model not embedded correctly.");
+            ESP_LOGE(TAG, "Packed binary is empty! Model not embedded correctly.");
             return ESP_FAIL;
         }
         
@@ -103,24 +109,20 @@ public:
         bool model_valid = false;
         
         if (model) {
-            ESP_LOGI(TAG, "🔄 Validating model by getting input shape...");
+            ESP_LOGI(TAG, "Validating model by getting input shape...");
             input_info = model->get_input();
             if (input_info && input_info->shape.size() >= 4) {
                 model_valid = true;
-                ESP_LOGI(TAG, "✓ Model loaded and validated successfully");
+                ESP_LOGI(TAG, "Model loaded and validated successfully");
             } else {
-                ESP_LOGE(TAG, "❌ Model validation failed - get_input() returned invalid tensor");
+                ESP_LOGE(TAG, "Model validation failed - get_input() returned invalid tensor");
                 delete model;
                 model = nullptr;
             }
         }
         
         if (!model_valid || !model) {
-            ESP_LOGE(TAG, "❌ Failed to load model");
-            ESP_LOGE(TAG, "   Possible causes:");
-            ESP_LOGE(TAG, "   1. Model '%s' not found in packed binary", model_name);
-            ESP_LOGE(TAG, "   2. Packed binary format invalid");
-            ESP_LOGE(TAG, "   3. Model name must include .espdl extension");
+            ESP_LOGE(TAG, "Failed to load model");
             return ESP_FAIL;
         }
         
@@ -129,33 +131,37 @@ public:
         input_width = input_info->shape[2];
         input_channels = input_info->shape[3];
         
-        ESP_LOGI(TAG, "✓ Model input shape: [1, %d, %d, %d]", input_height, input_width, input_channels);
+        ESP_LOGI(TAG, "Model input shape: [1, %d, %d, %d]", input_height, input_width, input_channels);
         
         // Validate expected dimensions
         if (input_height != 128 || input_width != 128 || input_channels != 3) {
-            ESP_LOGW(TAG, "⚠️  Unexpected input shape! Expected [1, 128, 128, 3]");
-        }
+            ESP_LOGW(TAG, "Unexpected input shape! Expected [1, 128, 128, 3]");
+        } 
         
-        // Allocate 128x128x3 RGB888 buffer ONCE in PSRAM (49152 bytes)
+        // Allocate 128x128x3 RGB888 buffer in PSRAM
         size_t buffer_size = input_height * input_width * input_channels;
         input_buffer_128x128 = (uint8_t*)heap_caps_malloc(buffer_size, MALLOC_CAP_SPIRAM);
         if (!input_buffer_128x128) {
-            ESP_LOGE(TAG, "❌ Failed to allocate %d bytes in PSRAM for input buffer", buffer_size);
-            ESP_LOGE(TAG, "   Free PSRAM: %u bytes", heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
+            ESP_LOGE(TAG, "Failed to allocate %d bytes in PSRAM for input buffer", buffer_size);
+            ESP_LOGE(TAG, "Free PSRAM: %u bytes", heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
             delete model;
             model = nullptr;
             return ESP_FAIL;
         }
         
-        ESP_LOGI(TAG, "✓ Allocated %d bytes in PSRAM for 128x128x3 input buffer", buffer_size);
-        ESP_LOGI(TAG, "✅ Disease classifier initialization complete!");
+        ESP_LOGI(TAG, "Allocated %d bytes in PSRAM for 128x128x3 input buffer", buffer_size);
+        ESP_LOGI(TAG, "Disease classifier initialization complete!");
+        //ready to initiate the model inference
         return ESP_OK;
     }
     
     // Crop bounding box from full frame and resize to 128x128 (nearest neighbor)
     // Writes directly into input_buffer_128x128 (no intermediate allocations)
-    void crop_and_resize(const uint8_t *frame, int frame_w, int frame_h,
-                         int x1, int y1, int x2, int y2) {
+    // Returns: crop+resize time in microseconds
+    int64_t crop_and_resize(const uint8_t *frame, int frame_w, int frame_h,
+                            int x1, int y1, int x2, int y2) {
+        int64_t start = esp_timer_get_time();
+        
         // Clamp bbox to frame bounds
         x1 = std::max(0, std::min(x1, frame_w - 1));
         y1 = std::max(0, std::min(y1, frame_h - 1));
@@ -165,31 +171,63 @@ public:
         int bbox_w = x2 - x1;
         int bbox_h = y2 - y1;
         
-        // Nearest-neighbor resize from bbox to 128x128
+        // Expand bbox to square while maintaining aspect ratio (letterbox)
+        int bbox_size = std::max(bbox_w, bbox_h);
+        int x_offset = (bbox_size - bbox_w) / 2;
+        int y_offset = (bbox_size - bbox_h) / 2;
+        
+        // Adjust bbox center to create square crop
+        int cx = (x1 + x2) / 2;
+        int cy = (y1 + y2) / 2;
+        int new_x1 = cx - bbox_size / 2;
+        int new_y1 = cy - bbox_size / 2;
+        int new_x2 = new_x1 + bbox_size;
+        int new_y2 = new_y1 + bbox_size;
+        
+        // Resize square bbox to 128x128 with padding (letterbox style)
         for (int y = 0; y < 128; y++) {
-            int src_y = y1 + (y * bbox_h) / 128;
             for (int x = 0; x < 128; x++) {
-                int src_x = x1 + (x * bbox_w) / 128;
+                // Map 128x128 output to square bbox coordinates
+                int src_x = new_x1 + (x * bbox_size) / 128;
+                int src_y = new_y1 + (y * bbox_size) / 128;
                 
-                // Copy RGB888 pixel (3 bytes)
-                int src_offset = (src_y * frame_w + src_x) * 3;
                 int dst_offset = (y * 128 + x) * 3;
                 
-                input_buffer_128x128[dst_offset + 0] = frame[src_offset + 0];  // R
-                input_buffer_128x128[dst_offset + 1] = frame[src_offset + 1];  // G
-                input_buffer_128x128[dst_offset + 2] = frame[src_offset + 2];  // B
+                // Check if source pixel is within frame bounds
+                if (src_x >= 0 && src_x < frame_w && src_y >= 0 && src_y < frame_h) {
+                    // Copy RGB888 pixel from frame
+                    int src_offset = (src_y * frame_w + src_x) * 3;
+                    input_buffer_128x128[dst_offset + 0] = frame[src_offset + 0];  // R
+                    input_buffer_128x128[dst_offset + 1] = frame[src_offset + 1];  // G
+                    input_buffer_128x128[dst_offset + 2] = frame[src_offset + 2];  // B
+                } else {
+                    // Padding with gray (ImageNet mean ~ 127)
+                    input_buffer_128x128[dst_offset + 0] = 127;  // R
+                    input_buffer_128x128[dst_offset + 1] = 127;  // G
+                    input_buffer_128x128[dst_offset + 2] = 127;  // B
+                }
             }
         }
+        
+        return esp_timer_get_time() - start;
     }
     
     // Run inference on the 128x128 buffer and return disease classification
+    // Returns: {result, setup_us, inference_us, postprocess_us}
     DiseaseResult infer() {
+        // Timing variables for inference 
+        int64_t t1 = esp_timer_get_time();
+        
         // Get input tensor and set data pointer
         dl::TensorBase *input = model->get_input();
         input->set_element_ptr(input_buffer_128x128);
         
+        int64_t t2 = esp_timer_get_time();
+        
         // Run inference
         model->run();
+        
+        int64_t t3 = esp_timer_get_time();
         
         // Get output tensor (int8 quantized logits)
         dl::TensorBase *output = model->get_output();
@@ -200,7 +238,7 @@ public:
         
         // Extract int8 logits and convert to float
         int8_t *output_data = (int8_t*)output->get_element_ptr();
-        int num_classes = output->get_size();  // Total elements (should be 4 for grape diseases)
+        int num_classes = output->get_size();  // Should be NUM_CLASSES
         
         if (num_classes != NUM_CLASSES) {
             ESP_LOGW(TAG, "Model output size (%d) != expected classes (%d)", num_classes, NUM_CLASSES);
@@ -233,7 +271,10 @@ public:
         std::sort(all_probs.begin(), all_probs.end(), 
                   [](const auto& a, const auto& b) { return a.second > b.second; });
         
-        return {best_class, best_conf, CLASS_NAMES[best_class], all_probs};
+        int64_t t4 = esp_timer_get_time();
+        
+        return {best_class, best_conf, CLASS_NAMES[best_class], all_probs,
+                t2 - t1, t3 - t2, t4 - t3};
     }
     
 private:

@@ -26,8 +26,8 @@ if (NOT CONFIG_ESPDET_DETECT_MODEL_IN_SDCARD)
 
     file(MAKE_DIRECTORY ${BUILD_DIR}/espdl_models)
     set(models)
-    if(CONFIG_FLASH_ESPDET_PICO_320_320_GRAPE_LEAF)
-        list(APPEND models ${models_dir}/espdet_pico_320_320_grape_leaf.espdl)
+    if(CONFIG_FLASH_ESPDET_PICO_416_320_GRAPE_LEAF)
+        list(APPEND models ${models_dir}/espdet_pico_416_320_grape_leaf.espdl)
     endif()
     
     # Add MobileNetV2 disease classification model

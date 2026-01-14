@@ -101,11 +101,11 @@ ESPDetDetect::ESPDetDetect(model_type_t model_type) : m_model_type(model_type)
 void ESPDetDetect::load_model()
 {
     switch (m_model_type) {
-    case model_type_t::ESPDET_PICO_320_320_GRAPE_LEAF:
-#if CONFIG_FLASH_ESPDET_PICO_320_320_GRAPE_LEAF || CONFIG_GRAPE_LEAF_DETECT_MODEL_IN_SDCARD
-        m_model = new espdet_detect::ESPDet("espdet_pico_320_320_grape_leaf.espdl");
+    case model_type_t::ESPDET_PICO_416_320_GRAPE_LEAF:
+#if CONFIG_FLASH_ESPDET_PICO_416_320_GRAPE_LEAF || CONFIG_GRAPE_LEAF_DETECT_MODEL_IN_SDCARD
+        m_model = new espdet_detect::ESPDet("espdet_pico_416_320_grape_leaf.espdl");
 #else
-        ESP_LOGE("grape_leaf_detect", "espdet_pico_320_320_grape_leaf is not selected in menuconfig.");
+        ESP_LOGE("grape_leaf_detect", "espdet_pico_416_320_grape_leaf is not selected in menuconfig.");
 #endif
         break;
     }
