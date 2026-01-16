@@ -23,7 +23,7 @@
 // Use namespace for cleaner code
 using namespace disease_aggregation; 
 
-const char *TAG = "grape_leeaf_DD";
+const char *TAG = "grape_leaf_DD";
 
 // Freenove ESP32-S3 WROOM-1 Camera Configuration (OV3660)
 static camera_config_t camera_config = {
