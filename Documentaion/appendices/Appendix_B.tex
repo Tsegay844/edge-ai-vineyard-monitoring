@@ -1,0 +1,206 @@
+\chapter{Hyperparameters and Configuration}
+
+\section{MobileNetV2 Training Configuration}
+
+\subsection{Stage 1: Feature Extraction (Warm-up)}
+
+\begin{table}[H]
+\centering
+\caption{MobileNetV2 Stage 1 hyperparameters}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Parameter} & \textbf{Value} \\
+\midrule
+Epochs & 10 \\
+Learning Rate & 1e-3 \\
+Optimizer & AdamW \\
+Weight Decay & 1e-4 \\
+Batch Size & 32 \\
+Label Smoothing & 0.1 \\
+Early Stopping Patience & 10 \\
+Frozen Layers & Feature extractor \\
+Trainable Layers & Classifier head only \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Stage 2: Full Fine-Tuning}
+
+\begin{table}[H]
+\centering
+\caption{MobileNetV2 Stage 2 hyperparameters}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Parameter} & \textbf{Value} \\
+\midrule
+Epochs & 300 \\
+Learning Rate & 1e-4 \\
+Optimizer & AdamW \\
+Weight Decay & 1e-4 \\
+Batch Size & 32 \\
+Label Smoothing & 0.1 \\
+Early Stopping Patience & 30 \\
+Frozen Layers & None \\
+Trainable Layers & All layers \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Data Augmentation}
+
+\subsection{Training Augmentation}
+
+\begin{table}[H]
+\centering
+\caption{Training data augmentation parameters}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Transform} & \textbf{Parameter} & \textbf{Value} \\
+\midrule
+RandomResizedCrop & Size & 128×128 \\
+ & Scale & (0.8, 1.0) \\
+RandomHorizontalFlip & Probability & 0.5 \\
+RandomVerticalFlip & Probability & 0.5 \\
+RandomRotation & Degrees & 30 \\
+ColorJitter & Brightness & 0.2 \\
+ & Contrast & 0.2 \\
+ & Saturation & 0.2 \\
+ & Hue & 0.1 \\
+RandomPerspective & Distortion scale & 0.2 \\
+ & Probability & 0.3 \\
+Normalize & Mean & [0.485, 0.456, 0.406] \\
+ & Std & [0.229, 0.224, 0.225] \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Validation/Test Transform}
+
+\begin{table}[H]
+\centering
+\caption{Validation and test data preprocessing}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Transform} & \textbf{Value} \\
+\midrule
+Resize & 144×144 \\
+CenterCrop & 128×128 \\
+ToTensor & - \\
+Normalize (Mean) & [0.485, 0.456, 0.406] \\
+Normalize (Std) & [0.229, 0.224, 0.225] \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{ESPDet-Pico (YOLO) Training Configuration}
+
+\begin{table}[H]
+\centering
+\caption{ESPDet-Pico training hyperparameters}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Parameter} & \textbf{Value} \\
+\midrule
+Model & YOLOv11 nano \\
+Input Size & 416×320 \\
+Batch Size & 16 \\
+Epochs & 100 \\
+Learning Rate (initial) & 0.01 \\
+Optimizer & SGD \\
+Momentum & 0.937 \\
+Weight Decay & 0.0005 \\
+Warmup Epochs & 3 \\
+LR Scheduler & Cosine annealing \\
+IoU Threshold & 0.7 \\
+Confidence Threshold & 0.25 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Detection Augmentation}
+
+\begin{table}[H]
+\centering
+\caption{YOLO augmentation parameters}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Parameter} & \textbf{Value} \\
+\midrule
+Mosaic & 1.0 \\
+HSV-H & 0.015 \\
+HSV-S & 0.7 \\
+HSV-V & 0.4 \\
+Flip (horizontal) & 0.5 \\
+Scale & 0.9 \\
+Translate & 0.1 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Quantization Configuration}
+
+\begin{table}[H]
+\centering
+\caption{INT8 quantization parameters}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Parameter} & \textbf{Value} \\
+\midrule
+Quantization Method & Post-Training Quantization (PTQ) \\
+Precision & INT8 (symmetric) \\
+Calibration Method & MinMax \\
+Calibration Dataset Size & 100 samples \\
+Input Scale & Per-tensor \\
+Activation Scale & Per-tensor \\
+Weight Scale & Per-channel \\
+Framework & ESP-PPQ (ESP-DL) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{ESP32-S3 Hardware Configuration}
+
+\begin{table}[H]
+\centering
+\caption{ESP32-S3 configuration parameters}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Parameter} & \textbf{Value} \\
+\midrule
+CPU Frequency & 240 MHz \\
+PSRAM Frequency & 80 MHz (Octal) \\
+PSRAM Mode & OPI \\
+Flash Size & 16 MB \\
+Flash Mode & QIO \\
+Flash Frequency & 80 MHz \\
+Camera Resolution & VGA (640×480) \\
+Camera Format & JPEG \\
+JPEG Quality & 12 \\
+Frame Buffer Count & 2 (double buffering) \\
+DMA Buffer Size & 1024 bytes \\
+DMA Buffer Count & 16 \\
+Optimization Level & -O2 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Power Management Configuration}
+
+\begin{table}[H]
+\centering
+\caption{Power management settings}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Parameter} & \textbf{Value} \\
+\midrule
+Deep Sleep Interval & 5 minutes \\
+Active Time & ~6.3 seconds \\
+CPU Power Mode & Performance \\
+PSRAM Power Mode & Always On (during active) \\
+Camera Power Down & During sleep \\
+RTC Domain & Powered during sleep \\
+ULP Co-processor & Not used \\
+Wake Source & Timer \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,0 +1,257 @@
+\chapter{ESP-IDF Build Instructions}
+
+\section{Prerequisites}
+
+\subsection{Software Requirements}
+\begin{itemize}
+    \item ESP-IDF v5.0 or later
+    \item Python 3.8 or later
+    \item CMake 3.16 or later
+    \item Ninja build system
+    \item Git
+\end{itemize}
+
+\subsection{Hardware Requirements}
+\begin{itemize}
+    \item ESP32-S3-WROOM-1 Development Kit
+    \item OV3660 camera module
+    \item USB cable for programming
+    \item 3.7V LiPo battery (optional, for power testing)
+\end{itemize}
+
+\section{ESP-IDF Installation}
+
+\subsection{Linux / macOS}
+
+\begin{lstlisting}[language=bash]
+# Clone ESP-IDF repository
+git clone --recursive https://github.com/espressif/esp-idf.git
+cd esp-idf
+git checkout v5.0
+
+# Install dependencies
+./install.sh esp32s3
+
+# Set up environment variables
+. ./export.sh
+\end{lstlisting}
+
+\subsection{Windows}
+
+Download and run the ESP-IDF installer from:\\
+\texttt{https://dl.espressif.com/dl/esp-idf/}
+
+\section{Project Setup}
+
+\begin{lstlisting}[language=bash]
+# Clone the project repository
+git clone [your-repository-url]
+cd edge-ai-vineyard-monitoring/esp-detection/esp-detection
+
+# Configure the project
+idf.py menuconfig
+\end{lstlisting}
+
+\subsection{Key Configuration Options}
+
+Navigate through menuconfig:
+\begin{itemize}
+    \item \textbf{Component config → ESP32S3-Specific}
+        \begin{itemize}
+            \item Support for external SPIRAM: Enable
+            \item SPI RAM config → Mode: Octal
+            \item SPI RAM config → Speed: 80MHz
+        \end{itemize}
+    \item \textbf{Serial flasher config}
+        \begin{itemize}
+            \item Flash size: 16MB
+            \item Flash SPI mode: QIO
+        \end{itemize}
+    \item \textbf{Compiler options}
+        \begin{itemize}
+            \item Optimization Level: -O2
+        \end{itemize}
+\end{itemize}
+
+\section{Building the Project}
+
+\begin{lstlisting}[language=bash]
+# Clean previous builds (optional)
+idf.py fullclean
+
+# Build the project
+idf.py build
+\end{lstlisting}
+
+The build process generates:
+\begin{itemize}
+    \item \texttt{bootloader.bin} - First-stage bootloader
+    \item \texttt{partition-table.bin} - Partition table
+    \item \texttt{app-name.bin} - Application binary
+\end{itemize}
+
+\section{Flashing the Device}
+
+\subsection{Automatic Flashing}
+
+\begin{lstlisting}[language=bash]
+# Flash and monitor in one command
+idf.py -p /dev/ttyUSB0 flash monitor
+\end{lstlisting}
+
+Replace \texttt{/dev/ttyUSB0} with your serial port:
+\begin{itemize}
+    \item Linux: \texttt{/dev/ttyUSB0} or \texttt{/dev/ttyACM0}
+    \item macOS: \texttt{/dev/cu.usbserial-*}
+    \item Windows: \texttt{COM3} (or check Device Manager)
+\end{itemize}
+
+\subsection{Manual Flashing with esptool}
+
+\begin{lstlisting}[language=bash]
+esptool.py --chip esp32s3 --port /dev/ttyUSB0 --baud 921600 \
+  write_flash -z \
+  0x0 build/bootloader/bootloader.bin \
+  0x8000 build/partition_table/partition-table.bin \
+  0x10000 build/app-name.bin
+
+# Verify flash
+esptool.py --chip esp32s3 --port /dev/ttyUSB0 verify_flash \
+  0x10000 build/app-name.bin
+\end{lstlisting}
+
+\section{Serial Monitoring}
+
+\begin{lstlisting}[language=bash]
+# Monitor serial output
+idf.py -p /dev/ttyUSB0 monitor
+
+# Exit monitor: Ctrl + ]
+\end{lstlisting}
+
+\subsection{Expected Output}
+
+\begin{lstlisting}[language=bash]
+I (328) main: ESP32-S3 Vineyard Monitor starting...
+I (338) camera: Initializing OV3660 camera
+I (445) camera: Camera initialized successfully
+I (446) psram: PSRAM initialized: 8192 KB
+I (450) main: Loading detection model...
+I (1250) detection: ESPDet-Pico loaded (478 KB)
+I (1255) main: Loading classification model...
+I (3890) classification: MobileNetV2 loaded (2.73 MB)
+I (3895) main: System ready. Starting inference...
+I (3978) camera: Frame captured (10245 bytes)
+I (4344) detection: Detected 8 leaves in 366ms
+I (10189) classification: Classified 8 leaves in 5845ms
+I (10195) aggregation: Final prediction: Healthy (98.7%)
+\end{lstlisting}
+
+\section{Common Issues and Solutions}
+
+\begin{table}[H]
+\centering
+\caption{Troubleshooting common build/flash issues}
+\begin{tabular}{@{}p{4cm}p{8cm}@{}}
+\toprule
+\textbf{Issue} & \textbf{Solution} \\
+\midrule
+Failed to connect to device & Press and hold BOOT button, then press RESET. Release RESET, then release BOOT \\
+\midrule
+Out of memory during build & Enable PSRAM in menuconfig, increase optimization level \\
+\midrule
+Camera initialization failed & Check camera connections, verify camera I2C address (0x3C), ensure sufficient power supply \\
+\midrule
+Model file not found & Ensure .espdl model files are in \texttt{models/} directory, check CMakeLists.txt \\
+\midrule
+Brownout detector triggered & Use external 5V power supply instead of USB, check power cable quality \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{OTA (Over-The-Air) Updates}
+
+\subsection{Partition Table Configuration}
+
+Edit \texttt{partitions.csv}:
+\begin{lstlisting}
+# Name,   Type, SubType, Offset,  Size
+nvs,      data, nvs,     0x9000,  0x6000
+phy_init, data, phy,     0xf000,  0x1000
+factory,  app,  factory, 0x10000, 2M
+ota_0,    app,  ota_0,   ,        2M
+ota_1,    app,  ota_1,   ,        2M
+ota_data, data, ota,     ,        0x2000
+\end{lstlisting}
+
+\subsection{OTA Update Code}
+
+\begin{lstlisting}[language=C++]
+#include "esp_https_ota.h"
+
+esp_http_client_config_t config = {
+    .url = "https://example.com/firmware.bin",
+    .cert_pem = server_cert_pem_start,
+};
+
+esp_err_t ret = esp_https_ota(&config);
+if (ret == ESP_OK) {
+    esp_restart();
+}
+\end{lstlisting}
+
+\section{Performance Profiling}
+
+\subsection{Memory Profiling}
+
+\begin{lstlisting}[language=C++]
+#include "esp_heap_caps.h"
+
+// Check free PSRAM
+size_t free_psram = heap_caps_get_free_size(MALLOC_CAP_SPIRAM);
+ESP_LOGI(TAG, "Free PSRAM: %d bytes", free_psram);
+
+// Check largest free block
+size_t largest = heap_caps_get_largest_free_block(MALLOC_CAP_SPIRAM);
+ESP_LOGI(TAG, "Largest free block: %d bytes", largest);
+\end{lstlisting}
+
+\subsection{CPU Timing}
+
+\begin{lstlisting}[language=C++]
+#include "esp_timer.h"
+
+int64_t start = esp_timer_get_time();
+// Your code here
+int64_t end = esp_timer_get_time();
+ESP_LOGI(TAG, "Execution time: %lld us", end - start);
+\end{lstlisting}
+
+\section{Additional Commands}
+
+\begin{lstlisting}[language=bash]
+# Erase entire flash
+idf.py -p /dev/ttyUSB0 erase-flash
+
+# Read partition table
+esptool.py --chip esp32s3 --port /dev/ttyUSB0 read_flash \
+  0x8000 0x1000 partition_table.bin
+
+# Monitor with filtering
+idf.py monitor | grep -E "detection|classification|aggregation"
+
+# Core dump analysis
+idf.py -p /dev/ttyUSB0 coredump-info
+
+# GDB debugging
+idf.py -p /dev/ttyUSB0 gdb
+\end{lstlisting}
+
+\section{Useful Resources}
+
+\begin{itemize}
+    \item ESP-IDF Programming Guide: \url{https://docs.espressif.com/projects/esp-idf/}
+    \item ESP32-S3 Technical Reference Manual: \url{https://www.espressif.com/sites/default/files/documentation/esp32-s3_technical_reference_manual_en.pdf}
+    \item ESP-DL Documentation: \url{https://github.com/espressif/esp-dl}
+    \item Espressif Forum: \url{https://esp32.com/}
+\end{itemize}

@@ -188,7 +188,7 @@ AggregationResult DiseaseAggregator::aggregate(
     }
     
     // Determine number of classes
-    int num_classes = 4;  // healthy, black_rot, esca, leaf_blight
+    int num_classes = 4;  // 0: Black_rot, 1: Esca, 2: Healthy, 3: Leaf_blight (ImageFolder alphabetical order)
     
     // Initialize weighted sums
     result.class_scores.resize(num_classes, 0.0f);

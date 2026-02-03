@@ -408,13 +408,12 @@ extern "C" void app_main(void)
                     // ESP_LOGI(TAG, "      Timing: crop=%lld μs, setup=%lld μs, fwd=%lld μs, post=%lld μs",
                     //         crop_time, dr.setup_us, dr.inference_us, dr.postprocess_us);
 
-                
                     /*
-                    Build result struct
+                    Build result struct (class_id follows ImageFolder order: 0=Black_rot, 1=Esca, 2=Healthy, 3=Leaf_blight)
                         return DiseaseResult {
-                            .class_id = 2,              e.g esca
+                            .class_id = 1,              e.g Esca (index 1)
                             .confidence = 1.0,          e.g  100%
-                            .class_name = "esca",
+                            .class_name = "Esca",
                             .all_classes = [...],        All 4 class probabilities
                             .setup_us = 8,
                             .inference_us = 530331,

@@ -24,12 +24,14 @@ class DiseaseClassifier {
 private:
     static constexpr const char* TAG = "DiseaseClassifier";
     
-    // Disease class names (configurable)
+    // Disease class names (MUST match ImageFolder training order: alphabetical)
+    // Training order from /dd_cnn/dataset/grape_dataset/train/:
+    // 0: Black_rot, 1: Esca, 2: Healthy, 3: Leaf_blight
     static constexpr const char* CLASS_NAMES[] = {
-        "healthy",
-        "black_rot",
-        "esca",
-        "leaf_blight"
+        "Black_rot",     // Index 0
+        "Esca",          // Index 1
+        "Healthy",       // Index 2
+        "Leaf_blight"    // Index 3
     };
     static constexpr int NUM_CLASSES = sizeof(CLASS_NAMES) / sizeof(CLASS_NAMES[0]);
     
@@ -244,13 +246,28 @@ public:
             ESP_LOGW(TAG, "Model output size (%d) != expected classes (%d)", num_classes, NUM_CLASSES);
         }
         
+        // Get quantization exponent for dequantization
+        int exponent = output->exponent;
+        float scale = DL_SCALE(exponent);  // scale = 2^exponent
+        
+        ESP_LOGD(TAG, "Output exponent: %d, scale: %f", exponent, scale);
+        ESP_LOGD(TAG, "Raw INT8 logits: [%d, %d, %d, %d]", 
+                 output_data[0], output_data[1], output_data[2], output_data[3]);
+        
         // Dequantize INT8 → float and apply softmax
+        // Formula: float_value = int8_value × scale (scale = 2^exponent)
         std::vector<float> logits(num_classes);
         for (int i = 0; i < num_classes; i++) {
-            logits[i] = (float)output_data[i];  // INT8 [-128, 127] to float
+            logits[i] = (float)output_data[i] * scale;  // Proper dequantization
         }
         
+        ESP_LOGD(TAG, "Dequantized logits: [%.3f, %.3f, %.3f, %.3f]", 
+                 logits[0], logits[1], logits[2], logits[3]);
+        
         softmax(logits.data(), num_classes);
+        
+        ESP_LOGD(TAG, "After softmax: [%.4f, %.4f, %.4f, %.4f]", 
+                 logits[0], logits[1], logits[2], logits[3]);
         
         // Find class with maximum probability
         int best_class = 0;
