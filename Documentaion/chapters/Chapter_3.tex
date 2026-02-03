@@ -1,6 +1,23 @@
 \chapter{Edge AI System Design and Implementation}
 \section{System Overview and Methodology}
 \section{Dataset and Preprocessing}
+
+The dataset was first divided into training (80\%) and test (20\%) sets using stratified sampling. The test set was kept completely unseen during training and used only for final evaluation. From the training portion, 15\% of the data was further set aside as a validation set for hyperparameter tuning and early stopping during MobileNetV2 fine-tuning.
+
+
+The training portion of the dataset was further divided into training (85\%) and validation (15\%) subsets using stratified sampling to preserve class distribution. This ensured that all disease categories were proportionally represented during model optimization and validation.
+
+To improve model robustness and reduce overfitting to the controlled laboratory acquisition conditions, extensive data augmentation was applied during training, including random cropping, rotation, color perturbation, grayscale conversion, and perspective distortion. Validation and test sets were processed using deterministic resizing and center cropping. All images were normalized using ImageNet statistics to match the pretrained MobileNetV2 initialization.
+
+The dataset was divided into training, validation, and test subsets without overlap. Stratified sampling was used to preserve class balance between training and validation sets. Data augmentation was applied only to the training subset, while validation and test sets were processed deterministically. This ensured that model evaluation was performed on unseen data without information leakage.
+
+
+Although the training set consisted of 2760 images, online data augmentation was applied during training, generating diverse variations of each image at every epoch. This effectively increased the variability of the training data and improved model robustness, while the validation and test sets remained unaltered to ensure unbiased evaluation.
+
+Since the dataset was acquired under controlled laboratory conditions, extensive data augmentation was applied during training to simulate real vineyard imaging variability. Transformations included geometric distortions, lighting variations, blur, occlusions, and partial cropping. This strategy aimed to improve model robustness and generalization to real-world deployment scenarios.
+
+Data augmentation was applied online during training, meaning that each image was randomly transformed at every epoch. This resulted in the model observing multiple variations of the same sample throughout training, improving robustness to real-world variations such as lighting changes, partial occlusions, and geometric distortions. Validation and test sets were not augmented to ensure consistent and unbiased evaluation.
+
 \section{Hardware Platform: ESP32-S3-WROOM-1 Development Kit}
 \section{Leaf Localization ESPDet-Pico Model (YOLO-based)}
 \section{Disease Classification Model (MobileNetV2)}
