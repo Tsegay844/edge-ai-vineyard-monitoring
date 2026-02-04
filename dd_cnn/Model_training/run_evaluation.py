@@ -29,9 +29,9 @@ import torchvision.transforms as transforms
 # ============================================================================
 # Configuration
 # ============================================================================
-MODEL_PATH = '/home/ubuntu/edge-ai-vineyard-monitoring/dd_cnn/Model_training/finetuned_mobilenet_224.pth'
+MODEL_PATH = '/home/ubuntu/edge-ai-vineyard-monitoring/dd_cnn/Model_training/finetuned_mobilenet_128.pth'
 TEST_DATA_DIR = '/home/ubuntu/edge-ai-vineyard-monitoring/dd_cnn/dataset/grape_dataset/test'
-OUTPUT_DIR = '/home/ubuntu/edge-ai-vineyard-monitoring/dd_cnn/Model_training/evaluation_results_224'
+OUTPUT_DIR = '/home/ubuntu/edge-ai-vineyard-monitoring/dd_cnn/Model_training/evaluation_results_128'
 BATCH_SIZE = 64
 NUM_CLASSES = 4
 
@@ -74,8 +74,8 @@ def main():
     # Load test dataset
     print(f"\nLoading test dataset from: {TEST_DATA_DIR}")
     test_transform = transforms.Compose([
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
+        transforms.Resize(144), # 12.5% larger than target size for center crop
+        transforms.CenterCrop(128),  # 128x128 for ESP32 deployment
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
@@ -83,14 +83,14 @@ def main():
     test_dataset = torchvision.datasets.ImageFolder(root=TEST_DATA_DIR, transform=test_transform)
     test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=4, pin_memory=True)
     
-    print(f"✓ Test dataset loaded: {len(test_dataset)} images")
+    print(f"Test dataset loaded: {len(test_dataset)} images")
     print(f"  Classes: {test_dataset.classes}")
     
     # Load model
     print(f"\nLoading model from: {MODEL_PATH}")
     model = FineTuneMobileNet(num_classes=NUM_CLASSES).to(device)
     model.load_state_dict(torch.load(MODEL_PATH, map_location=device))
-    print("✓ Model loaded successfully!\n")
+    print("Model loaded successfully!\n")
     
     # Get class names
     class_names = test_dataset.classes
