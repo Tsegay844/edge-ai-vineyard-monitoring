@@ -6,7 +6,7 @@ This script loads the trained MobileNetV2 model and runs comprehensive evaluatio
 on the test set, generating detailed metrics and visualizations.
 
 Usage:
-    python run_evaluation.py
+    python run_evaluation_128.py
 
 Make sure to run this from the same directory as the notebook or adjust paths accordingly.
 """
@@ -25,6 +25,21 @@ import torch
 import torchvision
 from torch.utils.data import DataLoader
 import torchvision.transforms as transforms
+import numpy as np
+import random
+
+# Set seed for reproducibility
+def set_seed(seed=42):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed)
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
+
+set_seed(42)
 
 # ============================================================================
 # Configuration
@@ -41,7 +56,7 @@ NUM_CLASSES = 4
 import torch.nn as nn
 
 class FineTuneMobileNet(nn.Module):
-    def __init__(self, num_classes, dropout_rate=0.2):
+    def __init__(self, num_classes, dropout_rate=0.5):
         super().__init__()
         # Load MobileNetV2 architecture
         weights = torchvision.models.MobileNet_V2_Weights.DEFAULT
@@ -62,7 +77,7 @@ class FineTuneMobileNet(nn.Module):
 # ============================================================================
 def main():
     print("="*70)
-    print("MOBILENETV2 COMPREHENSIVE EVALUATION")
+    print("MOBILENETV2 128x128 COMPREHENSIVE EVALUATION")
     print("="*70)
     
     # Set device

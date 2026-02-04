@@ -3,33 +3,33 @@ MOBILENETV2 MODEL EVALUATION RESULTS
 Grape Leaf Disease Classification (4 Classes)
 ======================================================================
 
-Test Accuracy: 99.88%
-Macro F1-score: 0.9980
+Test Accuracy: 99.75%
+Macro F1-score: 0.9970
 
 Macro-averaged Metrics:
-  Precision: 0.9971
-  Recall:    0.9988
-  F1-score:  0.9980
+  Precision: 0.9962
+  Recall:    0.9978
+  F1-score:  0.9970
 
 ----------------------------------------------------------------------
 CLASSIFICATION REPORT
 ----------------------------------------------------------------------
               precision    recall  f1-score   support
 
-   Black_rot     1.0000    1.0000    1.0000       236
-        Esca     1.0000    1.0000    1.0000       277
+   Black_rot     1.0000    0.9958    0.9979       236
+        Esca     0.9964    1.0000    0.9982       277
      Healthy     0.9884    1.0000    0.9942        85
  Leaf_blight     1.0000    0.9954    0.9977       216
 
-    accuracy                         0.9988       814
-   macro avg     0.9971    0.9988    0.9980       814
-weighted avg     0.9988    0.9988    0.9988       814
+    accuracy                         0.9975       814
+   macro avg     0.9962    0.9978    0.9970       814
+weighted avg     0.9976    0.9975    0.9975       814
 
 ======================================================================
 
 CONFUSION MATRIX
 ----------------------------------------------------------------------
-[[236   0   0   0]
+[[235   1   0   0]
  [  0 277   0   0]
  [  0   0  85   0]
  [  0   0   1 215]]

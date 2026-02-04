@@ -13,6 +13,21 @@ import pandas as pd
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, precision_recall_fscore_support
 from tqdm import tqdm
 import os
+import random
+
+# Set seed for reproducibility
+def set_seed(seed=42):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed)
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
+
+# Set global seed
+set_seed(42)
 
 def comprehensive_model_evaluation(model, test_loader, device, class_names, output_dir='evaluation_results'):
     """
@@ -77,7 +92,7 @@ def comprehensive_model_evaluation(model, test_loader, device, class_names, outp
     predicted_labels = np.array(predicted_labels)
     predicted_probabilities = np.array(predicted_probabilities)
     
-    print(f"\n✓ Collected predictions for {len(true_labels)} test samples")
+    print(f"\nCollected predictions for {len(true_labels)} test samples")
     print(f"  Shape of probability matrix: {predicted_probabilities.shape}")
     
     # ============================================================================
@@ -119,7 +134,7 @@ def comprehensive_model_evaluation(model, test_loader, device, class_names, outp
     # STEP 3: Print Results Summary
     # ============================================================================
     print("\n" + "="*70)
-    print("📊 MODEL EVALUATION RESULTS")
+    print("MODEL EVALUATION RESULTS")
     print("="*70)
     print(f"\nTest Accuracy: {test_accuracy:.2f}%")
     print(f"Macro F1-score: {macro_f1:.4f}")
@@ -207,7 +222,7 @@ def comprehensive_model_evaluation(model, test_loader, device, class_names, outp
     # Save figure
     conf_matrix_file = os.path.join(output_dir, 'confusion_matrix.png')
     plt.savefig(conf_matrix_file, dpi=300, bbox_inches='tight')
-    print(f"✓ Confusion matrix saved to: {conf_matrix_file}")
+    print(f"Confusion matrix saved to: {conf_matrix_file}")
     
     plt.show()
     
@@ -254,7 +269,7 @@ def comprehensive_model_evaluation(model, test_loader, device, class_names, outp
     # Save figure
     metrics_bar_file = os.path.join(output_dir, 'per_class_metrics.png')
     plt.savefig(metrics_bar_file, dpi=300, bbox_inches='tight')
-    print(f"✓ Per-class metrics saved to: {metrics_bar_file}")
+    print(f"Per-class metrics saved to: {metrics_bar_file}")
     
     plt.show()
     
@@ -286,7 +301,7 @@ def comprehensive_model_evaluation(model, test_loader, device, class_names, outp
     # Save to CSV
     csv_file = os.path.join(output_dir, 'detailed_metrics.csv')
     results_df.to_csv(csv_file, index=False, float_format='%.4f')
-    print(f"✓ Detailed metrics saved to: {csv_file}")
+    print(f"Detailed metrics saved to: {csv_file}")
     
     # Display the DataFrame
     print("\nPer-Class Metrics Summary:")
@@ -296,16 +311,9 @@ def comprehensive_model_evaluation(model, test_loader, device, class_names, outp
     # FINAL SUMMARY
     # ============================================================================
     print("\n" + "="*70)
-    print("✓ EVALUATION COMPLETE")
+    print("Evaluation complete! All results have been saved")
     print("="*70)
-    print(f"\nAll results saved to: {output_dir}")
-    print("\nGenerated files:")
-    print(f"  1. evaluation_metrics.txt  - Complete evaluation summary")
-    print(f"  2. confusion_matrix.png    - Confusion matrix heatmap")
-    print(f"  3. per_class_metrics.png   - Per-class performance bars")
-    print(f"  4. detailed_metrics.csv    - Metrics in CSV format")
-    print("="*70)
-    
+    print(f"\nFinal Results:")
     # Return metrics dictionary
     return {
         'accuracy': test_accuracy,
