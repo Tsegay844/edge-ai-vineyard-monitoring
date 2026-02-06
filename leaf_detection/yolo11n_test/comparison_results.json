@@ -1,0 +1,36 @@
+{
+  "yolo11n": {
+    "metrics": {
+      "best_epoch": 327,
+      "mAP50": 61.751999999999995,
+      "mAP50_95": 43.567,
+      "precision": 69.548,
+      "recall": 57.292,
+      "box_loss": 1.00643,
+      "cls_loss": 0.67098,
+      "dfl_loss": 0.93038
+    },
+    "model_info": {
+      "file_size_mb": 5.227862358093262,
+      "parameters": 2590035,
+      "gflops": 0
+    }
+  },
+  "espdet_pico": {
+    "metrics": {
+      "best_epoch": 711,
+      "mAP50": 56.419,
+      "mAP50_95": 32.288,
+      "precision": 62.766,
+      "recall": 54.166000000000004,
+      "box_loss": 1.54862,
+      "cls_loss": 0.95979,
+      "dfl_loss": 0.0
+    },
+    "model_info": {
+      "file_size_mb": 1.0555553436279297,
+      "parameters": 0,
+      "gflops": 0
+    }
+  }
+}

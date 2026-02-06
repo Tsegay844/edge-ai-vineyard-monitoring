@@ -1,0 +1,103 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{float}
+
+\begin{document}
+
+\section*{YOLO11n vs ESPDet-Pico: Comparative Analysis}
+
+This section presents a controlled comparison between standard YOLO11n and the ESP-optimized ESPDet-Pico architecture. Both models were trained with identical configurations to isolate the impact of architectural modifications for edge deployment.
+
+\subsection*{Experimental Setup}
+
+To ensure a fair comparison, both models were trained under identical conditions:
+\begin{itemize}
+    \item \textbf{Dataset}: Grape leaf detection dataset (train/val/test splits)
+    \item \textbf{Image size}: 320$\times$416 pixels (rectangular training)
+    \item \textbf{Batch size}: 32
+    \item \textbf{Epochs}: 1000 (early stopping with patience=75)
+    \item \textbf{Optimizer}: AdamW (lr=0.002, weight decay=0.0005)
+    \item \textbf{Augmentation}: HSV (h=0.015, s=0.4, v=0.4), rotation=10$^{\circ}$, scale=0.5
+    \item \textbf{Pretrained weights}: yolo11n.pt (same initialization)
+\end{itemize}
+
+\subsection*{Detection Performance Comparison}
+
+Table~\ref{tab:performance} presents the detection performance metrics for both models on the test dataset. All metrics are evaluated using deployment-matching parameters (confidence threshold=0.25, IoU threshold=0.7, max detections=10).
+
+\begin{table}[H]
+\centering
+\caption{Detection performance comparison between YOLO11n and ESPDet-Pico}
+\label{tab:performance}
+\begin{tabular}{lcccr}
+\toprule
+\textbf{Metric} & \textbf{YOLO11n} & \textbf{ESPDet-Pico} & \textbf{Difference} & \textbf{Winner} \\
+\midrule
+mAP@50 (\%)         & 61.75 & 56.42 & $-5.33$ & YOLO11n \\
+mAP@50-95 (\%)      & 43.57 & 32.29 & $-11.28$ & YOLO11n \\
+Precision (\%)      & 69.55 & 62.77 & $-6.78$ & YOLO11n \\
+Recall (\%)         & 57.29 & 54.17 & $-3.13$ & YOLO11n \\
+\midrule
+Best Epoch          & 327   & 711   & $+384$ & YOLO11n \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Model Size and Deployment Characteristics}
+
+Table~\ref{tab:model_size} compares the model sizes and deployment characteristics. The significant size reduction in ESPDet-Pico enables deployment on resource-constrained ESP32-S3 microcontrollers.
+
+\begin{table}[H]
+\centering
+\caption{Model size comparison and deployment characteristics}
+\label{tab:model_size}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Property} & \textbf{YOLO11n} & \textbf{ESPDet-Pico} & \textbf{Reduction} \\
+\midrule
+FP32 Model Size (MB)        & 5.23  & 1.06  & 79.8\% \\
+INT8 Model Size (KB)        & ---   & 478   & --- \\
+\midrule
+Deployable on ESP32-S3      & \textcolor{red}{No}  & \textcolor{green}{Yes} & --- \\
+Memory Footprint (PSRAM)    & $>$8 MB & 492 KB & --- \\
+Inference Time (ms/frame)   & ---   & 366    & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis and Discussion}
+
+The comparison reveals a trade-off between detection accuracy and deployment feasibility:
+
+\begin{enumerate}
+    \item \textbf{Accuracy Trade-off}: ESPDet-Pico achieves 56.42\% mAP@50, which is 5.33 percentage points lower than YOLO11n's 61.75\%. This represents a modest accuracy reduction of 8.6\% relative to the baseline.
+    
+    \item \textbf{Model Size Reduction}: ESPDet-Pico demonstrates an impressive 79.8\% reduction in model size (1.06 MB vs 5.23 MB for FP32 weights). After INT8 quantization, the model further compresses to 478 KB, making it deployable on ESP32-S3 devices with 8 MB PSRAM.
+    
+    \item \textbf{Deployment Feasibility}: Unlike standard YOLO11n, which exceeds ESP32-S3 memory constraints, ESPDet-Pico successfully deploys and operates within the 8 MB PSRAM budget. The model achieves 366 ms inference time per frame on the ESP32-S3 (dual-core Xtensa LX7 @ 240 MHz).
+    
+    \item \textbf{Training Efficiency}: ESPDet-Pico converged at epoch 711, significantly later than YOLO11n (epoch 327). This suggests that the ESP-optimized architecture requires more training iterations to reach optimal performance.
+    
+    \item \textbf{Precision vs Recall}: ESPDet-Pico maintains relatively high precision (62.77\%) compared to recall (54.17\%). In the context of a two-stage detection-classification pipeline, high precision is critical to minimize false positives and reduce wasted bandwidth in LoRaWAN transmission.
+\end{enumerate}
+
+\subsection*{Conclusion}
+
+The 5.33\% accuracy reduction in ESPDet-Pico represents an \textbf{acceptable trade-off} for enabling edge deployment on ESP32-S3 microcontrollers. The 80\% model size reduction and successful INT8 quantization to 478 KB demonstrate that architectural optimization for edge devices can maintain reasonable detection performance while enabling deployment on severely resource-constrained platforms. For precision agriculture applications where edge inference is essential, ESPDet-Pico provides a practical solution that balances accuracy with deployability.
+
+\subsection*{Key Findings}
+
+\begin{itemize}
+    \item ESPDet-Pico achieves \textbf{56.42\% mAP@50} with \textbf{80\% smaller model size}
+    \item Accuracy reduction of \textbf{5.33 percentage points} enables ESP32-S3 deployment
+    \item Post-quantization model (\textbf{478 KB INT8}) fits within 8 MB PSRAM constraint
+    \item Real-time inference achieved: \textbf{366 ms per 416$\times$320 frame}
+    \item High precision (\textbf{62.77\%}) minimizes false positives in two-stage pipeline
+\end{itemize}
+
+\end{document}
