@@ -8,37 +8,37 @@ The complete source code for this thesis is available at: \texttt{[GitHub URL]}
 
 \begin{verbatim}
 edge-ai-vineyard-monitoring/
-├── dd_cnn/                          # Disease classification training
-│   ├── Model_training/
-│   │   ├── MobileNetV2.ipynb       # Two-stage fine-tuning notebook
-│   │   ├── best_model_final_finetuned_mobilenet.pth
-│   │   ├── best_model_stage1_mobilenet.pth
-│   │   └── data/                   # Training dataset
-│   └── dataset/
-│       └── grape-disease/          # Grape leaf disease images
-│
-├── YOLO/                            # Leaf detection training
-│   ├── YOLO11_ESP32_TFLite_Export.ipynb
-│   ├── yolo11n.pt                  # YOLOv11 nano model
-│   ├── Dataset.v1.yolov11/         # YOLO format dataset
-│   └── esp32_deployment_package/   # Deployment files
-│
-├── esp-detection/                   # ESP32-S3 firmware
-│   └── esp-detection/
-│       ├── main/
-│       │   ├── main.cpp            # Main inference pipeline
-│       │   ├── camera_handler.cpp  # OV3660 camera driver
-│       │   ├── detection_model.cpp # ESPDet-Pico inference
-│       │   ├── classification_model.cpp # MobileNetV2 inference
-│       │   └── aggregation.cpp     # Multi-leaf aggregation
-│       ├── models/                  # Quantized model files (.espdl)
-│       └── CMakeLists.txt
-│
-└── Documentation/                   # Thesis LaTeX files
-    ├── main.tex
-    ├── chapters/
-    ├── appendices/
-    └── Bibliography.bib
+  dd_cnn/                            # Disease classification training
+    Model_training/
+      MobileNetV2.ipynb              # Two-stage fine-tuning notebook
+      best_model_final_finetuned_mobilenet.pth
+      best_model_stage1_mobilenet.pth
+      data/                          # Training dataset
+    dataset/
+      grape-disease/                 # Grape leaf disease images
+
+  YOLO/                              # Leaf detection training
+    YOLO11_ESP32_TFLite_Export.ipynb
+    yolo11n.pt                       # YOLOv11 nano model
+    Dataset.v1.yolov11/              # YOLO format dataset
+    esp32_deployment_package/        # Deployment files
+
+  esp-detection/                     # ESP32-S3 firmware
+    esp-detection/
+      main/
+        main.cpp                     # Main inference pipeline
+        camera_handler.cpp           # OV3660 camera driver
+        detection_model.cpp          # ESPDet-Pico inference
+        classification_model.cpp     # MobileNetV2 inference
+        aggregation.cpp              # Multi-leaf aggregation
+      models/                        # Quantized model files (.espdl)
+      CMakeLists.txt
+
+  Documentation/                     # Thesis LaTeX files
+    main.tex
+    chapters/
+    appendices/
+    Bibliography.bib
 \end{verbatim}
 
 \section{Key Files Description}

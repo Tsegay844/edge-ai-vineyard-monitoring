@@ -3,9 +3,9 @@
 \contentsline {chapter}{Abstract}{i}{chapter*.3}%
 \babel@toc {english}{}\relax 
 \contentsline {chapter}{Acknowledgments}{iv}{chapter*.4}%
-\contentsline {chapter}{List of Figures}{vi}{section*.7}%
-\contentsline {chapter}{List of Tables}{vii}{section*.9}%
-\contentsline {chapter}{List of Acronyms}{viii}{chapter*.11}%
+\contentsline {chapter}{List of Figures}{ix}{section*.7}%
+\contentsline {chapter}{List of Tables}{x}{section*.9}%
+\contentsline {chapter}{List of Acronyms}{xi}{chapter*.11}%
 \contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}%
 \contentsline {section}{\numberline {1.1}Grape leaf disease detection using deep learning techniques}{1}{section.1.1}%
 \contentsline {subsection}{\numberline {1.1.1}Grape leaf disease detection using deep learning techniques}{1}{subsection.1.1.1}%

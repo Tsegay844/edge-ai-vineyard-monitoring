@@ -6,7 +6,7 @@ This script loads the trained MobileNetV2 model and runs comprehensive evaluatio
 on the test set, generating detailed metrics and visualizations.
 
 Usage:
-    python run_evaluation.py
+    python run_evaluation_128.py
 
 Make sure to run this from the same directory as the notebook or adjust paths accordingly.
 """
@@ -44,40 +44,41 @@ set_seed(42)
 # ============================================================================
 # Configuration
 # ============================================================================
-MODEL_PATH = '/home/ubuntu/edge-ai-vineyard-monitoring/dd_cnn/Model_training/finetuned_mobilenet_224.pth'
+MODEL_PATH = '/home/ubuntu/edge-ai-vineyard-monitoring/dd_cnn/Model_training/ResNet/finetuned_ResNet18_224.pth'
 TEST_DATA_DIR = '/home/ubuntu/edge-ai-vineyard-monitoring/dd_cnn/dataset/grape_dataset/test'
-OUTPUT_DIR = '/home/ubuntu/edge-ai-vineyard-monitoring/dd_cnn/Model_training/evaluation_results_224'
+OUTPUT_DIR = '/home/ubuntu/edge-ai-vineyard-monitoring/dd_cnn/Model_training/ResNet/evaluation_results_224'
 BATCH_SIZE = 64
 NUM_CLASSES = 4
+
 
 # ============================================================================
 # Define Model Architecture (must match training)
 # ============================================================================
 import torch.nn as nn
 
-class FineTuneMobileNet(nn.Module):
+class FineTuneResNet18(nn.Module):
     def __init__(self, num_classes, dropout_rate=0.7):
         super().__init__()
-        # Load MobileNetV2 architecture
-        weights = torchvision.models.MobileNet_V2_Weights.DEFAULT
-        self.mobilenet = torchvision.models.mobilenet_v2(weights=None)  # Don't load pretrained weights
+        # Load ResNet18 architecture
+        weights = torchvision.models.ResNet18_Weights.DEFAULT
+        self.resnet = torchvision.models.resnet18(weights=None)  # Don't load pretrained weights
         
         # Replace the final classifier
-        in_features = self.mobilenet.classifier[1].in_features
-        self.mobilenet.classifier = nn.Sequential(
+        in_features = self.resnet.fc.in_features
+        self.resnet.fc = nn.Sequential(
             nn.Dropout(dropout_rate),
             nn.Linear(in_features, num_classes)
         )
     
     def forward(self, x):
-        return self.mobilenet(x)
+        return self.resnet(x)
 
 # ============================================================================
 # Main Execution
 # ============================================================================
 def main():
     print("="*70)
-    print("MOBILENETV2 COMPREHENSIVE EVALUATION")
+    print(" RESNET18 224x224 COMPREHENSIVE EVALUATION")
     print("="*70)
     
     # Set device
@@ -90,7 +91,7 @@ def main():
     print(f"\nLoading test dataset from: {TEST_DATA_DIR}")
     test_transform = transforms.Compose([
         transforms.Resize(252), # 12.5% larger than target size for center crop
-        transforms.CenterCrop(224),  # 224x224 for ESP32 deployment
+        transforms.CenterCrop(224),  # 224x224 for ResNet standard input
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
@@ -103,7 +104,7 @@ def main():
     
     # Load model
     print(f"\nLoading model from: {MODEL_PATH}")
-    model = FineTuneMobileNet(num_classes=NUM_CLASSES).to(device)
+    model = FineTuneResNet18(num_classes=NUM_CLASSES).to(device)
     model.load_state_dict(torch.load(MODEL_PATH, map_location=device))
     print("Model loaded successfully!\n")
     

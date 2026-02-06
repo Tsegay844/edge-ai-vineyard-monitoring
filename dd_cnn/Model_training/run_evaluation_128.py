@@ -18,7 +18,7 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # Import the evaluation function from the standalone script
-from comprehensive_evaluation import comprehensive_model_evaluation
+from evaluation import comprehensive_model_evaluation
 
 # Import PyTorch and related libraries
 import torch
@@ -56,7 +56,7 @@ NUM_CLASSES = 4
 import torch.nn as nn
 
 class FineTuneMobileNet(nn.Module):
-    def __init__(self, num_classes, dropout_rate=0.5):
+    def __init__(self, num_classes, dropout_rate=0.8):
         super().__init__()
         # Load MobileNetV2 architecture
         weights = torchvision.models.MobileNet_V2_Weights.DEFAULT
