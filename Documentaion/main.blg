@@ -15,47 +15,47 @@ A level-1 auxiliary file: appendices/Appendix_A.aux
 A level-1 auxiliary file: appendices/Appendix_B.aux
 A level-1 auxiliary file: appendices/Appendix_C.aux
 A level-1 auxiliary file: appendices/Appendix_D.aux
-I found no \citation commands---while reading file main.aux
 Database file #1: Bibliography.bib
-You've used 0 entries,
+Warning--can't use both volume and number fields in buslaev2020albumentations
+You've used 17 entries,
             1791 wiz_defined-function locations,
-            458 strings with 3793 characters,
-and the built_in function-call counts, 18 in all, are:
-= -- 0
-> -- 0
-< -- 0
-+ -- 0
-- -- 0
-* -- 2
-:= -- 7
-add.period$ -- 0
-call.type$ -- 0
-change.case$ -- 0
+            552 strings with 6901 characters,
+and the built_in function-call counts, 4908 in all, are:
+= -- 432
+> -- 225
+< -- 12
++ -- 82
+- -- 65
+* -- 278
+:= -- 703
+add.period$ -- 55
+call.type$ -- 17
+change.case$ -- 17
 chr.to.int$ -- 0
-cite$ -- 0
-duplicate$ -- 0
-empty$ -- 1
-format.name$ -- 0
-if$ -- 1
+cite$ -- 18
+duplicate$ -- 243
+empty$ -- 474
+format.name$ -- 65
+if$ -- 1156
 int.to.chr$ -- 0
-int.to.str$ -- 0
-missing$ -- 0
-newline$ -- 3
-num.names$ -- 0
-pop$ -- 0
+int.to.str$ -- 17
+missing$ -- 13
+newline$ -- 91
+num.names$ -- 17
+pop$ -- 84
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 0
-skip$ -- 1
+skip$ -- 171
 stack$ -- 0
-substring$ -- 0
-swap$ -- 0
-text.length$ -- 0
+substring$ -- 294
+swap$ -- 113
+text.length$ -- 12
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 0
-warning$ -- 0
-while$ -- 0
-width$ -- 0
-write$ -- 2
-(There was 1 error message)
+warning$ -- 1
+while$ -- 41
+width$ -- 19
+write$ -- 192
+(There was 1 warning)

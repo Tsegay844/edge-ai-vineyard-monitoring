@@ -2,87 +2,111 @@
 \babel@toc {italian}{}\relax 
 \contentsline {chapter}{Abstract}{i}{chapter*.3}%
 \babel@toc {english}{}\relax 
-\contentsline {chapter}{Acknowledgments}{iv}{chapter*.4}%
-\contentsline {chapter}{List of Figures}{ix}{section*.7}%
-\contentsline {chapter}{List of Tables}{x}{section*.9}%
-\contentsline {chapter}{List of Acronyms}{xi}{chapter*.11}%
+\contentsline {chapter}{Acknowledgments}{ii}{chapter*.4}%
+\contentsline {chapter}{List of Figures}{viii}{section*.7}%
+\contentsline {chapter}{List of Tables}{ix}{section*.9}%
+\contentsline {chapter}{List of Acronyms}{x}{chapter*.11}%
 \contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}%
 \contentsline {section}{\numberline {1.1}Grape leaf disease detection using deep learning techniques}{1}{section.1.1}%
 \contentsline {subsection}{\numberline {1.1.1}Grape leaf disease detection using deep learning techniques}{1}{subsection.1.1.1}%
 \contentsline {chapter}{\numberline {2}Literature Review}{2}{chapter.2}%
 \contentsline {section}{\numberline {2.1}Literature Review}{2}{section.2.1}%
 \contentsline {subsection}{\numberline {2.1.1}Grape leaf disease detection using deep learning techniques}{2}{subsection.2.1.1}%
-\contentsline {chapter}{\numberline {3}Edge AI System Design and Implementation}{3}{chapter.3}%
+\contentsline {chapter}{\numberline {3}{Edge AI System Design \& Implementation}}{3}{chapter.3}%
 \contentsline {section}{\numberline {3.1}System Overview and Methodology}{3}{section.3.1}%
-\contentsline {section}{\numberline {3.2}Dataset and Preprocessing}{3}{section.3.2}%
-\contentsline {section}{\numberline {3.3}Hardware Platform: ESP32-S3-WROOM-1 Development Kit}{4}{section.3.3}%
-\contentsline {section}{\numberline {3.4}Leaf Localization ESPDet-Pico Model (YOLO-based)}{4}{section.3.4}%
-\contentsline {section}{\numberline {3.5}Disease Classification Model (MobileNetV2)}{4}{section.3.5}%
-\contentsline {section}{\numberline {3.6}Edge Deployment of Integrated Lightweight Neural Networks on ESP32-S3}{4}{section.3.6}%
-\contentsline {chapter}{\numberline {4}Results and Discussion}{5}{chapter.4}%
-\contentsline {section}{\numberline {4.1}On-Device Inference Performance}{5}{section.4.1}%
-\contentsline {section}{\numberline {4.2}Inference Aggregation Strategies}{5}{section.4.2}%
-\contentsline {section}{\numberline {4.3}LoRaWAN Packet Etructure and Communication Protocol Design}{5}{section.4.3}%
-\contentsline {section}{\numberline {4.4}duty-Cycled Edge AI Operations for Energy Efficiency}{5}{section.4.4}%
-\contentsline {chapter}{\numberline {5}Conclusion and Future Work}{6}{chapter.5}%
-\contentsline {chapter}{Bibliography}{7}{section*.13}%
-\contentsline {chapter}{\numberline {A}Code Repository Structure}{8}{appendix.A}%
-\contentsline {section}{\numberline {A.1}Repository Overview}{8}{section.A.1}%
-\contentsline {section}{\numberline {A.2}Directory Structure}{8}{section.A.2}%
-\contentsline {section}{\numberline {A.3}Key Files Description}{9}{section.A.3}%
-\contentsline {subsection}{\numberline {A.3.1}Training Files}{9}{subsection.A.3.1}%
-\contentsline {subsection}{\numberline {A.3.2}Firmware Files}{9}{subsection.A.3.2}%
-\contentsline {section}{\numberline {A.4}Building and Running}{9}{section.A.4}%
-\contentsline {subsection}{\numberline {A.4.1}Training Models}{9}{subsection.A.4.1}%
-\contentsline {subsection}{\numberline {A.4.2}Flashing ESP32-S3}{9}{subsection.A.4.2}%
-\contentsline {section}{\numberline {A.5}Repository Access}{10}{section.A.5}%
-\contentsline {chapter}{\numberline {B}Hyperparameters and Configuration}{11}{appendix.B}%
-\contentsline {section}{\numberline {B.1}MobileNetV2 Training Configuration}{11}{section.B.1}%
-\contentsline {subsection}{\numberline {B.1.1}Stage 1: Feature Extraction (Warm-up)}{11}{subsection.B.1.1}%
-\contentsline {subsection}{\numberline {B.1.2}Stage 2: Full Fine-Tuning}{11}{subsection.B.1.2}%
-\contentsline {section}{\numberline {B.2}Data Augmentation}{12}{section.B.2}%
-\contentsline {subsection}{\numberline {B.2.1}Training Augmentation}{12}{subsection.B.2.1}%
-\contentsline {subsection}{\numberline {B.2.2}Validation/Test Transform}{12}{subsection.B.2.2}%
-\contentsline {section}{\numberline {B.3}ESPDet-Pico (YOLO) Training Configuration}{13}{section.B.3}%
-\contentsline {subsection}{\numberline {B.3.1}Detection Augmentation}{13}{subsection.B.3.1}%
-\contentsline {section}{\numberline {B.4}Quantization Configuration}{14}{section.B.4}%
-\contentsline {section}{\numberline {B.5}ESP32-S3 Hardware Configuration}{14}{section.B.5}%
-\contentsline {section}{\numberline {B.6}Power Management Configuration}{15}{section.B.6}%
-\contentsline {chapter}{\numberline {C}ESP-IDF Build Instructions}{16}{appendix.C}%
-\contentsline {section}{\numberline {C.1}Prerequisites}{16}{section.C.1}%
-\contentsline {subsection}{\numberline {C.1.1}Software Requirements}{16}{subsection.C.1.1}%
-\contentsline {subsection}{\numberline {C.1.2}Hardware Requirements}{16}{subsection.C.1.2}%
-\contentsline {section}{\numberline {C.2}ESP-IDF Installation}{16}{section.C.2}%
-\contentsline {subsection}{\numberline {C.2.1}Linux / macOS}{16}{subsection.C.2.1}%
-\contentsline {subsection}{\numberline {C.2.2}Windows}{17}{subsection.C.2.2}%
-\contentsline {section}{\numberline {C.3}Project Setup}{17}{section.C.3}%
-\contentsline {subsection}{\numberline {C.3.1}Key Configuration Options}{17}{subsection.C.3.1}%
-\contentsline {section}{\numberline {C.4}Building the Project}{17}{section.C.4}%
-\contentsline {section}{\numberline {C.5}Flashing the Device}{18}{section.C.5}%
-\contentsline {subsection}{\numberline {C.5.1}Automatic Flashing}{18}{subsection.C.5.1}%
-\contentsline {subsection}{\numberline {C.5.2}Manual Flashing with esptool}{18}{subsection.C.5.2}%
-\contentsline {section}{\numberline {C.6}Serial Monitoring}{18}{section.C.6}%
-\contentsline {subsection}{\numberline {C.6.1}Expected Output}{19}{subsection.C.6.1}%
-\contentsline {section}{\numberline {C.7}Common Issues and Solutions}{19}{section.C.7}%
-\contentsline {section}{\numberline {C.8}OTA (Over-The-Air) Updates}{19}{section.C.8}%
-\contentsline {subsection}{\numberline {C.8.1}Partition Table Configuration}{19}{subsection.C.8.1}%
-\contentsline {subsection}{\numberline {C.8.2}OTA Update Code}{20}{subsection.C.8.2}%
-\contentsline {section}{\numberline {C.9}Performance Profiling}{20}{section.C.9}%
-\contentsline {subsection}{\numberline {C.9.1}Memory Profiling}{20}{subsection.C.9.1}%
-\contentsline {subsection}{\numberline {C.9.2}CPU Timing}{20}{subsection.C.9.2}%
-\contentsline {section}{\numberline {C.10}Additional Commands}{21}{section.C.10}%
-\contentsline {section}{\numberline {C.11}Useful Resources}{21}{section.C.11}%
-\contentsline {chapter}{\numberline {D}Additional Experimental Results}{22}{appendix.D}%
-\contentsline {section}{\numberline {D.1}Extended Performance Metrics}{22}{section.D.1}%
-\contentsline {subsection}{\numberline {D.1.1}Per-Class Classification Metrics}{22}{subsection.D.1.1}%
-\contentsline {section}{\numberline {D.2}Memory Utilization Over Time}{22}{section.D.2}%
-\contentsline {section}{\numberline {D.3}Power Consumption Breakdown}{23}{section.D.3}%
-\contentsline {section}{\numberline {D.4}Aggregation Strategy Comparison}{23}{section.D.4}%
-\contentsline {section}{\numberline {D.5}Inference Latency Distribution}{23}{section.D.5}%
-\contentsline {section}{\numberline {D.6}Model Size Comparison}{24}{section.D.6}%
-\contentsline {section}{\numberline {D.7}Battery Life Under Different Scenarios}{24}{section.D.7}%
-\contentsline {section}{\numberline {D.8}LoRaWAN Packet Structure Details}{25}{section.D.8}%
-\contentsline {subsection}{\numberline {D.8.1}Uplink Packet Format}{25}{subsection.D.8.1}%
-\contentsline {section}{\numberline {D.9}Comparison with State-of-the-Art}{25}{section.D.9}%
-\contentsline {section}{\numberline {D.10}Error Analysis}{25}{section.D.10}%
-\contentsline {subsection}{\numberline {D.10.1}Common Misclassification Patterns}{25}{subsection.D.10.1}%
+\contentsline {subsection}{\numberline {3.1.1}Four-Stage Pipeline Architecture}{3}{subsection.3.1.1}%
+\contentsline {section}{\numberline {3.2}Dataset Acquisition and Preparation}{4}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}The Grape-Leaf Disease Dataset}{4}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}Grapevine Dataset for Leaf Localization}{5}{subsection.3.2.2}%
+\contentsline {subsection}{\numberline {3.2.3}Preprocessing and Augmentation Pipeline}{5}{subsection.3.2.3}%
+\contentsline {subsubsection}{\numberline {3.2.3.1}Input Resolution and Preprocessing}{5}{subsubsection.3.2.3.1}%
+\contentsline {subsubsection}{\numberline {3.2.3.2}Normalization and Standardization}{6}{subsubsection.3.2.3.2}%
+\contentsline {subsubsection}{\numberline {3.2.3.3}Online Data Augmentation Strategy}{6}{subsubsection.3.2.3.3}%
+\contentsline {subsubsection}{\numberline {3.2.3.4}Task-Specific Augmentation: Disease Classification}{6}{subsubsection.3.2.3.4}%
+\contentsline {subsubsection}{\numberline {3.2.3.5}Task-Specific Augmentation: Leaf Localization}{7}{subsubsection.3.2.3.5}%
+\contentsline {subsubsection}{\numberline {3.2.3.6}Validation and Test Preprocessing}{8}{subsubsection.3.2.3.6}%
+\contentsline {section}{\numberline {3.3}Hardware Platform Selection}{9}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}ESP32-S3 System Architecture}{9}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Hardware Selection Rationale}{9}{subsection.3.3.2}%
+\contentsline {section}{\numberline {3.4}Leaf Localization Model Design}{9}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}Object Detection Framework Selection}{9}{subsection.3.4.1}%
+\contentsline {subsection}{\numberline {3.4.2}Model Compression for Embedded Deployment}{9}{subsection.3.4.2}%
+\contentsline {subsection}{\numberline {3.4.3}Training Methodology}{9}{subsection.3.4.3}%
+\contentsline {subsection}{\numberline {3.4.4}Detection Performance Evaluation}{9}{subsection.3.4.4}%
+\contentsline {section}{\numberline {3.5}Disease Classification Model Design}{9}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}Convolutional Neural Network Architecture}{9}{subsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.5.2}Transfer Learning Strategy}{9}{subsection.3.5.2}%
+\contentsline {subsection}{\numberline {3.5.3}Training Protocol}{9}{subsection.3.5.3}%
+\contentsline {subsection}{\numberline {3.5.4}Classification Accuracy and Robustness}{9}{subsection.3.5.4}%
+\contentsline {subsection}{\numberline {3.5.5}Post-Training Quantization}{9}{subsection.3.5.5}%
+\contentsline {section}{\numberline {3.6}System Integration and Embedded Deployment}{9}{section.3.6}%
+\contentsline {subsection}{\numberline {3.6.1}Memory Management Architecture}{9}{subsection.3.6.1}%
+\contentsline {subsection}{\numberline {3.6.2}Inference Pipeline Implementation}{9}{subsection.3.6.2}%
+\contentsline {subsection}{\numberline {3.6.3}Computational Performance Characterization}{9}{subsection.3.6.3}%
+\contentsline {chapter}{\numberline {4}Results and Discussion}{10}{chapter.4}%
+\contentsline {section}{\numberline {4.1}On-Device Inference Performance}{10}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Inference Aggregation Strategies}{10}{section.4.2}%
+\contentsline {section}{\numberline {4.3}LoRaWAN Packet Etructure and Communication Protocol Design}{10}{section.4.3}%
+\contentsline {section}{\numberline {4.4}duty-Cycled Edge AI Operations for Energy Efficiency}{10}{section.4.4}%
+\contentsline {chapter}{\numberline {5}Conclusion and Future Work}{11}{chapter.5}%
+\contentsline {chapter}{Bibliography}{12}{section*.15}%
+\contentsline {chapter}{\numberline {A}Code Repository Structure}{14}{appendix.A}%
+\contentsline {section}{\numberline {A.1}Repository Overview}{14}{section.A.1}%
+\contentsline {section}{\numberline {A.2}Directory Structure}{14}{section.A.2}%
+\contentsline {section}{\numberline {A.3}Key Files Description}{15}{section.A.3}%
+\contentsline {subsection}{\numberline {A.3.1}Training Files}{15}{subsection.A.3.1}%
+\contentsline {subsection}{\numberline {A.3.2}Firmware Files}{15}{subsection.A.3.2}%
+\contentsline {section}{\numberline {A.4}Building and Running}{15}{section.A.4}%
+\contentsline {subsection}{\numberline {A.4.1}Training Models}{15}{subsection.A.4.1}%
+\contentsline {subsection}{\numberline {A.4.2}Flashing ESP32-S3}{15}{subsection.A.4.2}%
+\contentsline {section}{\numberline {A.5}Repository Access}{16}{section.A.5}%
+\contentsline {chapter}{\numberline {B}Hyperparameters and Configuration}{17}{appendix.B}%
+\contentsline {section}{\numberline {B.1}MobileNetV2 Training Configuration}{17}{section.B.1}%
+\contentsline {subsection}{\numberline {B.1.1}Stage 1: Feature Extraction (Warm-up)}{17}{subsection.B.1.1}%
+\contentsline {subsection}{\numberline {B.1.2}Stage 2: Full Fine-Tuning}{17}{subsection.B.1.2}%
+\contentsline {section}{\numberline {B.2}Data Augmentation}{18}{section.B.2}%
+\contentsline {subsection}{\numberline {B.2.1}Training Augmentation}{18}{subsection.B.2.1}%
+\contentsline {subsection}{\numberline {B.2.2}Validation/Test Transform}{18}{subsection.B.2.2}%
+\contentsline {section}{\numberline {B.3}ESPDet-Pico (YOLO) Training Configuration}{19}{section.B.3}%
+\contentsline {subsection}{\numberline {B.3.1}Detection Augmentation}{19}{subsection.B.3.1}%
+\contentsline {section}{\numberline {B.4}Quantization Configuration}{20}{section.B.4}%
+\contentsline {section}{\numberline {B.5}ESP32-S3 Hardware Configuration}{20}{section.B.5}%
+\contentsline {section}{\numberline {B.6}Power Management Configuration}{21}{section.B.6}%
+\contentsline {chapter}{\numberline {C}ESP-IDF Build Instructions}{22}{appendix.C}%
+\contentsline {section}{\numberline {C.1}Prerequisites}{22}{section.C.1}%
+\contentsline {subsection}{\numberline {C.1.1}Software Requirements}{22}{subsection.C.1.1}%
+\contentsline {subsection}{\numberline {C.1.2}Hardware Requirements}{22}{subsection.C.1.2}%
+\contentsline {section}{\numberline {C.2}ESP-IDF Installation}{22}{section.C.2}%
+\contentsline {subsection}{\numberline {C.2.1}Linux / macOS}{22}{subsection.C.2.1}%
+\contentsline {subsection}{\numberline {C.2.2}Windows}{23}{subsection.C.2.2}%
+\contentsline {section}{\numberline {C.3}Project Setup}{23}{section.C.3}%
+\contentsline {subsection}{\numberline {C.3.1}Key Configuration Options}{23}{subsection.C.3.1}%
+\contentsline {section}{\numberline {C.4}Building the Project}{23}{section.C.4}%
+\contentsline {section}{\numberline {C.5}Flashing the Device}{24}{section.C.5}%
+\contentsline {subsection}{\numberline {C.5.1}Automatic Flashing}{24}{subsection.C.5.1}%
+\contentsline {subsection}{\numberline {C.5.2}Manual Flashing with esptool}{24}{subsection.C.5.2}%
+\contentsline {section}{\numberline {C.6}Serial Monitoring}{24}{section.C.6}%
+\contentsline {subsection}{\numberline {C.6.1}Expected Output}{25}{subsection.C.6.1}%
+\contentsline {section}{\numberline {C.7}Common Issues and Solutions}{25}{section.C.7}%
+\contentsline {section}{\numberline {C.8}OTA (Over-The-Air) Updates}{25}{section.C.8}%
+\contentsline {subsection}{\numberline {C.8.1}Partition Table Configuration}{25}{subsection.C.8.1}%
+\contentsline {subsection}{\numberline {C.8.2}OTA Update Code}{26}{subsection.C.8.2}%
+\contentsline {section}{\numberline {C.9}Performance Profiling}{26}{section.C.9}%
+\contentsline {subsection}{\numberline {C.9.1}Memory Profiling}{26}{subsection.C.9.1}%
+\contentsline {subsection}{\numberline {C.9.2}CPU Timing}{26}{subsection.C.9.2}%
+\contentsline {section}{\numberline {C.10}Additional Commands}{27}{section.C.10}%
+\contentsline {section}{\numberline {C.11}Useful Resources}{27}{section.C.11}%
+\contentsline {chapter}{\numberline {D}Additional Experimental Results}{28}{appendix.D}%
+\contentsline {section}{\numberline {D.1}Extended Performance Metrics}{28}{section.D.1}%
+\contentsline {subsection}{\numberline {D.1.1}Per-Class Classification Metrics}{28}{subsection.D.1.1}%
+\contentsline {section}{\numberline {D.2}Memory Utilization Over Time}{28}{section.D.2}%
+\contentsline {section}{\numberline {D.3}Power Consumption Breakdown}{29}{section.D.3}%
+\contentsline {section}{\numberline {D.4}Aggregation Strategy Comparison}{29}{section.D.4}%
+\contentsline {section}{\numberline {D.5}Inference Latency Distribution}{29}{section.D.5}%
+\contentsline {section}{\numberline {D.6}Model Size Comparison}{30}{section.D.6}%
+\contentsline {section}{\numberline {D.7}Battery Life Under Different Scenarios}{30}{section.D.7}%
+\contentsline {section}{\numberline {D.8}LoRaWAN Packet Structure Details}{31}{section.D.8}%
+\contentsline {subsection}{\numberline {D.8.1}Uplink Packet Format}{31}{subsection.D.8.1}%
+\contentsline {section}{\numberline {D.9}Comparison with State-of-the-Art}{31}{section.D.9}%
+\contentsline {section}{\numberline {D.10}Error Analysis}{31}{section.D.10}%
+\contentsline {subsection}{\numberline {D.10.1}Common Misclassification Patterns}{31}{subsection.D.10.1}%

@@ -46,9 +46,16 @@
 \newcommand{\customlink}[2]{\hyperlink{#1}{#2}}
 
 % Redefine the chapter command to include "Chapter" in the TOC
+% \titleformat{\chapter}[display]
+%   {\normalfont\huge\bfseries\raggedright}{Chapter \thechapter}{0pt}{\Huge}
+% \titlespacing*{\chapter}{0pt}{*2}{*1}
+
 \titleformat{\chapter}[display]
-  {\normalfont\huge\bfseries}{Chapter \thechapter}{0pt}{\Huge}
-\titlespacing*{\chapter}{0pt}{*2}{*4}
+  {\normalfont\huge\bfseries\raggedright} % style for "Chapter 3"
+  {Chapter \thechapter}
+  {0pt}
+  {\LARGE} % <-- chapter TITLE size
+\titlespacing*{\chapter}{0pt}{*2}{*1}
 
 
 %packages from other document/peroject

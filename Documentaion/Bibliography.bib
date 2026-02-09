@@ -28,10 +28,59 @@
 }
 
 % ========================================
+% Datasets
+% ========================================
+
+@misc{plantvillage_dataset_2023,
+    author = {Ali, Abdallah},
+    title = {PlantVillage Dataset},
+    howpublished = {Kaggle},
+    year = {2023},
+    url = {https://www.kaggle.com/datasets/abdallahalidev/plantvillage-dataset},
+    note = {Accessed: February 2026}
+}
+
+@misc{kaggle_grape_images_2023,
+    author = {Regnier, Nicolaas},
+    title = {Grape / Grapes},
+    howpublished = {Kaggle},
+    year = {2023},
+    url = {https://www.kaggle.com/datasets/nicolaasregnier/grape-grapes},
+    note = {Accessed: February 2026}
+}
+
+@misc{roboflow_grape_leaf_2026,
+    author = {{Roboflow Universe}},
+    title = {Grape Leaf ROI Detection Dataset, Version 6},
+    howpublished = {Roboflow},
+    year = {2026},
+    url = {https://universe.roboflow.com/grape-disease-rxjfx/grape-leaf-roi-detection/dataset/6},
+    note = {CC BY 4.0 License, Exported: January 29, 2026}
+}
+
+@inproceedings{deng2009imagenet,
+    author = {Deng, Jia and Dong, Wei and Socher, Richard and Li, Li-Jia and Li, Kai and Fei-Fei, Li},
+    title = {ImageNet: A Large-Scale Hierarchical Image Database},
+    booktitle = {Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+    year = {2009},
+    pages = {248--255},
+    publisher = {IEEE}
+}
+
+@inproceedings{krizhevsky2012imagenet,
+    author = {Krizhevsky, Alex and Sutskever, Ilya and Hinton, Geoffrey E.},
+    title = {ImageNet Classification with Deep Convolutional Neural Networks},
+    booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+    year = {2012},
+    volume = {25},
+    pages = {1097--1105}
+}
+
+% ========================================
 % Deep Learning Architectures
 % ========================================
 
-@inproceedings{mobilenetv2,
+@inproceedings{sandler2018mobilenetv2,
     author = {Sandler, Mark and Howard, Andrew and Zhu, Menglong and Zhmoginov, Andrey and Chen, Liang-Chieh},
     title = {MobileNetV2: Inverted Residuals and Linear Bottlenecks},
     booktitle = {Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
@@ -39,11 +88,97 @@
     pages = {4510--4520}
 }
 
-@article{yolov11,
+@misc{ultralytics2024yolo11,
     author = {Ultralytics},
-    title = {YOLOv11: Real-Time Object Detection},
-    journal = {arXiv preprint arXiv:XXXX.XXXXX},
+    title = {{YOLO11}: Real-Time Object Detection},
+    howpublished = {\url{https://docs.ultralytics.com}},
     year = {2024}
+}
+
+@inproceedings{redmon2016yolo,
+    author = {Redmon, Joseph and Divvala, Santosh and Girshick, Ross and Farhadi, Ali},
+    title = {You Only Look Once: Unified, Real-Time Object Detection},
+    booktitle = {Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+    year = {2016},
+    pages = {779--788}
+}
+
+@article{bochkovskiy2020yolov4,
+    author = {Bochkovskiy, Alexey and Wang, Chien-Yao and Liao, Hong-Yuan Mark},
+    title = {YOLOv4: Optimal Speed and Accuracy of Object Detection},
+    journal = {arXiv preprint arXiv:2004.10934},
+    year = {2020}
+}
+
+% ========================================
+% Data Augmentation and Training
+% ========================================
+
+@article{shorten2019survey,
+    author = {Shorten, Connor and Khoshgoftaar, Taghi M.},
+    title = {A Survey on Image Data Augmentation for Deep Learning},
+    journal = {Journal of Big Data},
+    year = {2019},
+    volume = {6},
+    number = {60},
+    pages = {1--48}
+}
+
+@article{perez2017effectiveness,
+    author = {Perez, Luis and Wang, Jason},
+    title = {The Effectiveness of Data Augmentation in Image Classification using Deep Learning},
+    journal = {arXiv preprint arXiv:1712.04621},
+    year = {2017}
+}
+
+@inproceedings{buslaev2020albumentations,
+    author = {Buslaev, Alexander and Iglovikov, Vladimir I. and Khvedchenya, Eugene and Parinov, Alex and Druzhinin, Mikhail and Kalinin, Alexandr A.},
+    title = {Albumentations: Fast and Flexible Image Augmentations},
+    booktitle = {Information},
+    year = {2020},
+    volume = {11},
+    number = {2},
+    pages = {125}
+}
+
+@inproceedings{zhong2020randomerasing,
+    author = {Zhong, Zhun and Zheng, Liang and Kang, Guoliang and Li, Shaozi and Yang, Yi},
+    title = {Random Erasing Data Augmentation},
+    booktitle = {Proceedings of the AAAI Conference on Artificial Intelligence},
+    year = {2020},
+    volume = {34},
+    pages = {13001--13008}
+}
+
+@inproceedings{zhang2018mixup,
+    author = {Zhang, Hongyi and Cisse, Moustapha and Dauphin, Yann N. and Lopez-Paz, David},
+    title = {mixup: Beyond Empirical Risk Minimization},
+    booktitle = {International Conference on Learning Representations (ICLR)},
+    year = {2018}
+}
+
+@inproceedings{ghiasi2021copypaste,
+    author = {Ghiasi, Golnaz and Cui, Yin and Srinivas, Aravind and Qian, Rui and Lin, Tsung-Yi and Cubuk, Ekin D. and Le, Quoc V. and Zoph, Barret},
+    title = {Simple Copy-Paste is a Strong Data Augmentation Method for Instance Segmentation},
+    booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+    year = {2021},
+    pages = {2918--2928}
+}
+
+@article{ioffe2015batchnorm,
+    author = {Ioffe, Sergey and Szegedy, Christian},
+    title = {Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift},
+    journal = {arXiv preprint arXiv:1502.03167},
+    year = {2015}
+}
+
+@inproceedings{pytorch2019,
+    author = {Paszke, Adam and Gross, Sam and Massa, Francisco and Lerer, Adam and Bradbury, James and Chanan, Gregory and Killeen, Trevor and Lin, Zeming and Gimelshein, Natalia and Antiga, Luca and others},
+    title = {PyTorch: An Imperative Style, High-Performance Deep Learning Library},
+    booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+    year = {2019},
+    volume = {32},
+    pages = {8024--8035}
 }
 
 % ========================================
