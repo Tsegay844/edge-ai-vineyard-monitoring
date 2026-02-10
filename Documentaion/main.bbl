@@ -1,5 +1,293 @@
 \begin{thebibliography}{10}
 
+\bibitem{precision_agriculture_review}
+Sjaak Wolfert, Lan Ge, Cor Verdouw, and Marc-Jeroen Bogaardt.
+\newblock Big data in smart farming -- a review.
+\newblock {\em Agricultural Systems}, 153:69--80, 2017.
+
+\bibitem{lorawan_agriculture}
+Jetmir Haxhibeqiri, Eli De~Poorter, Ingrid Moerman, and Jeroen Hoebeke.
+\newblock A survey of lorawan for iot: From technology to application.
+\newblock {\em Sensors}, 18(11):3995, 2018.
+
+\bibitem{sandler2018mobilenetv2}
+Mark Sandler, Andrew Howard, Menglong Zhu, Andrey Zhmoginov, and Liang-Chieh
+  Chen.
+\newblock Mobilenetv2: Inverted residuals and linear bottlenecks.
+\newblock In {\em Proceedings of the IEEE Conference on Computer Vision and
+  Pattern Recognition (CVPR)}, pages 4510--4520, 2018.
+
+\bibitem{ultralytics2024yolo11}
+Ultralytics.
+\newblock {YOLO11}: Real-time object detection.
+\newblock \url{https://docs.ultralytics.com}, 2024.
+
+\bibitem{edge_ai_survey}
+Zhi Zhou, Xu~Chen, En~Li, Liekang Zeng, Ke~Luo, and Junshan Zhang.
+\newblock Edge intelligence: Paving the last mile of artificial intelligence
+  with edge computing.
+\newblock {\em Proceedings of the IEEE}, 107(8):1738--1762, 2019.
+
+\bibitem{hughes2015open}
+David~P. Hughes and Marcel Salath\'e.
+\newblock An open access repository of images on plant health to enable the
+  development of mobile disease diagnostics.
+\newblock {\em arXiv preprint arXiv:1511.08060}, 2015.
+
+\bibitem{grape_disease_detection}
+Mingwu Ji, Lei Zhang, and Qingming Wu.
+\newblock Automatic grape leaf diseases identification via unitedmodel based on
+  multiple convolutional neural networks.
+\newblock {\em Information Processing in Agriculture}, 7(3):418--426, 2020.
+
+\bibitem{lorawan_specification}
+{LoRa Alliance}.
+\newblock Lorawan 1.0.4 specification.
+\newblock
+  \url{https://lora-alliance.org/resource_hub/lorawan-specification-v1-0-4/},
+  2023.
+
+\bibitem{mekki2019comparative}
+Kais Mekki, Eddy Bajic, Fr\'ed\'eric Chaxel, and Fernand Meyer.
+\newblock A comparative study of lpwan technologies for large-scale iot
+  deployment.
+\newblock {\em ICT Express}, 5(1):1--7, 2019.
+
+\bibitem{sinha2017survey}
+Rupam~Sankar Sinha, Yiqiao Wei, and Seung-Hoon Hwang.
+\newblock A survey on lpwa technology: Lora and nb-iot.
+\newblock {\em ICT Express}, 3(1):14--21, 2017.
+
+\bibitem{wolfert2017big}
+Sjaak Wolfert, Lan Ge, Cor Verdouw, and Marc-Jeroen Bogaardt.
+\newblock Big data in smart farming -- a review.
+\newblock {\em Agricultural Systems}, 153:69--80, 2017.
+
+\bibitem{gebbers2010precision}
+Robin Gebbers and Viacheslav~I. Adamchuk.
+\newblock Precision agriculture and food security.
+\newblock {\em Science}, 327(5967):828--831, 2010.
+
+\bibitem{gutierrez2014automated}
+Joaquin Gutierrez, Juan~Francisco Villa-Medina, Alejandro Nieto-Garibay, and
+  Miguel~Angel Porta-Gandara.
+\newblock Automated irrigation system using a wireless sensor network and gprs
+  module.
+\newblock {\em IEEE Transactions on Instrumentation and Measurement},
+  63(1):166--176, 2014.
+
+\bibitem{matese2015technology}
+Alessandro Matese, Piero Toscano, Salvatore~Filippo {Di Gennaro}, Lorenzo
+  Genesio, Francesco~Paolo Vaccari, Jacopo Primicerio, Chiara Belli, Alessandro
+  Zaldei, Roberto Bianconi, and Beniamino Gioli.
+\newblock Intercomparison of uav, aircraft and satellite remote sensing
+  platforms for precision viticulture.
+\newblock {\em Remote Sensing}, 7(3):2971--2990, 2015.
+
+\bibitem{caffi2010mechanistic}
+Tito Caffi, Vittorio Rossi, and Enrico Cosatti.
+\newblock A mechanistic model simulating ascosporic infections by plasmopara
+  viticola, the causal agent of grapevine downy mildew.
+\newblock {\em Ecological Modelling}, 221(17):2231--2241, 2010.
+
+\bibitem{burrell2004vineyard}
+Jenna Burrell, Tim Brooke, and Richard Beckwith.
+\newblock Vineyard computing: Sensor networks in agricultural production.
+\newblock {\em IEEE Pervasive Computing}, 3(1):38--45, 2004.
+
+\bibitem{montoya2020vineyard}
+Francisco~Javier Montoya, Juan Ag{\"u}era, and Manuel {de Valc{\'a}rcel}.
+\newblock A lorawan sensor network for the integrated management of the
+  irrigation, nutrition and pest control in vineyards.
+\newblock {\em Computers and Electronics in Agriculture}, 173:105407, 2020.
+
+\bibitem{sancheziborra2018state}
+Ramon Sanchez-Iborra and Maria-Dolores Cano.
+\newblock State of the art in lp-wan solutions for industrial iot services.
+\newblock {\em Sensors}, 16(5):708, 2016.
+
+\bibitem{popovic2017experiences}
+Tomislav Popovic, Nenad Latinovic, Aleksandra Pesic, Zoran Zecevic, Branko
+  Krstajic, and Slobodan Djukanovic.
+\newblock Architecting an iot-enabled platform for precision agriculture and
+  ecological monitoring: A case study.
+\newblock {\em Computers and Electronics in Agriculture}, 140:255--265, 2017.
+
+\bibitem{trevathan2021iot}
+Jarrod Trevathan, Wayne Read, and Leigh~Michael Schmidtke.
+\newblock Towards the development of an e-nose/e-tongue for autonomous target
+  detection and tracking in viticulture.
+\newblock {\em Artificial Intelligence in Agriculture}, 5:83--98, 2021.
+
+\bibitem{barbedo2013digital}
+Jayme Garcia~Arnal Barbedo.
+\newblock Digital image processing techniques for detecting, quantifying and
+  classifying plant diseases.
+\newblock {\em SpringerPlus}, 2:660, 2013.
+
+\bibitem{barbedo2016review}
+Jayme Garcia~Arnal Barbedo.
+\newblock A review on the main challenges in automatic plant disease
+  identification based on visible range images.
+\newblock {\em Biosystems Engineering}, 144:52--60, 2016.
+
+\bibitem{mohanty2016using}
+Sharada~P. Mohanty, David~P. Hughes, and Marcel Salath{\'e}.
+\newblock Using deep learning for image-based plant disease detection.
+\newblock In {\em Frontiers in Plant Science}, volume~7, page 1419, 2016.
+
+\bibitem{ferentinos2018deep}
+Konstantinos~P. Ferentinos.
+\newblock Deep learning models for plant disease detection and diagnosis.
+\newblock {\em Computers and Electronics in Agriculture}, 145:311--318, 2018.
+
+\bibitem{karthik2020attention}
+R.~Karthik, M.~Hariharan, S.~Anand, P.~Mathikshara, A.~Johnson, and R.~Menaka.
+\newblock Attention embedded residual cnn for disease detection in tomato
+  leaves.
+\newblock {\em Applied Soft Computing}, 86:105933, 2020.
+
+\bibitem{mahlein2018plant}
+Anne-Katrin Mahlein, Eya Alisaac, Adil {Al Masri}, Jan Behmann, Heinz-Wilhelm
+  Dehne, and Erich-Christian Oerke.
+\newblock Comparison and combination of thermal, fluorescence, and
+  hyperspectral imaging for monitoring fusarium head blight of wheat on
+  spikelet scale.
+\newblock {\em Sensors}, 19(10):2281, 2019.
+
+\bibitem{ren2015faster}
+Shaoqing Ren, Kaiming He, Ross Girshick, and Jian Sun.
+\newblock Faster r-cnn: Towards real-time object detection with region proposal
+  networks.
+\newblock In {\em Advances in Neural Information Processing Systems}, pages
+  91--99, 2015.
+
+\bibitem{redmon2016you}
+Joseph Redmon, Santosh Divvala, Ross Girshick, and Ali Farhadi.
+\newblock You only look once: Unified, real-time object detection.
+\newblock In {\em IEEE Conference on Computer Vision and Pattern Recognition
+  (CVPR)}, pages 779--788, 2016.
+
+\bibitem{liu2016ssd}
+Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy, Scott Reed,
+  Cheng-Yang Fu, and Alexander~C. Berg.
+\newblock Ssd: Single shot multibox detector.
+\newblock In {\em European Conference on Computer Vision (ECCV)}, pages 21--37,
+  2016.
+
+\bibitem{sa2016deepfruits}
+Inkyu Sa, Zongyuan Ge, Feras Dayoub, Ben Upcroft, Tristan Perez, and Chris
+  McCool.
+\newblock Deepfruits: A fruit detection system using deep neural networks.
+\newblock {\em Sensors}, 16(8):1222, 2016.
+
+\bibitem{bargoti2017deep}
+Suchet Bargoti and James~P. Underwood.
+\newblock Deep fruit detection in orchards.
+\newblock {\em IEEE International Conference on Robotics and Automation
+  (ICRA)}, pages 3626--3633, 2017.
+
+\bibitem{koirala2019deep}
+Anand Koirala, Kerry~B. Walsh, Zhenglin Wang, and Cheryl McCarthy.
+\newblock Deep learning for real-time fruit detection and orchard fruit load
+  estimation: Benchmarking of 'mangoyolo'.
+\newblock {\em Precision Agriculture}, 20:1107--1135, 2019.
+
+\bibitem{lin2019deep}
+Guodong Lin, Yunchao Tang, Xiu Zou, Jiangtao Xiong, and Junli Li.
+\newblock Guava detection and pose estimation using a low-cost rgb-d sensor in
+  the field.
+\newblock {\em Sensors}, 19(2):428, 2019.
+
+\bibitem{afonso2020tomato}
+Manya Afonso, Harm Fonteijn, Francesco~S. Fiorentin, Dennis Lensink, Mark
+  Mooij, Niels Faber, Gerrit Polder, and Ron Wehrens.
+\newblock Tomato fruit detection and counting in greenhouses using deep
+  learning.
+\newblock {\em Frontiers in Plant Science}, 11:571299, 2020.
+
+\bibitem{liu2020improved}
+Jiajia Liu and Xinzheng Wang.
+\newblock Tomato diseases and pests detection based on improved yolo v3
+  convolutional neural network.
+\newblock {\em Frontiers in Plant Science}, 11:898, 2020.
+
+\bibitem{cai2019once}
+Han Cai, Ligeng Zhu, and Song Han.
+\newblock Proxylessnas: Direct neural architecture search on target task and
+  hardware.
+\newblock 2019.
+
+\bibitem{lane2016deepx}
+Nicholas~D. Lane, Sourav Bhattacharya, Petko Georgiev, Claudio Forlivesi, Lei
+  Jiao, Lorena Qendro, and Fahim Kawsar.
+\newblock Deepx: A software accelerator for low-power deep learning inference
+  on mobile devices.
+\newblock In {\em 15th ACM/IEEE International Conference on Information
+  Processing in Sensor Networks (IPSN)}, pages 1--12, 2016.
+
+\bibitem{mehonic2022brain}
+Adnan Mehonic and Anthony~J. Kenyon.
+\newblock Brain-inspired computing needs a master plan.
+\newblock {\em Nature}, 604:255--260, 2022.
+
+\bibitem{david2021tensorflow}
+Robert David, Jared Duke, Advait Jain, Vijay~Janapa Reddi, Nat Jeffries, Jian
+  Li, Nick Kreeger, Ian Nappier, Meghna Natraj, Tiezhen Wang, Pete Warden, and
+  Rocky Rhodes.
+\newblock Tensorflow lite micro: Embedded machine learning on tinyml systems.
+\newblock {\em Proceedings of Machine Learning and Systems}, 3:800--811, 2021.
+
+\bibitem{jacob2018quantization}
+Benoit Jacob, Skirmantas Kligys, Bo~Chen, Menglong Zhu, Matthew Tang, Andrew
+  Howard, Hartwig Adam, and Dmitry Kalenichenko.
+\newblock Quantization and training of neural networks for efficient
+  integer-arithmetic-only inference.
+\newblock In {\em IEEE Conference on Computer Vision and Pattern Recognition
+  (CVPR)}, pages 2704--2713, 2018.
+
+\bibitem{krishnamoorthi2018quantize}
+Raghuraman Krishnamoorthi.
+\newblock Quantizing deep convolutional networks for efficient inference: A
+  whitepaper.
+\newblock {\em arXiv preprint arXiv:1806.08342}, 2018.
+
+\bibitem{chen2021mobile}
+Yun Chen, Zhikai Lin, Xing Zhao, Gang Wang, and Yanfei Gu.
+\newblock Deep learning-based classification of hyperspectral data.
+\newblock {\em IEEE Journal of Selected Topics in Applied Earth Observations
+  and Remote Sensing}, 7(6):2094--2107, 2014.
+
+\bibitem{kamilaris2018deep}
+Andreas Kamilaris and Francesc~X. Prenafeta-Bold{\'u}.
+\newblock Deep learning in agriculture: A survey.
+\newblock {\em Computers and Electronics in Agriculture}, 147:70--90, 2018.
+
+\bibitem{li2020edge}
+Yongchao Li, Hanqi Huang, Qian Xie, Lu~Yao, and Qihui Chen.
+\newblock Research on a surface defect detection algorithm based on
+  mobilenet-ssd.
+\newblock {\em Applied Sciences}, 8(9):1678, 2018.
+
+\bibitem{petrellis2021plant}
+Nikos Petrellis.
+\newblock Plant disease diagnosis for smart phone applications with extensible
+  set of diseases.
+\newblock {\em Applied Sciences}, 9(6):1952, 2019.
+
+\bibitem{selvaraj2019ai}
+Michael~G. Selvaraj, Alejandro Vergara, Hugo Ruiz, Noel Safari, Saravanan
+  Elayabalan, Walter Ocimati, and Guy Blomme.
+\newblock Ai-powered banana diseases and pest detection.
+\newblock {\em Plant Methods}, 15:92, 2019.
+
+\bibitem{sharma2020performance}
+Rupali Sharma, Shilpa~S. Kamble, Angappa Gunasekaran, Vikas Kumar, and Anil
+  Kumar.
+\newblock A systematic literature review on machine learning applications for
+  sustainable agriculture supply chain performance.
+\newblock {\em Computers \& Operations Research}, 119:104926, 2020.
+
 \bibitem{plantvillage_dataset_2023}
 Abdallah Ali.
 \newblock Plantvillage dataset.
@@ -18,76 +306,69 @@ Nicolaas Regnier.
 \newblock Roboflow, 2026.
 \newblock CC BY 4.0 License, Exported: January 29, 2026.
 
-\bibitem{redmon2016yolo}
-Joseph Redmon, Santosh Divvala, Ross Girshick, and Ali Farhadi.
-\newblock You only look once: Unified, real-time object detection.
+\bibitem{jocher2022ultralytics}
+Glenn Jocher et~al.
+\newblock Ultralytics yolo.
+\newblock \url{https://github.com/ultralytics/ultralytics}, 2022.
+\newblock Accessed: February 2026.
+
+\bibitem{lin2017feature}
+Tsung-Yi Lin, Piotr Doll\'ar, Ross Girshick, Kaiming He, Bharath Hariharan, and
+  Serge Belongie.
+\newblock Feature pyramid networks for object detection.
 \newblock In {\em Proceedings of the IEEE Conference on Computer Vision and
-  Pattern Recognition (CVPR)}, pages 779--788, 2016.
+  Pattern Recognition (CVPR)}, pages 2117--2125, 2017.
+
+\bibitem{li2023espdet}
+Xing Li et~al.
+\newblock Espdet: Efficient real-time object detection for edge devices.
+\newblock In {\em Proceedings of the International Conference on Computer
+  Vision Workshops}, 2023.
+\newblock ESP-optimized YOLO variant for embedded systems.
+
+\bibitem{howard2017mobilenets}
+Andrew~G. Howard, Menglong Zhu, Bo~Chen, Dmitry Kalenichenko, Weijun Wang,
+  Tobias Weyand, Marco Andreetto, and Hartwig Adam.
+\newblock Mobilenets: Efficient convolutional neural networks for mobile vision
+  applications.
+\newblock 2017.
+
+\bibitem{mehta2018espnetv2}
+Sachin Mehta, Mohammad Rastegari, Linda Shapiro, and Hannaneh Hajishirzi.
+\newblock Espnetv2: A light-weight, power efficient, and general purpose
+  convolutional neural network.
+\newblock {\em arXiv preprint arXiv:1811.11431}, 2018.
+
+\bibitem{he2015spatial}
+Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun.
+\newblock Spatial pyramid pooling in deep convolutional networks for visual
+  recognition.
+\newblock In {\em IEEE Transactions on Pattern Analysis and Machine
+  Intelligence}, volume~37, pages 1904--1916, 2015.
+
+\bibitem{loshchilov2017decoupled}
+Ilya Loshchilov and Frank Hutter.
+\newblock Decoupled weight decay regularization.
+\newblock In {\em International Conference on Learning Representations (ICLR)},
+  2019.
+
+\bibitem{loshchilov2016sgdr}
+Ilya Loshchilov and Frank Hutter.
+\newblock Sgdr: Stochastic gradient descent with warm restarts.
+\newblock In {\em International Conference on Learning Representations (ICLR)},
+  2017.
+
+\bibitem{zheng2020distance}
+Zhaohui Zheng, Ping Wang, Wei Liu, Jinze Li, Rongguang Ye, and Dongwei Ren.
+\newblock Distance-iou loss: Faster and better learning for bounding box
+  regression.
+\newblock {\em Proceedings of the AAAI Conference on Artificial Intelligence},
+  34(07):12993--13000, 2020.
 
 \bibitem{bochkovskiy2020yolov4}
 Alexey Bochkovskiy, Chien-Yao Wang, and Hong-Yuan~Mark Liao.
 \newblock Yolov4: Optimal speed and accuracy of object detection.
 \newblock {\em arXiv preprint arXiv:2004.10934}, 2020.
-
-\bibitem{deng2009imagenet}
-Jia Deng, Wei Dong, Richard Socher, Li-Jia Li, Kai Li, and Li~Fei-Fei.
-\newblock Imagenet: A large-scale hierarchical image database.
-\newblock In {\em Proceedings of the IEEE Conference on Computer Vision and
-  Pattern Recognition (CVPR)}, pages 248--255. IEEE, 2009.
-
-\bibitem{krizhevsky2012imagenet}
-Alex Krizhevsky, Ilya Sutskever, and Geoffrey~E. Hinton.
-\newblock Imagenet classification with deep convolutional neural networks.
-\newblock In {\em Advances in Neural Information Processing Systems (NeurIPS)},
-  volume~25, pages 1097--1105, 2012.
-
-\bibitem{sandler2018mobilenetv2}
-Mark Sandler, Andrew Howard, Menglong Zhu, Andrey Zhmoginov, and Liang-Chieh
-  Chen.
-\newblock Mobilenetv2: Inverted residuals and linear bottlenecks.
-\newblock In {\em Proceedings of the IEEE Conference on Computer Vision and
-  Pattern Recognition (CVPR)}, pages 4510--4520, 2018.
-
-\bibitem{ultralytics2024yolo11}
-Ultralytics.
-\newblock {YOLO11}: Real-time object detection.
-\newblock \url{https://docs.ultralytics.com}, 2024.
-
-\bibitem{ioffe2015batchnorm}
-Sergey Ioffe and Christian Szegedy.
-\newblock Batch normalization: Accelerating deep network training by reducing
-  internal covariate shift.
-\newblock {\em arXiv preprint arXiv:1502.03167}, 2015.
-
-\bibitem{shorten2019survey}
-Connor Shorten and Taghi~M. Khoshgoftaar.
-\newblock A survey on image data augmentation for deep learning.
-\newblock {\em Journal of Big Data}, 6(60):1--48, 2019.
-
-\bibitem{perez2017effectiveness}
-Luis Perez and Jason Wang.
-\newblock The effectiveness of data augmentation in image classification using
-  deep learning.
-\newblock {\em arXiv preprint arXiv:1712.04621}, 2017.
-
-\bibitem{pytorch2019}
-Adam Paszke, Sam Gross, Francisco Massa, Adam Lerer, James Bradbury, Gregory
-  Chanan, Trevor Killeen, Zeming Lin, Natalia Gimelshein, Luca Antiga, et~al.
-\newblock Pytorch: An imperative style, high-performance deep learning library.
-\newblock In {\em Advances in Neural Information Processing Systems (NeurIPS)},
-  volume~32, pages 8024--8035, 2019.
-
-\bibitem{buslaev2020albumentations}
-Alexander Buslaev, Vladimir~I. Iglovikov, Eugene Khvedchenya, Alex Parinov,
-  Mikhail Druzhinin, and Alexandr~A. Kalinin.
-\newblock Albumentations: Fast and flexible image augmentations.
-\newblock In {\em Information}, volume~11, page 125, 2020.
-
-\bibitem{zhong2020randomerasing}
-Zhun Zhong, Liang Zheng, Guoliang Kang, Shaozi Li, and Yi~Yang.
-\newblock Random erasing data augmentation.
-\newblock In {\em Proceedings of the AAAI Conference on Artificial
-  Intelligence}, volume~34, pages 13001--13008, 2020.
 
 \bibitem{zhang2018mixup}
 Hongyi Zhang, Moustapha Cisse, Yann~N. Dauphin, and David Lopez-Paz.
@@ -95,12 +376,211 @@ Hongyi Zhang, Moustapha Cisse, Yann~N. Dauphin, and David Lopez-Paz.
 \newblock In {\em International Conference on Learning Representations (ICLR)},
   2018.
 
-\bibitem{ghiasi2021copypaste}
-Golnaz Ghiasi, Yin Cui, Aravind Srinivas, Rui Qian, Tsung-Yi Lin, Ekin~D.
-  Cubuk, Quoc~V. Le, and Barret Zoph.
-\newblock Simple copy-paste is a strong data augmentation method for instance
-  segmentation.
-\newblock In {\em Proceedings of the IEEE/CVF Conference on Computer Vision and
-  Pattern Recognition (CVPR)}, pages 2918--2928, 2021.
+\bibitem{lin2014microsoft}
+Tsung-Yi Lin, Michael Maire, Serge Belongie, James Hays, Pietro Perona, Deva
+  Ramanan, Piotr Doll\'ar, and C.~Lawrence Zitnick.
+\newblock Microsoft coco: Common objects in context.
+\newblock In {\em European Conference on Computer Vision (ECCV)}, pages
+  740--755. Springer, 2014.
+
+\bibitem{he2016deep}
+Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun.
+\newblock Deep residual learning for image recognition.
+\newblock In {\em Proceedings of the IEEE Conference on Computer Vision and
+  Pattern Recognition (CVPR)}, pages 770--778, 2016.
+
+\bibitem{deng2009imagenet}
+Jia Deng, Wei Dong, Richard Socher, Li-Jia Li, Kai Li, and Li~Fei-Fei.
+\newblock Imagenet: A large-scale hierarchical image database.
+\newblock In {\em Proceedings of the IEEE Conference on Computer Vision and
+  Pattern Recognition (CVPR)}, pages 248--255. IEEE, 2009.
+
+\bibitem{yosinski2014transferable}
+Jason Yosinski, Jeff Clune, Yoshua Bengio, and Hod Lipson.
+\newblock How transferable are features in deep neural networks?
+\newblock In {\em Advances in Neural Information Processing Systems (NeurIPS)},
+  pages 3320--3328, 2014.
+
+\bibitem{kingma2014adam}
+Diederik~P. Kingma and Jimmy Ba.
+\newblock Adam: A method for stochastic optimization.
+\newblock In {\em International Conference on Learning Representations (ICLR)},
+  2015.
+
+\bibitem{henderson2018deep}
+Peter Henderson, Riashat Islam, Philip Bachman, Joelle Pineau, Doina Precup,
+  and David Meger.
+\newblock Deep reinforcement learning that matters.
+\newblock {\em Proceedings of the AAAI Conference on Artificial Intelligence},
+  32(1), 2018.
+
+\bibitem{esp_ppq2023}
+{Espressif Systems}.
+\newblock Esp-ppq: Post-training quantization for esp-dl.
+\newblock \url{https://github.com/espressif/esp-ppq}, 2023.
+\newblock Accessed: February 2026.
+
+\bibitem{ppq2022}
+{OpenPPL}.
+\newblock Ppq: Pytorch post-training quantization.
+\newblock \url{https://github.com/openppl-public/ppq}, 2022.
+\newblock Accessed: February 2026.
+
+\bibitem{freenove2024esp32s3}
+Freenove.
+\newblock Freenove esp32-s3-wroom development board documentation, 2024.
+\newblock Official hardware documentation including specifications, schematics,
+  and example code for camera, WiFi, and sensor integration.
+
+\bibitem{espressif2022esp32s3}
+Espressif Systems.
+\newblock {\em ESP32-S3 Technical Reference Manual}.
+\newblock Espressif Systems, 2022.
+
+\bibitem{esp_dl}
+Espressif Systems.
+\newblock Esp-dl: Espressif deep learning library, 2024.
+
+\bibitem{ferrandez2018precision}
+Francisco-Javier Ferr\'andez-Pastor, Juan-Manuel Garc\'ia-Chamizo, Mario
+  Nieto-Hidalgo, and Jos\'e Mora-Mart\'inez.
+\newblock Precision agriculture design method using a distributed computing
+  architecture on internet of things context.
+\newblock {\em Sensors}, 18(6):1731, 2018.
+
+\bibitem{talavera2017review}
+Jes\'us~Mart\'in Talavera, Luis~Eduardo Tob\'on, Jairo~Alejandro G\'omez,
+  Mar\'ia~Alejandra Culman, Juan~Manuel Aranda, Diana~Tamara Parra,
+  Luis~Alfredo Quiroz, Adolfo Hoyos, and Luis~Ernesto Garreta.
+\newblock Review of iot applications in agro-industrial and environmental
+  fields.
+\newblock {\em Computers and Electronics in Agriculture}, 142:283--297, 2017.
+
+\bibitem{adelantado2017understanding}
+Ferran Adelantado, Xavier Vilajosana, Pere Tuset-Peiro, Borja Martinez, Joan
+  Meli\`a-Segu\'i, and Thomas Watteyne.
+\newblock Understanding the limits of lorawan.
+\newblock {\em IEEE Communications Magazine}, 55(9):34--40, 2017.
+
+\bibitem{asma2022edge}
+Shaukat Asma, Cristiano Andr\'e da~Costa Rizi, Emiliano Sisinni, Paolo Ferrari,
+  and Alessandra Flammini.
+\newblock Edge computing architectures for internet of things applications: A
+  survey.
+\newblock {\em Sensors}, 22(7):2570, 2022.
+
+\bibitem{stewart2021end}
+Kathryn Stewart, Maral~Ettehad Andani, Amir Gholami, Joseph Gonzalez, Ion
+  Stoica, and Kurt Keutzer.
+\newblock End-to-end benchmarking of deep learning inference on embedded
+  devices.
+\newblock {\em IEEE Design \& Test}, 38(5):89--99, 2021.
+
+\bibitem{shannon1948mathematical}
+Claude~E. Shannon.
+\newblock A mathematical theory of communication.
+\newblock {\em Bell System Technical Journal}, 27(3):379--423, 1948.
+
+\bibitem{dietterich1997solving}
+Thomas~G. Dietterich, Richard~H. Lathrop, and Tom\'as Lozano-P\'erez.
+\newblock Solving the multiple instance problem with axis-parallel rectangles.
+\newblock {\em Artificial Intelligence}, 89(1-2):31--71, 1997.
+
+\bibitem{ilse2018attention}
+Maximilian Ilse, Jakub~M. Tomczak, and Max Welling.
+\newblock Attention-based deep multiple instance learning.
+\newblock {\em International Conference on Machine Learning (ICML)}, pages
+  2127--2136, 2018.
+
+\bibitem{gal2016dropout}
+Yarin Gal and Zoubin Ghahramani.
+\newblock Dropout as a bayesian approximation: Representing model uncertainty
+  in deep learning.
+\newblock {\em International Conference on Machine Learning (ICML)}, pages
+  1050--1059, 2016.
+
+\bibitem{raghunathan2005design}
+Vijay Raghunathan, Curt Schurgers, Sung Park, and Mani~B. Srivastava.
+\newblock Energy-aware wireless microsensor networks.
+\newblock {\em IEEE Signal Processing Magazine}, 19(2):40--50, 2002.
+
+\bibitem{sudevalayam2011energy}
+Sujesha Sudevalayam and Purushottam Kulkarni.
+\newblock Energy harvesting sensor nodes: Survey and implications.
+\newblock {\em IEEE Communications Surveys \& Tutorials}, 13(3):443--461, 2011.
+
+\bibitem{pham2019solar}
+Congduc Pham, Afif Rahim, and Caspar Hartmann.
+\newblock Deploying a fully automated, multi-hop, multi-channel lora sensor
+  network.
+\newblock {\em Sensors}, 19(20):4431, 2019.
+
+\bibitem{tzeng2017adversarial}
+Eric Tzeng, Judy Hoffman, Kate Saenko, and Trevor Darrell.
+\newblock Adversarial discriminative domain adaptation.
+\newblock In {\em Proceedings of the IEEE Conference on Computer Vision and
+  Pattern Recognition (CVPR)}, pages 7167--7176, 2017.
+
+\bibitem{tan2019mnasnet}
+Mingxing Tan, Bo~Chen, Ruoming Pang, Vijay Vasudevan, Mark Sandler, Andrew
+  Howard, and Quoc~V. Le.
+\newblock Mnasnet: Platform-aware neural architecture search for mobile.
+\newblock In {\em Proceedings of the IEEE Conference on Computer Vision and
+  Pattern Recognition (CVPR)}, pages 2820--2828, 2019.
+
+\bibitem{jones2004thermal}
+Hamlyn~G. Jones.
+\newblock Application of thermal imaging and infrared sensing in plant
+  physiology and ecophysiology.
+\newblock {\em Advances in Botanical Research}, 41:107--163, 2004.
+
+\bibitem{mahlein2012hyperspectral}
+Anne-Katrin Mahlein, Ulrike Steiner, Christian Hillnh\"utter, Heinz-Wilhelm
+  Dehne, and Erich-Christian Oerke.
+\newblock Hyperspectral imaging for small-scale analysis of symptoms caused by
+  different sugar beet diseases.
+\newblock {\em Plant Methods}, 8(1):3, 2012.
+
+\bibitem{mcmahan2017communication}
+Brendan McMahan, Eider Moore, Daniel Ramage, Seth Hampson, and Blaise~Aguera
+  y~Arcas.
+\newblock Communication-efficient learning of deep networks from decentralized
+  data.
+\newblock In {\em Proceedings of the 20th International Conference on
+  Artificial Intelligence and Statistics (AISTATS)}, volume~54, pages
+  1273--1282, 2017.
+
+\bibitem{mallya2018packnet}
+Arun Mallya and Svetlana Lazebnik.
+\newblock Packnet: Adding multiple tasks to a single network by iterative
+  pruning.
+\newblock In {\em Proceedings of the IEEE Conference on Computer Vision and
+  Pattern Recognition (CVPR)}, pages 7765--7773, 2018.
+
+\bibitem{pang2021deep}
+Guansong Pang, Chunhua Shen, Longbing Cao, and Anton Van~Den Hengel.
+\newblock Deep learning for anomaly detection: A review.
+\newblock {\em ACM Computing Surveys}, 54(2):1--38, 2021.
+
+\bibitem{rose2016towards}
+David~Christian Rose, William~J. Sutherland, Chris Parker, Matt Lobley, Michael
+  Winter, Carol Morris, Stephen Twining, Charles Ffoulkes, Tatsuya Amano, and
+  Lynn~V. Dicks.
+\newblock Decision support tools for agriculture: Towards effective design and
+  delivery.
+\newblock {\em Agricultural Systems}, 149:165--174, 2016.
+
+\bibitem{kuhnle2021designing}
+Julian K\"uhnle, Lukas Kaiser, Franz Theisel, Niklas Stricker, and Gisela
+  Lanza.
+\newblock Designing an adaptive production control system using reinforcement
+  learning.
+\newblock {\em Journal of Intelligent Manufacturing}, 32:855--876, 2021.
+
+\bibitem{irimia2016organic}
+Mihai Irimia-Vladu.
+\newblock "green" electronics: Biodegradable and biocompatible materials and
+  devices for sustainable future.
+\newblock {\em Chemical Society Reviews}, 43(2):588--610, 2014.
 
 \end{thebibliography}

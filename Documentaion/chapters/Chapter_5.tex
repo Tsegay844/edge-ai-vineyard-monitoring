@@ -1,1 +1,84 @@
 \chapter{Conclusion and Future Work}
+\label{chap:conclusion}
+
+This thesis has demonstrated the feasibility of deploying sophisticated deep learning inference on ultra-low-power microcontrollers for autonomous vineyard monitoring. The system achieves 97.4\% plant-level disease classification accuracy while consuming only 0.815mW average power, enabling maintenance-free solar-powered operation for multi-month deployments.
+
+%----------------------------------------------------------------
+\section{Summary of Contributions}
+\label{sec:summary_contributions}
+
+This work advances agricultural edge AI through four primary contributions:
+
+\subsection{Dual-Model Cascade Architecture}
+\label{subsec:architecture_contribution}
+
+The system combines ESPDet-Pico object detection with MobileNetV2 classification in a two-stage pipeline optimized for ESP32-S3. INT8 quantization reduces model sizes to 2.3MB and 8.7MB while maintaining 99.75\% classification accuracy on the four-class grape disease dataset. The deployment achieves 94-97\% SIMD efficiency on Xtensa LX7 vector extensions, with total inference latency of 4.17 seconds for a 7-leaf image.
+
+\subsection{Multi-Leaf Aggregation Strategy}
+\label{subsec:aggregation_contribution}
+
+A hybrid count-weighted aggregation approach synthesizes predictions from multiple leaves within each image to produce robust plant-level diagnoses. By combining leaf detection counts with entropy-weighted class probabilities, the strategy achieves 97.4\% plant-level accuracy—a 3.2 percentage point improvement over single-leaf inference and 3.2 points above baseline majority voting.
+
+\subsection{Solar-Powered Duty-Cycled Operation}
+\label{subsec:energy_contribution}
+
+The 1.57\% duty cycle architecture (4.17s active, 295.83s sleep per 5-minute period) consumes 3.4J per cycle. The 6W solar panel maintains 13-37× energy surplus across seasons, with battery autonomy of 9.1 days. Six-month field deployment achieved 99.8\% uptime, validating long-term autonomous operation.
+
+\subsection{LoRaWAN Protocol Design}
+\label{subsec:communication_contribution}
+
+A custom 16-byte payload efficiently encodes disease counts, confidence scores, and system telemetry within LoRaWAN MTU constraints. The 29-byte total frame size transmits in 0.5-2 seconds depending on spreading factor, supporting scalable multi-node deployments.
+
+%----------------------------------------------------------------
+\section{Key Findings}
+\label{sec:key_findings}
+
+\textbf{Edge AI on Microcontrollers is Viable:} Modern microcontrollers with SIMD extensions can execute sophisticated multi-stage deep learning pipelines for agricultural vision tasks. The 4.17-second inference latency is acceptable for monitoring applications where crop phenological changes occur over days to weeks.
+
+\textbf{Aggregation Improves Accuracy:} Multi-leaf aggregation that accounts for prediction uncertainty and instance counts significantly outperforms naive voting, providing a 3.2 percentage point accuracy gain that elevates the system from marginally useful (94\%) to production-ready (97\%).
+
+\textbf{Solar Harvesting Enables Long-Term Autonomy:} Even in winter months, the 6W panel provides 13× energy surplus, enabling maintenance-free operation. The 9.1-day battery autonomy provides sufficient resilience against extended overcast periods in Mediterranean climates.
+
+\textbf{LoRaWAN Suits Sparse Telemetry:} The 16-byte payload efficiently encodes all essential diagnostic information within LoRaWAN MTU constraints while maintaining 2-15km range, making it well-suited for vineyard-scale deployments without cellular subscription fees.
+
+%----------------------------------------------------------------
+\section{Limitations}
+\label{sec:limitations}
+
+\textbf{Domain Gap:} Training on PlantVillage studio images introduces distribution shift relative to real vineyard conditions (variable lighting, occlusions, background clutter). Field accuracy may degrade on heavily shadowed or occluded leaves, though entropy-weighted aggregation mitigates this by down-weighting uncertain predictions.
+
+\textbf{Limited Disease Coverage:} The system classifies four disease categories, but real vineyards exhibit additional foliar diseases (Downy Mildew, Powdery Mildew, Anthracnose) and abiotic stresses. Multi-label classification would require architectural modifications and new annotated datasets.
+
+\textbf{Single-Crop Specificity:} Models are specialized for grape leaf morphology and disease phenotypes. Deploying for other crops would require retraining, though transfer learning could reduce annotation burden to 100-500 images per class.
+
+\textbf{Environmental Robustness:} The system has not been tested under extreme temperatures (<0°C), and the IP54 enclosure allows dust accumulation on camera lens and solar panel over weeks. Biofouling from insects and spiders requires periodic manual cleaning.
+
+\textbf{Single-Node Validation:} Scaling to dense sensor networks introduces challenges in LoRaWAN gateway capacity, collision probability, and spatial power heterogeneity due to canopy shading.
+
+%----------------------------------------------------------------
+\section{Future Work}
+\label{sec:future_work}
+
+\textbf{Domain Adaptation and Model Improvement:} Fine-tune classification models on vineyard images using domain adaptation techniques~\cite{tzeng2017adversarial} or transfer learning to bridge the distribution gap between studio PlantVillage images and real field conditions. Implement attention-based aggregation~\cite{ilse2018attention} to model spatial relationships between leaves. Deploy neural architecture search~\cite{tan2019mnasnet} to discover custom architectures optimized for ESP32-S3 hardware characteristics.
+
+\textbf{Multi-Modal Sensing:} Integrate thermal cameras for water stress detection~\cite{jones2004thermal}, multispectral sensors for vegetation indices~\cite{mahlein2012hyperspectral}, and environmental sensors (temperature, humidity, leaf wetness) to expand diagnostic capabilities beyond visual disease detection. Fuse modality-specific predictions to improve early disease detection and reduce false positives from abiotic stresses.
+
+\textbf{Federated Learning and Continual Adaptation:} Implement federated learning~\cite{mcmahan2017communication} or continual learning~\cite{mallya2018packnet} to enable gradual model improvement as sensor networks accumulate field data. Deploy anomaly detection~\cite{pang2021deep} to identify images with high uncertainty for human expert review, enabling the system to recognize the boundaries of its knowledge.
+
+\textbf{Multi-Node Cooperation:} Develop spatial interpolation algorithms to construct disease distribution maps from sparse node observations. Implement collaborative inference offloading where energy-rich nodes process images from energy-constrained neighbors to balance computational load across heterogeneous power availability.
+
+\textbf{Decision Support Integration:} Integrate sensor networks with vineyard decision support systems~\cite{rose2016towards} that recommend treatment timing and pesticide selection. Develop disease forecasting models~\cite{caffi2010mechanistic} that predict progression based on environmental conditions. Optimize treatment strategies using reinforcement learning~\cite{kuhnle2021designing} to maximize economic return while minimizing pesticide usage.
+
+\textbf{Sustainability Analysis:} Conduct life-cycle assessment to quantify environmental impact compared to manual scouting and blanket pesticide application. Investigate biodegradable electronics~\cite{irimia2016organic} for disposable sensor nodes that degrade naturally after end-of-season.
+
+%----------------------------------------------------------------
+\section{Concluding Remarks}
+\label{sec:concluding_remarks}
+
+This thesis demonstrates that edge AI systems deploying deep learning on ultra-low-power microcontrollers represent a practical approach for continuous agricultural monitoring. The convergence of efficient neural architectures, microcontroller hardware acceleration, and energy harvesting technologies enables autonomous operation that provides real-time crop health diagnostics for precision agriculture management.
+
+The key technical insight is that computational demands of deep learning inference have decreased while microcontroller capabilities have increased to the point where these domains now intersect—enabling inference workloads on milliwatt-scale platforms that previously required embedded GPUs or TPUs. The methodological contribution of multi-leaf aggregation demonstrates that edge AI systems should be designed holistically, synthesizing multiple predictions into actionable intelligence rather than treating individual inferences as independent.
+
+From a sustainability perspective, solar-powered operation with 13-37× energy surplus proves that maintenance-free, grid-independent deployment is achievable for edge AI workloads. The environmental and economic benefits of reducing pesticide usage through early disease detection likely outweigh the embodied energy and manufacturing emissions within 2-3 growing seasons.
+
+Looking forward, edge AI agricultural sensing will transition from research prototypes to commodity products within the next 5-10 years. As deployment scales from single nodes to dense networks, the fusion of edge AI with decision support systems, robotic actuators, and big data analytics will enable a new paradigm of precision agriculture that optimizes resource usage while maintaining crop yields and quality. This work represents a step toward that vision, demonstrating that the fundamental technological barriers have been overcome and edge AI vineyard monitoring is ready for real-world deployment.

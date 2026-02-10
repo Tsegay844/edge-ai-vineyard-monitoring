@@ -16,46 +16,52 @@ A level-1 auxiliary file: appendices/Appendix_B.aux
 A level-1 auxiliary file: appendices/Appendix_C.aux
 A level-1 auxiliary file: appendices/Appendix_D.aux
 Database file #1: Bibliography.bib
-Warning--can't use both volume and number fields in buslaev2020albumentations
-You've used 17 entries,
+Warning--entry type for "esp_dl" isn't style-file defined
+--line 998 of file Bibliography.bib
+Warning--entry type for "freenove2024esp32s3" isn't style-file defined
+--line 1014 of file Bibliography.bib
+Warning--empty journal in cai2019once
+Warning--empty booktitle in howard2017mobilenets
+Warning--can't use both volume and number fields in he2015spatial
+You've used 94 entries,
             1791 wiz_defined-function locations,
-            552 strings with 6901 characters,
-and the built_in function-call counts, 4908 in all, are:
-= -- 432
-> -- 225
-< -- 12
-+ -- 82
-- -- 65
-* -- 278
-:= -- 703
-add.period$ -- 55
-call.type$ -- 17
-change.case$ -- 17
+            933 strings with 21186 characters,
+and the built_in function-call counts, 24486 in all, are:
+= -- 2112
+> -- 1262
+< -- 23
++ -- 458
+- -- 364
+* -- 1695
+:= -- 3810
+add.period$ -- 290
+call.type$ -- 94
+change.case$ -- 93
 chr.to.int$ -- 0
-cite$ -- 18
-duplicate$ -- 243
-empty$ -- 474
-format.name$ -- 65
-if$ -- 1156
+cite$ -- 97
+duplicate$ -- 1062
+empty$ -- 2312
+format.name$ -- 364
+if$ -- 5466
 int.to.chr$ -- 0
-int.to.str$ -- 17
-missing$ -- 13
-newline$ -- 91
-num.names$ -- 17
-pop$ -- 84
+int.to.str$ -- 94
+missing$ -- 83
+newline$ -- 479
+num.names$ -- 94
+pop$ -- 283
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 0
-skip$ -- 171
+skip$ -- 571
 stack$ -- 0
-substring$ -- 294
-swap$ -- 113
-text.length$ -- 12
+substring$ -- 1676
+swap$ -- 316
+text.length$ -- 23
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 0
-warning$ -- 1
-while$ -- 41
-width$ -- 19
-write$ -- 192
-(There was 1 warning)
+warning$ -- 3
+while$ -- 236
+width$ -- 96
+write$ -- 1029
+(There were 5 warnings)
