@@ -1,7 +1,7 @@
 \chapter{Conclusion and Future Work}
 \label{chap:conclusion}
 
-This thesis has demonstrated the feasibility of deploying sophisticated deep learning inference on ultra-low-power microcontrollers for autonomous vineyard monitoring. The system achieves 97.4\% plant-level disease classification accuracy while consuming only 0.815mW average power, enabling maintenance-free solar-powered operation for multi-month deployments.
+This thesis has demonstrated the feasibility of deploying sophisticated deep learning inference on ultra-low-power microcontrollers for autonomous vineyard monitoring. The system achieves 97.4\% plant-level disease classification accuracy while consuming only 0.815mW average power, enabling maintenance-free battery-powered operation for multi-month deployments.
 
 %----------------------------------------------------------------
 \section{Summary of Contributions}
@@ -19,10 +19,10 @@ The system combines ESPDet-Pico object detection with MobileNetV2 classification
 
 A hybrid count-weighted aggregation approach synthesizes predictions from multiple leaves within each image to produce robust plant-level diagnoses. By combining leaf detection counts with entropy-weighted class probabilities, the strategy achieves 97.4\% plant-level accuracy—a 3.2 percentage point improvement over single-leaf inference and 3.2 points above baseline majority voting.
 
-\subsection{Solar-Powered Duty-Cycled Operation}
+\subsection{Battery-Powered Duty-Cycled Operation}
 \label{subsec:energy_contribution}
 
-The 1.57\% duty cycle architecture (4.17s active, 295.83s sleep per 5-minute period) consumes 3.4J per cycle. The 6W solar panel maintains 13-37× energy surplus across seasons, with battery autonomy of 9.1 days. Six-month field deployment achieved 99.8\% uptime, validating long-term autonomous operation.
+The 1.57\% duty cycle architecture (4.17s active, 295.83s sleep per 5-minute period) consumes 3.4J per cycle. Battery autonomy of 9.1 days is achieved with standard lithium-polymer cells. Six-month field deployment achieved 99.8\% uptime, validating long-term autonomous operation.
 
 \subsection{LoRaWAN Protocol Design}
 \label{subsec:communication_contribution}
@@ -37,7 +37,7 @@ A custom 16-byte payload efficiently encodes disease counts, confidence scores, 
 
 \textbf{Aggregation Improves Accuracy:} Multi-leaf aggregation that accounts for prediction uncertainty and instance counts significantly outperforms naive voting, providing a 3.2 percentage point accuracy gain that elevates the system from marginally useful (94\%) to production-ready (97\%).
 
-\textbf{Solar Harvesting Enables Long-Term Autonomy:} Even in winter months, the 6W panel provides 13× energy surplus, enabling maintenance-free operation. The 9.1-day battery autonomy provides sufficient resilience against extended overcast periods in Mediterranean climates.
+\textbf{Battery Power Enables Long-Term Autonomy:} The ultra-low power consumption enables 9.1-day battery autonomy, providing maintenance-free operation with periodic battery replacement or recharging cycles.
 
 \textbf{LoRaWAN Suits Sparse Telemetry:} The 16-byte payload efficiently encodes all essential diagnostic information within LoRaWAN MTU constraints while maintaining 2-15km range, making it well-suited for vineyard-scale deployments without cellular subscription fees.
 
@@ -51,7 +51,7 @@ A custom 16-byte payload efficiently encodes disease counts, confidence scores, 
 
 \textbf{Single-Crop Specificity:} Models are specialized for grape leaf morphology and disease phenotypes. Deploying for other crops would require retraining, though transfer learning could reduce annotation burden to 100-500 images per class.
 
-\textbf{Environmental Robustness:} The system has not been tested under extreme temperatures (<0°C), and the IP54 enclosure allows dust accumulation on camera lens and solar panel over weeks. Biofouling from insects and spiders requires periodic manual cleaning.
+\textbf{Environmental Robustness:} The system has not been tested under extreme temperatures (<0°C), and the IP54 enclosure allows dust accumulation on camera lens over weeks. Biofouling from insects and spiders requires periodic manual cleaning.
 
 \textbf{Single-Node Validation:} Scaling to dense sensor networks introduces challenges in LoRaWAN gateway capacity, collision probability, and spatial power heterogeneity due to canopy shading.
 
@@ -79,6 +79,6 @@ This thesis demonstrates that edge AI systems deploying deep learning on ultra-l
 
 The key technical insight is that computational demands of deep learning inference have decreased while microcontroller capabilities have increased to the point where these domains now intersect—enabling inference workloads on milliwatt-scale platforms that previously required embedded GPUs or TPUs. The methodological contribution of multi-leaf aggregation demonstrates that edge AI systems should be designed holistically, synthesizing multiple predictions into actionable intelligence rather than treating individual inferences as independent.
 
-From a sustainability perspective, solar-powered operation with 13-37× energy surplus proves that maintenance-free, grid-independent deployment is achievable for edge AI workloads. The environmental and economic benefits of reducing pesticide usage through early disease detection likely outweigh the embodied energy and manufacturing emissions within 2-3 growing seasons.
+From a sustainability perspective, battery-powered operation with ultra-low power consumption proves that maintenance-free, grid-independent deployment is achievable for edge AI workloads. The environmental and economic benefits of reducing pesticide usage through early disease detection likely outweigh the embodied energy and manufacturing emissions within 2-3 growing seasons.
 
 Looking forward, edge AI agricultural sensing will transition from research prototypes to commodity products within the next 5-10 years. As deployment scales from single nodes to dense networks, the fusion of edge AI with decision support systems, robotic actuators, and big data analytics will enable a new paradigm of precision agriculture that optimizes resource usage while maintaining crop yields and quality. This work represents a step toward that vision, demonstrating that the fundamental technological barriers have been overcome and edge AI vineyard monitoring is ready for real-world deployment.

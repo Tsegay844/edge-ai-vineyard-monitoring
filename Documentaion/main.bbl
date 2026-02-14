@@ -1,159 +1,414 @@
-\begin{thebibliography}{10}
+\begin{thebibliography}{100}
 
-\bibitem{precision_agriculture_review}
-Sjaak Wolfert, Lan Ge, Cor Verdouw, and Marc-Jeroen Bogaardt.
-\newblock Big data in smart farming -- a review.
-\newblock {\em Agricultural Systems}, 153:69--80, 2017.
+\bibitem{shantkumari2023machine}
+M~Shantkumari and SV~Uma.
+\newblock Machine learning techniques implementation for detection of grape
+  leaf disease.
+\newblock {\em Multimedia tools and applications}, 82(20):30709--30731, 2023.
 
-\bibitem{lorawan_agriculture}
-Jetmir Haxhibeqiri, Eli De~Poorter, Ingrid Moerman, and Jeroen Hoebeke.
-\newblock A survey of lorawan for iot: From technology to application.
-\newblock {\em Sensors}, 18(11):3995, 2018.
+\bibitem{tao2025icrop+}
+Xu~Tao, Jackson Butcher, Simone Silvestri, and Sajal~K Das.
+\newblock icrop+: An edge-boosted crop disease detection system via tinyml and
+  lora communication.
+\newblock In {\em 2025 IEEE International Conference on Pervasive Computing and
+  Communications Workshops and other Affiliated Events (PerCom Workshops)},
+  pages 558--560. IEEE Computer Society, 2025.
 
-\bibitem{sandler2018mobilenetv2}
-Mark Sandler, Andrew Howard, Menglong Zhu, Andrey Zhmoginov, and Liang-Chieh
-  Chen.
-\newblock Mobilenetv2: Inverted residuals and linear bottlenecks.
-\newblock In {\em Proceedings of the IEEE Conference on Computer Vision and
-  Pattern Recognition (CVPR)}, pages 4510--4520, 2018.
+\bibitem{mathew2025real}
+Midhun~P Mathew, Sajmi Salam, Sophiya Mathews, et~al.
+\newblock Real-time automatic detection of grape leaf diseases with mobilenetv2
+  deep learning network based on artificial intelligence.
+\newblock In {\em 2025 Advanced Computing and Communication Technologies for
+  High Performance Applications (ACCTHPA)}, pages 1--6. IEEE, 2025.
 
-\bibitem{ultralytics2024yolo11}
-Ultralytics.
-\newblock {YOLO11}: Real-time object detection.
-\newblock \url{https://docs.ultralytics.com}, 2024.
+\bibitem{liu2025grape}
+Enyu Liu and Haiming Li.
+\newblock Grape leaf disease classification based on convolutional neural
+  networks.
+\newblock In {\em 2025 10th International Conference on Computer and
+  Information Processing Technology (ISCIPT)}, pages 257--260. IEEE, 2025.
 
-\bibitem{edge_ai_survey}
-Zhi Zhou, Xu~Chen, En~Li, Liekang Zeng, Ke~Luo, and Junshan Zhang.
-\newblock Edge intelligence: Paving the last mile of artificial intelligence
-  with edge computing.
-\newblock {\em Proceedings of the IEEE}, 107(8):1738--1762, 2019.
+\bibitem{talaat2025deepleaf}
+Fatma~M Talaat, Mahmoud~Y Shams, Samah~A Gamel, and Hanaa ZainEldin.
+\newblock Deepleaf: an optimized deep learning approach for automated
+  recognition of grapevine leaf diseases.
+\newblock {\em Neural Computing and Applications}, pages 1--25, 2025.
 
-\bibitem{hughes2015open}
-David~P. Hughes and Marcel Salath\'e.
-\newblock An open access repository of images on plant health to enable the
-  development of mobile disease diagnostics.
-\newblock {\em arXiv preprint arXiv:1511.08060}, 2015.
+\bibitem{zhou2025lightweight}
+Zihan Zhou and Liming Yu.
+\newblock Lightweight grape leaf disease identification for complex field
+  scenes--yolo-grape model and its boundary-lesion coalesce optimization
+  policies: Z. zhou, l. yu.
+\newblock {\em Signal, Image and Video Processing}, 19(16):1378, 2025.
 
-\bibitem{grape_disease_detection}
-Mingwu Ji, Lei Zhang, and Qingming Wu.
-\newblock Automatic grape leaf diseases identification via unitedmodel based on
-  multiple convolutional neural networks.
-\newblock {\em Information Processing in Agriculture}, 7(3):418--426, 2020.
+\bibitem{atesoglu2025detection}
+Fatih Atesoglu and Harun Bingol.
+\newblock The detection and classification of grape leaf diseases with an
+  improved hybrid model based on feature engineering and ai.
+\newblock {\em AgriEngineering}, 7(7):228, 2025.
 
-\bibitem{lorawan_specification}
-{LoRa Alliance}.
-\newblock Lorawan 1.0.4 specification.
-\newblock
-  \url{https://lora-alliance.org/resource_hub/lorawan-specification-v1-0-4/},
+\bibitem{dharrao2025efficient}
+Madhuri Dharrao, Rajasmita Panda, Anupkumar Bongale, Vinod Mahajan, Sirshananda
+  Panda, and Deepak Dharrao.
+\newblock Efficient grape diseases classification using an optimized
+  mobilenetv2 with special attention block.
+\newblock In {\em 2025 9th International Conference on Computing,
+  Communication, Control and Automation (ICCCBEA)}, pages 1--6. IEEE, 2025.
+
+\bibitem{hnatiuc2023intelligent}
+Mihaela Hnatiuc, Simona Ghita, Domnica Alpetri, Aurora Ranca, Victoria Artem,
+  Ionica Dina, M{\u{a}}d{\u{a}}lina Cosma, and Mazin Abed~Mohammed.
+\newblock Intelligent grapevine disease detection using iot sensor network.
+\newblock {\em Bioengineering}, 10(9):1021, 2023.
+
+\bibitem{aher2025deep}
+Prashant~G Aher, Vikrant Sabnis, and Jay~Kumar Jain.
+\newblock Deep learning for grape leaf disease detection: A review.
+\newblock {\em Multidisciplinary Reviews}, 8(11):2025364--2025364, 2025.
+
+\bibitem{almufareh2024intelligent}
+Maram~Fahaad Almufareh, Mamoona Humayun, Zulfiqar Ahmad, and Asfandyar Khan.
+\newblock An intelligent lorawan-based iot device for monitoring and control
+  solutions in smart farming through anomaly detection integrated with
+  unsupervised machine learning.
+\newblock {\em IEEe Access}, 12:119072--119086, 2024.
+
+\bibitem{jose2025lorawan}
+Theresa Jose and J~Albert Mayan.
+\newblock Lorawan and artificial intelligence integrated smart acoustic sensor
+  network for bird species identification and deterrence system for farm
+  protection.
+\newblock {\em Measurement}, page 118452, 2025.
+
+\bibitem{gawande2024early}
+Apeksha Gawande, Swati Sherekar, and Ranjit Gawande.
+\newblock Early prediction of grape disease attack using a hybrid classifier in
+  association with iot sensors.
+\newblock {\em Heliyon}, 10(19), 2024.
+
+\bibitem{hnatiuc2025aiot}
+Mihaela Hnatiuc, Domnica Alpetri, Sorin Sintea, Bogdan Hnatiuc,
+  Gabriel~Margarit Raicu, Mirel Paun, and Ionica Dina.
+\newblock Aiot monitoring for early identification of diseases in grapevines.
+  complete study.
+\newblock {\em IEEE Access}, 2025.
+
+\bibitem{karthik2024grapeleafnet}
+R~Karthik, R~Menaka, S~Ompirakash, P~Bala Murugan, M~Meenakashi, Sindhia
+  Lingaswamy, and Daehan Won.
+\newblock Grapeleafnet: A dual-track feature fusion network with
+  inception-resnet and shuffle-transformer for accurate grape leaf disease
+  identification.
+\newblock {\em IEEE Access}, 12:19612--19624, 2024.
+
+\bibitem{yang2024detection}
+Mingji Yang, Xinbo Tong, and Haisong Chen.
+\newblock Detection of small lesions on grape leaves based on improved yolov7.
+\newblock {\em Electronics}, 13(2):464, 2024.
+
+\bibitem{chen2024yolov8}
+Zuxing Chen, Junjie Feng, Kun Zhu, Zhenyan Yang, Yanhong Wang, and Mingyue Ren.
+\newblock Yolov8-accw: Lightweight grape leaf disease detection method based on
+  improved yolov8.
+\newblock {\em IEEE Access}, 12:123595--123608, 2024.
+
+\bibitem{junaidi2025deep}
+Apri Junaidi, Siti Zaiton~Mohd Hashim, Mohd~Shahizan Bin~Othman, Mohd~Murtadha
+  Mohamad, Hitham Alhussian, Said~Jadil Abdulkadir, Maged Nasser, and
+  Yunusa~Adamu Bena.
+\newblock Deep learning and edge computing in agriculture: A comprehensive
+  review of recent trends and innovations.
+\newblock {\em IEEE Access}, 2025.
+
+\bibitem{joshi2024edge}
+Harsh Joshi.
+\newblock Edge-ai for agriculture: lightweight vision models for disease
+  detection in resource-limited settings.
+\newblock {\em arXiv preprint arXiv:2412.18635}, 2024.
+
+\bibitem{santhosh2024edge}
+BJ~Santhosh and C~Balarengadurai.
+\newblock Edge-ai based plant leaf disease identification and prevention for
+  smart agriculture.
+\newblock {\em Grenze International Journal of Engineering \& Technology
+  (GIJET)}, 10, 2024.
+
+\bibitem{karim2024enhancing}
+Md~Jawadul Karim, Md~Omaer~Faruq Goni, Md~Nahiduzzaman, Mominul Ahsan, Julfikar
+  Haider, and Marcin Kowalski.
+\newblock Enhancing agriculture through real-time grape leaf disease
+  classification via an edge device with a lightweight cnn architecture and
+  grad-cam.
+\newblock {\em Scientific Reports}, 14(1):16022, 2024.
+
+\bibitem{lazcano2025deep}
+Carolina Lazcano-Garc{\'\i}a, Karen~Guadalupe Garc{\'\i}a-Resendiz, Jimena
+  Carrillo-Tripp, Everardo Inzunza-Gonzalez, Enrique~Efr{\'e}n
+  Garc{\'\i}a-Guerrero, David Cervantes-Vasquez, Jorge Galarza-Falfan,
+  Cesar~Alberto Lopez-Mercado, and Oscar~Adrian Aguirre-Castro.
+\newblock Deep learning-based system for early symptoms recognition of
+  grapevine red blotch and leafroll diseases and its implementation on edge
+  computing devices.
+\newblock {\em AgriEngineering}, 7(3):63, 2025.
+
+\bibitem{mamun2025grape}
+Sajib~Bin Mamun, Israt~Jahan Payel, Md~Taimur Ahad, Anthony~S Atkins, Bo~Song,
+  and Yan Li.
+\newblock Grape guard: A yolo-based mobile application for detecting grape leaf
+  diseases.
+\newblock {\em Journal of Electronic Science and Technology}, 23(1):100300,
+  2025.
+
+\bibitem{gawande2025analyzing}
+Apeksha~Ranjit Gawande, Swati Sherekar, and Ranjit~Madhukar Gawande.
+\newblock Analyzing various grape diseases and detection techniques by
+  monitoring environmental parameters through iot and machine learning
+  approaches.
+\newblock In {\em Machine Learning for Environmental Monitoring in Wireless
+  Sensor Networks}, pages 173--188. IGI Global Scientific Publishing, 2025.
+
+\bibitem{kirubakaran2024grape}
+S~Kirubakaran and Shaheed Samreen.
+\newblock Grape leaf diseases identification system using convolutional neural
+  networks and lora technology.
+\newblock {\em Library of Progress-Library Science, Information Technology \&
+  Computer}, 44(3), 2024.
+
+\bibitem{javidan2023diagnosis}
+Seyed~Mohamad Javidan, Ahmad Banakar, Keyvan~Asefpour Vakilian, and Yiannis
+  Ampatzidis.
+\newblock Diagnosis of grape leaf diseases using automatic k-means clustering
+  and machine learning.
+\newblock {\em Smart Agricultural Technology}, 3:100081, 2023.
+
+\bibitem{diana2023image}
+A~Diana~Andrushia, T~Mary~Neebha, A~Trephena~Patricia, S~Umadevi, N~Anand, and
+  Atul Varshney.
+\newblock Image-based disease classification in grape leaves using
+  convolutional capsule network.
+\newblock {\em Soft Computing}, 27(3):1457--1470, 2023.
+
+\bibitem{nargotra2023grape}
+Deeksha Nargotra and Vinod Sharma.
+\newblock Grape leaf disease detection using deep learning.
+\newblock {\em Journal of Scientific Research and Technology}, pages 128--139,
   2023.
 
-\bibitem{mekki2019comparative}
-Kais Mekki, Eddy Bajic, Fr\'ed\'eric Chaxel, and Fernand Meyer.
-\newblock A comparative study of lpwan technologies for large-scale iot
-  deployment.
-\newblock {\em ICT Express}, 5(1):1--7, 2019.
+\bibitem{soni2024deep}
+Tanishq Soni.
+\newblock Deep learning for accurate grape disease classification with
+  resnet50.
+\newblock In {\em 2024 5th International Conference on Smart Electronics and
+  Communication (ICOSEC)}, pages 816--820. IEEE, 2024.
 
-\bibitem{sinha2017survey}
-Rupam~Sankar Sinha, Yiqiao Wei, and Seung-Hoon Hwang.
-\newblock A survey on lpwa technology: Lora and nb-iot.
-\newblock {\em ICT Express}, 3(1):14--21, 2017.
+\bibitem{praveen2023novel}
+S~Phani Praveen, Rajeswari Nakka, Anuradha Chokka, Venkata~Nagaraju Thatha,
+  Sai~Srinivas Vellela, and Uddagiri Sirisha.
+\newblock A novel classification approach for grape leaf disease detection
+  based on different attention deep learning techniques.
+\newblock {\em International Journal of Advanced Computer Science and
+  Applications (IJACSA)}, 14(6):2023, 2023.
 
-\bibitem{wolfert2017big}
-Sjaak Wolfert, Lan Ge, Cor Verdouw, and Marc-Jeroen Bogaardt.
-\newblock Big data in smart farming -- a review.
-\newblock {\em Agricultural Systems}, 153:69--80, 2017.
+\bibitem{vo2025fusing}
+Hoang-Tu Vo, Kheo~Chau Mui, and Nhon~Nguyen Thien.
+\newblock Fusing xception and resnet50 features for robust grape leaf disease
+  classification.
+\newblock {\em Bulletin of Electrical Engineering and Informatics},
+  14(1):268--275, 2025.
 
-\bibitem{gebbers2010precision}
-Robin Gebbers and Viacheslav~I. Adamchuk.
-\newblock Precision agriculture and food security.
-\newblock {\em Science}, 327(5967):828--831, 2010.
+\bibitem{yadav2025enhancing}
+Deepshikha Yadav, Archana Balyan, Suman Mann, and Aayush Ranga.
+\newblock Enhancing disease detection prediction accuracy of grape leaves using
+  vgg16 model and inception v3 model.
+\newblock {\em Proceedings on Engineering}, 7(1):365--370, 2025.
 
-\bibitem{gutierrez2014automated}
-Joaquin Gutierrez, Juan~Francisco Villa-Medina, Alejandro Nieto-Garibay, and
-  Miguel~Angel Porta-Gandara.
-\newblock Automated irrigation system using a wireless sensor network and gprs
-  module.
-\newblock {\em IEEE Transactions on Instrumentation and Measurement},
-  63(1):166--176, 2014.
+\bibitem{khursheed2025improved}
+Sarah Khursheed and Balwinder Kaur.
+\newblock Improved grape leaf disease detection with gan-augmented resnet and
+  efficientnet.
+\newblock In {\em International Conference on Advances and Applications in
+  Artificial Intelligence (ICAAAI 2025)}, pages 654--669. Atlantis Press, 2025.
 
-\bibitem{matese2015technology}
-Alessandro Matese, Piero Toscano, Salvatore~Filippo {Di Gennaro}, Lorenzo
-  Genesio, Francesco~Paolo Vaccari, Jacopo Primicerio, Chiara Belli, Alessandro
-  Zaldei, Roberto Bianconi, and Beniamino Gioli.
-\newblock Intercomparison of uav, aircraft and satellite remote sensing
-  platforms for precision viticulture.
-\newblock {\em Remote Sensing}, 7(3):2971--2990, 2015.
+\bibitem{zhang2025lightweight}
+Ning Zhang, Enxu Zhang, Guowei Qi, Fei Li, and Cheng Lv.
+\newblock Lightweight grape leaf disease recognition method based on
+  transformer framework.
+\newblock {\em Scientific Reports}, 15(1):28974, 2025.
 
-\bibitem{caffi2010mechanistic}
-Tito Caffi, Vittorio Rossi, and Enrico Cosatti.
-\newblock A mechanistic model simulating ascosporic infections by plasmopara
-  viticola, the causal agent of grapevine downy mildew.
-\newblock {\em Ecological Modelling}, 221(17):2231--2241, 2010.
+\bibitem{li2025grape}
+Weixia Li, Bingkun Zhou, Yinzheng Zhou, Chenlu Jiang, Mingzhuo Ruan, Tangji Ke,
+  Huijun Wang, and Chunli Lv.
+\newblock Grape disease detection using transformer-based integration of vision
+  and environmental sensing.
+\newblock {\em Agronomy}, 15(4):831, 2025.
 
-\bibitem{burrell2004vineyard}
-Jenna Burrell, Tim Brooke, and Richard Beckwith.
-\newblock Vineyard computing: Sensor networks in agricultural production.
-\newblock {\em IEEE Pervasive Computing}, 3(1):38--45, 2004.
+\bibitem{zhang2023crformer}
+Xinxin Zhang, Chaojun Cen, Fei Li, Meng Liu, and Weisong Mu.
+\newblock Crformer: cross-resolution transformer for segmentation of grape leaf
+  diseases with context mining.
+\newblock {\em Expert Systems with Applications}, 229:120324, 2023.
 
-\bibitem{montoya2020vineyard}
-Francisco~Javier Montoya, Juan Ag{\"u}era, and Manuel {de Valc{\'a}rcel}.
-\newblock A lorawan sensor network for the integrated management of the
-  irrigation, nutrition and pest control in vineyards.
-\newblock {\em Computers and Electronics in Agriculture}, 173:105407, 2020.
+\bibitem{ishengoma2024ensemble}
+Farian~S Ishengoma and Neema~N Lyimo.
+\newblock Ensemble model for grape leaf disease detection using cnn feature
+  extractors and random forest classifier.
+\newblock {\em Heliyon}, 10(12), 2024.
 
-\bibitem{sancheziborra2018state}
-Ramon Sanchez-Iborra and Maria-Dolores Cano.
-\newblock State of the art in lp-wan solutions for industrial iot services.
-\newblock {\em Sensors}, 16(5):708, 2016.
+\bibitem{chen2023grape}
+Yiping Chen and Qiufeng Wu.
+\newblock Grape leaf disease identification with sparse data via generative
+  adversarial networks and convolutional neural networks.
+\newblock {\em Precision Agriculture}, 24(1):235--253, 2023.
 
-\bibitem{popovic2017experiences}
-Tomislav Popovic, Nenad Latinovic, Aleksandra Pesic, Zoran Zecevic, Branko
-  Krstajic, and Slobodan Djukanovic.
-\newblock Architecting an iot-enabled platform for precision agriculture and
-  ecological monitoring: A case study.
-\newblock {\em Computers and Electronics in Agriculture}, 140:255--265, 2017.
+\bibitem{ji2025research}
+Changpeng Ji, Yongji Zuo, and Wei Dai.
+\newblock Research on grape leaf disease detection method based on nma-yolov8n.
+\newblock In {\em ITM Web of Conferences}, volume~77, page 01038. EDP Sciences,
+  2025.
 
-\bibitem{trevathan2021iot}
-Jarrod Trevathan, Wayne Read, and Leigh~Michael Schmidtke.
-\newblock Towards the development of an e-nose/e-tongue for autonomous target
-  detection and tracking in viticulture.
-\newblock {\em Artificial Intelligence in Agriculture}, 5:83--98, 2021.
+\bibitem{mehta2023grape}
+Shiva Mehta, Vinay Kukreja, and Dibyahash Bordoloi.
+\newblock Grape leaf disease severity analysis: Employing federated learning
+  with cnn techniques.
+\newblock In {\em 2023 World Conference on Communication \& Computing (WCONF)},
+  pages 1--6. IEEE, 2023.
 
-\bibitem{barbedo2013digital}
-Jayme Garcia~Arnal Barbedo.
-\newblock Digital image processing techniques for detecting, quantifying and
-  classifying plant diseases.
-\newblock {\em SpringerPlus}, 2:660, 2013.
+\bibitem{gaur2023fighting}
+Poonam Gaur, Rohit Sharma, Ravi Kumar, Amit Gupta, Rishabh Sharma, and Vinay
+  Kukreja.
+\newblock Fighting grape black rot with deep learning: A cnn-lstm hybrid model
+  for disease severity classification.
+\newblock In {\em 2023 4th International Conference for Emerging Technology
+  (INCET)}, pages 1--5. IEEE, 2023.
 
-\bibitem{barbedo2016review}
-Jayme Garcia~Arnal Barbedo.
-\newblock A review on the main challenges in automatic plant disease
-  identification based on visible range images.
-\newblock {\em Biosystems Engineering}, 144:52--60, 2016.
+\bibitem{kunduracioglu2024advancements}
+Ismail Kunduracioglu and Ishak Pacal.
+\newblock Advancements in deep learning for accurate classification of grape
+  leaves and diagnosis of grape diseases.
+\newblock {\em Journal of Plant Diseases and Protection}, 131(3):1061--1080,
+  2024.
 
-\bibitem{mohanty2016using}
-Sharada~P. Mohanty, David~P. Hughes, and Marcel Salath{\'e}.
-\newblock Using deep learning for image-based plant disease detection.
-\newblock In {\em Frontiers in Plant Science}, volume~7, page 1419, 2016.
+\bibitem{naik2025disease}
+Varsha Naik, Trupti Baraskar, Viren Khatri, Parimal Kolhe, and Mitheelesh
+  Katyarmal.
+\newblock Disease detection in grape leaves using.
+\newblock In {\em Advances in Intelligent Systems for Sustainable Agriculture:
+  Proceedings of the 3rd International Conference, ICISA 2024}, volume 1201,
+  page~3. Springer Nature, 2025.
 
-\bibitem{ferentinos2018deep}
-Konstantinos~P. Ferentinos.
-\newblock Deep learning models for plant disease detection and diagnosis.
-\newblock {\em Computers and Electronics in Agriculture}, 145:311--318, 2018.
+\bibitem{shetty2025grape}
+Savitha Shetty and Saritha Shetty.
+\newblock Grape leaf disease detection using deep learning approach.
+\newblock In {\em AIP Conference Proceedings}, volume 3278, page 020006. AIP
+  Publishing LLC, 2025.
 
-\bibitem{karthik2020attention}
-R.~Karthik, M.~Hariharan, S.~Anand, P.~Mathikshara, A.~Johnson, and R.~Menaka.
-\newblock Attention embedded residual cnn for disease detection in tomato
-  leaves.
-\newblock {\em Applied Soft Computing}, 86:105933, 2020.
+\bibitem{lin2022grapenet}
+Jianwu Lin, Xiaoyulong Chen, Renyong Pan, Tengbao Cao, Jitong Cai, Yang Chen,
+  Xishun Peng, Tomislav Cernava, and Xin Zhang.
+\newblock Grapenet: A lightweight convolutional neural network model for
+  identification of grape leaf diseases.
+\newblock {\em Agriculture}, 12(6):887, 2022.
 
-\bibitem{mahlein2018plant}
-Anne-Katrin Mahlein, Eya Alisaac, Adil {Al Masri}, Jan Behmann, Heinz-Wilhelm
-  Dehne, and Erich-Christian Oerke.
-\newblock Comparison and combination of thermal, fluorescence, and
-  hyperspectral imaging for monitoring fusarium head blight of wheat on
-  spikelet scale.
-\newblock {\em Sensors}, 19(10):2281, 2019.
+\bibitem{sahid2025image}
+Ahmad~Nur Sahid and Deden~Ruli Cahyadi.
+\newblock Image classification using mobilenet based on cnn architecture for
+  grape leaf disease detection.
+\newblock {\em Journal of Intelligent Systems Technology and Informatics},
+  1(1):15--21, 2025.
+
+\bibitem{tanvir2025pcnn}
+Kazi Tanvir, Ritik Sharma, Md~Sayem Kabir, Tasnim~Sultana Sintheia, Soumya
+  Basu, and Soumik Banerjee.
+\newblock Pcnn-based grape leaf disease detection using mobilenetv2 and vit.
+\newblock {\em Data Science and Security: Proceedings of IDSCS 2024, Volume 1},
+  1:281, 2025.
+
+\bibitem{deepa2026net}
+R~Deepa, Midhun~P Mathew, S~Baskar, et~al.
+\newblock L-net: a lightweight cnn framework for sustainable multicrop leaf
+  disease detection and classification on edge devices.
+\newblock {\em Sustainable Food Technology}, 2026.
+
+\bibitem{grujev2025efficient}
+Milan Grujev, Dragan Stojanovic, Aleksandar Milosavljevic, Milos Ilic, and
+  Veljko Prodanovic.
+\newblock An efficient real-time apple disease classification approach using a
+  novel lightweight neural network on an arduino edge device.
+\newblock {\em Internet of Things}, page 101833, 2025.
+
+\bibitem{amirkhanova2026lightweight}
+Gulshat Amirkhanova, Syrym Ismailov, Alikhan Amirkhanov, Saltanat Adilzhanova,
+  Meiramkul Zhasuzakova, and Siming Chen.
+\newblock A lightweight, end-to-end encrypted data pipeline for iiot: An
+  aes-gcm implementation for esp32, mqtt, and raspberry pi.
+\newblock {\em Information}, 17(1):33, 2026.
+
+\bibitem{velez2025framework}
+Sergio V{\'e}lez, Mar Ariza-Sent{\'\i}s, Mario Trivi{\~n}o, Antonio~Carlos
+  Cob-Parro, Miquel Mila, and Jo{\~a}o Valente.
+\newblock Framework for smartphone-based grape detection and vineyard
+  management using uav-trained ai.
+\newblock {\em Heliyon}, 11(4), 2025.
+
+\bibitem{khan2023cloud}
+Murtaza~Ali Khan, Muhammad Zakarya, and Muhammad Haleem.
+\newblock A cloud edge based intelligent system for detection of grape
+  diseases.
+\newblock 2023.
+
+\bibitem{abomhara2024vineyard}
+Mohamed Abomhara, Sule~Yildirim Yayilgan, and Muhammad Fahad.
+\newblock Vineyard leaf disease prediction: Bridging the gap between predictive
+  accuracy and interpretability.
+\newblock {\em New Trends in Disruptive Technologies, Tech Ethics, and
+  Artificial Intelligence: The DITTET 2024 Collection}, page~97, 2024.
+
+\bibitem{hasani2025ai}
+Zirije Hasani, Samedin Krrabaj, Jakup Fondaj, Izet Izeti, Ilda Thaqi, Enes
+  Sofiu, and Hamide Tertini.
+\newblock Ai-powered image processing techniques for grapevine disease
+  detection in agriculture.
+\newblock {\em Rivista di Studi sulla Sostenibilit{\`a}-Review of studies on
+  sustainability-Open access}, 10(2), 2025.
+
+\bibitem{mobeen2024vineyard}
+Noor~E Mobeen, Sarang Shaikh, Livinus~Obiora Nweke, Mohamed Abomhara,
+  Sule~Yildirim Yayilgan, and Muhammad Fahad.
+\newblock Vineyard leaf disease prediction: Bridging the gap between predictive
+  accuracy and interpretability.
+\newblock In {\em International Conference on Disruptive Technologies, Tech
+  Ethics and Artificial Intelligence}, pages 97--108. Springer, 2024.
+
+\bibitem{uniyal2024intelligent}
+Sneha Uniyal, Parveen Dhoundiyal, Vikrant Sharma, and Satvik Vats.
+\newblock An intelligent approach to grape leaf disease diagnosis through
+  machine learning.
+\newblock In {\em 2024 2nd International Conference on Disruptive Technologies
+  (ICDT)}, pages 284--288. IEEE, 2024.
+
+\bibitem{kaur2024novel}
+Navneet Kaur and V~Devendran.
+\newblock A novel framework for semi-automated system for grape leaf disease
+  detection.
+\newblock {\em Multimedia Tools and Applications}, 83(17):50733--50755, 2024.
+
+\bibitem{plantvillage_dataset_2023}
+Abdallah Ali.
+\newblock Plantvillage dataset.
+\newblock Kaggle, 2023.
+\newblock Accessed: February 2026.
+
+\bibitem{kaggle_grape_images_2023}
+Nicolaas Regnier.
+\newblock Grape / grapes.
+\newblock Kaggle, 2023.
+\newblock Accessed: February 2026.
+
+\bibitem{roboflow_grape_leaf_2026}
+{Roboflow Universe}.
+\newblock Grape leaf roi detection dataset, version 6.
+\newblock Roboflow, 2026.
+\newblock CC BY 4.0 License, Exported: January 29, 2026.
 
 \bibitem{ren2015faster}
 Shaoqing Ren, Kaiming He, Ross Girshick, and Jian Sun.
@@ -174,137 +429,6 @@ Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy, Scott Reed,
 \newblock Ssd: Single shot multibox detector.
 \newblock In {\em European Conference on Computer Vision (ECCV)}, pages 21--37,
   2016.
-
-\bibitem{sa2016deepfruits}
-Inkyu Sa, Zongyuan Ge, Feras Dayoub, Ben Upcroft, Tristan Perez, and Chris
-  McCool.
-\newblock Deepfruits: A fruit detection system using deep neural networks.
-\newblock {\em Sensors}, 16(8):1222, 2016.
-
-\bibitem{bargoti2017deep}
-Suchet Bargoti and James~P. Underwood.
-\newblock Deep fruit detection in orchards.
-\newblock {\em IEEE International Conference on Robotics and Automation
-  (ICRA)}, pages 3626--3633, 2017.
-
-\bibitem{koirala2019deep}
-Anand Koirala, Kerry~B. Walsh, Zhenglin Wang, and Cheryl McCarthy.
-\newblock Deep learning for real-time fruit detection and orchard fruit load
-  estimation: Benchmarking of 'mangoyolo'.
-\newblock {\em Precision Agriculture}, 20:1107--1135, 2019.
-
-\bibitem{lin2019deep}
-Guodong Lin, Yunchao Tang, Xiu Zou, Jiangtao Xiong, and Junli Li.
-\newblock Guava detection and pose estimation using a low-cost rgb-d sensor in
-  the field.
-\newblock {\em Sensors}, 19(2):428, 2019.
-
-\bibitem{afonso2020tomato}
-Manya Afonso, Harm Fonteijn, Francesco~S. Fiorentin, Dennis Lensink, Mark
-  Mooij, Niels Faber, Gerrit Polder, and Ron Wehrens.
-\newblock Tomato fruit detection and counting in greenhouses using deep
-  learning.
-\newblock {\em Frontiers in Plant Science}, 11:571299, 2020.
-
-\bibitem{liu2020improved}
-Jiajia Liu and Xinzheng Wang.
-\newblock Tomato diseases and pests detection based on improved yolo v3
-  convolutional neural network.
-\newblock {\em Frontiers in Plant Science}, 11:898, 2020.
-
-\bibitem{cai2019once}
-Han Cai, Ligeng Zhu, and Song Han.
-\newblock Proxylessnas: Direct neural architecture search on target task and
-  hardware.
-\newblock 2019.
-
-\bibitem{lane2016deepx}
-Nicholas~D. Lane, Sourav Bhattacharya, Petko Georgiev, Claudio Forlivesi, Lei
-  Jiao, Lorena Qendro, and Fahim Kawsar.
-\newblock Deepx: A software accelerator for low-power deep learning inference
-  on mobile devices.
-\newblock In {\em 15th ACM/IEEE International Conference on Information
-  Processing in Sensor Networks (IPSN)}, pages 1--12, 2016.
-
-\bibitem{mehonic2022brain}
-Adnan Mehonic and Anthony~J. Kenyon.
-\newblock Brain-inspired computing needs a master plan.
-\newblock {\em Nature}, 604:255--260, 2022.
-
-\bibitem{david2021tensorflow}
-Robert David, Jared Duke, Advait Jain, Vijay~Janapa Reddi, Nat Jeffries, Jian
-  Li, Nick Kreeger, Ian Nappier, Meghna Natraj, Tiezhen Wang, Pete Warden, and
-  Rocky Rhodes.
-\newblock Tensorflow lite micro: Embedded machine learning on tinyml systems.
-\newblock {\em Proceedings of Machine Learning and Systems}, 3:800--811, 2021.
-
-\bibitem{jacob2018quantization}
-Benoit Jacob, Skirmantas Kligys, Bo~Chen, Menglong Zhu, Matthew Tang, Andrew
-  Howard, Hartwig Adam, and Dmitry Kalenichenko.
-\newblock Quantization and training of neural networks for efficient
-  integer-arithmetic-only inference.
-\newblock In {\em IEEE Conference on Computer Vision and Pattern Recognition
-  (CVPR)}, pages 2704--2713, 2018.
-
-\bibitem{krishnamoorthi2018quantize}
-Raghuraman Krishnamoorthi.
-\newblock Quantizing deep convolutional networks for efficient inference: A
-  whitepaper.
-\newblock {\em arXiv preprint arXiv:1806.08342}, 2018.
-
-\bibitem{chen2021mobile}
-Yun Chen, Zhikai Lin, Xing Zhao, Gang Wang, and Yanfei Gu.
-\newblock Deep learning-based classification of hyperspectral data.
-\newblock {\em IEEE Journal of Selected Topics in Applied Earth Observations
-  and Remote Sensing}, 7(6):2094--2107, 2014.
-
-\bibitem{kamilaris2018deep}
-Andreas Kamilaris and Francesc~X. Prenafeta-Bold{\'u}.
-\newblock Deep learning in agriculture: A survey.
-\newblock {\em Computers and Electronics in Agriculture}, 147:70--90, 2018.
-
-\bibitem{li2020edge}
-Yongchao Li, Hanqi Huang, Qian Xie, Lu~Yao, and Qihui Chen.
-\newblock Research on a surface defect detection algorithm based on
-  mobilenet-ssd.
-\newblock {\em Applied Sciences}, 8(9):1678, 2018.
-
-\bibitem{petrellis2021plant}
-Nikos Petrellis.
-\newblock Plant disease diagnosis for smart phone applications with extensible
-  set of diseases.
-\newblock {\em Applied Sciences}, 9(6):1952, 2019.
-
-\bibitem{selvaraj2019ai}
-Michael~G. Selvaraj, Alejandro Vergara, Hugo Ruiz, Noel Safari, Saravanan
-  Elayabalan, Walter Ocimati, and Guy Blomme.
-\newblock Ai-powered banana diseases and pest detection.
-\newblock {\em Plant Methods}, 15:92, 2019.
-
-\bibitem{sharma2020performance}
-Rupali Sharma, Shilpa~S. Kamble, Angappa Gunasekaran, Vikas Kumar, and Anil
-  Kumar.
-\newblock A systematic literature review on machine learning applications for
-  sustainable agriculture supply chain performance.
-\newblock {\em Computers \& Operations Research}, 119:104926, 2020.
-
-\bibitem{plantvillage_dataset_2023}
-Abdallah Ali.
-\newblock Plantvillage dataset.
-\newblock Kaggle, 2023.
-\newblock Accessed: February 2026.
-
-\bibitem{kaggle_grape_images_2023}
-Nicolaas Regnier.
-\newblock Grape / grapes.
-\newblock Kaggle, 2023.
-\newblock Accessed: February 2026.
-
-\bibitem{roboflow_grape_leaf_2026}
-{Roboflow Universe}.
-\newblock Grape leaf roi detection dataset, version 6.
-\newblock Roboflow, 2026.
-\newblock CC BY 4.0 License, Exported: January 29, 2026.
 
 \bibitem{jocher2022ultralytics}
 Glenn Jocher et~al.
@@ -383,6 +507,13 @@ Tsung-Yi Lin, Michael Maire, Serge Belongie, James Hays, Pietro Perona, Deva
 \newblock In {\em European Conference on Computer Vision (ECCV)}, pages
   740--755. Springer, 2014.
 
+\bibitem{sandler2018mobilenetv2}
+Mark Sandler, Andrew Howard, Menglong Zhu, Andrey Zhmoginov, and Liang-Chieh
+  Chen.
+\newblock Mobilenetv2: Inverted residuals and linear bottlenecks.
+\newblock In {\em Proceedings of the IEEE Conference on Computer Vision and
+  Pattern Recognition (CVPR)}, pages 4510--4520, 2018.
+
 \bibitem{he2016deep}
 Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun.
 \newblock Deep residual learning for image recognition.
@@ -414,6 +545,11 @@ Peter Henderson, Riashat Islam, Philip Bachman, Joelle Pineau, Doina Precup,
 \newblock {\em Proceedings of the AAAI Conference on Artificial Intelligence},
   32(1), 2018.
 
+\bibitem{ferentinos2018deep}
+Konstantinos~P. Ferentinos.
+\newblock Deep learning models for plant disease detection and diagnosis.
+\newblock {\em Computers and Electronics in Agriculture}, 145:311--318, 2018.
+
 \bibitem{esp_ppq2023}
 {Espressif Systems}.
 \newblock Esp-ppq: Post-training quantization for esp-dl.
@@ -425,6 +561,14 @@ Peter Henderson, Riashat Islam, Philip Bachman, Joelle Pineau, Doina Precup,
 \newblock Ppq: Pytorch post-training quantization.
 \newblock \url{https://github.com/openppl-public/ppq}, 2022.
 \newblock Accessed: February 2026.
+
+\bibitem{jacob2018quantization}
+Benoit Jacob, Skirmantas Kligys, Bo~Chen, Menglong Zhu, Matthew Tang, Andrew
+  Howard, Hartwig Adam, and Dmitry Kalenichenko.
+\newblock Quantization and training of neural networks for efficient
+  integer-arithmetic-only inference.
+\newblock In {\em IEEE Conference on Computer Vision and Pattern Recognition
+  (CVPR)}, pages 2704--2713, 2018.
 
 \bibitem{freenove2024esp32s3}
 Freenove.
@@ -499,6 +643,24 @@ Yarin Gal and Zoubin Ghahramani.
 \newblock {\em International Conference on Machine Learning (ICML)}, pages
   1050--1059, 2016.
 
+\bibitem{lorawan_specification}
+{LoRa Alliance}.
+\newblock Lorawan 1.0.4 specification.
+\newblock
+  \url{https://lora-alliance.org/resource_hub/lorawan-specification-v1-0-4/},
+  2023.
+
+\bibitem{mekki2019comparative}
+Kais Mekki, Eddy Bajic, Fr\'ed\'eric Chaxel, and Fernand Meyer.
+\newblock A comparative study of lpwan technologies for large-scale iot
+  deployment.
+\newblock {\em ICT Express}, 5(1):1--7, 2019.
+
+\bibitem{sinha2017survey}
+Rupam~Sankar Sinha, Yiqiao Wei, and Seung-Hoon Hwang.
+\newblock A survey on lpwa technology: Lora and nb-iot.
+\newblock {\em ICT Express}, 3(1):14--21, 2017.
+
 \bibitem{raghunathan2005design}
 Vijay Raghunathan, Curt Schurgers, Sung Park, and Mani~B. Srivastava.
 \newblock Energy-aware wireless microsensor networks.
@@ -569,6 +731,12 @@ David~Christian Rose, William~J. Sutherland, Chris Parker, Matt Lobley, Michael
 \newblock Decision support tools for agriculture: Towards effective design and
   delivery.
 \newblock {\em Agricultural Systems}, 149:165--174, 2016.
+
+\bibitem{caffi2010mechanistic}
+Tito Caffi, Vittorio Rossi, and Enrico Cosatti.
+\newblock A mechanistic model simulating ascosporic infections by plasmopara
+  viticola, the causal agent of grapevine downy mildew.
+\newblock {\em Ecological Modelling}, 221(17):2231--2241, 2010.
 
 \bibitem{kuhnle2021designing}
 Julian K\"uhnle, Lukas Kaiser, Franz Theisel, Niklas Stricker, and Gisela
