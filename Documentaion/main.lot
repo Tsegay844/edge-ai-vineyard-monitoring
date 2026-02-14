@@ -4,44 +4,44 @@
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {3.1}{\ignorespaces Grape leaf disease dataset distribution across training, validation, test splits\relax }}{13}{table.caption.17}%
-\contentsline {table}{\numberline {3.2}{\ignorespaces ESPDet-Pico backbone architecture with layer-wise specifications\relax }}{17}{table.caption.18}%
-\contentsline {table}{\numberline {3.3}{\ignorespaces Comparative evaluation of ESPDet-Pico and YOLO11n baseline on grape leaf detection\relax }}{21}{table.caption.19}%
-\contentsline {table}{\numberline {3.4}{\ignorespaces Per-class classification performance of MobileNetV2 on grape disease test set\relax }}{26}{table.caption.20}%
-\contentsline {table}{\numberline {3.5}{\ignorespaces Comparison of embedded AI hardware platforms for vineyard edge deployment.\relax }}{30}{table.caption.21}%
+\contentsline {table}{\numberline {3.1}{\ignorespaces Grape leaf disease dataset distribution across training, validation, test splits\relax }}{11}{table.caption.17}%
+\contentsline {table}{\numberline {3.2}{\ignorespaces ESPDet-Pico backbone architecture with layer-wise specifications\relax }}{15}{table.caption.18}%
+\contentsline {table}{\numberline {3.3}{\ignorespaces Comparative evaluation of ESPDet-Pico and YOLO11n baseline on grape leaf detection\relax }}{19}{table.caption.19}%
+\contentsline {table}{\numberline {3.4}{\ignorespaces Per-class classification performance of MobileNetV2 on grape disease test set\relax }}{24}{table.caption.20}%
+\contentsline {table}{\numberline {3.5}{\ignorespaces Comparison of embedded AI hardware platforms for vineyard edge deployment.\relax }}{28}{table.caption.21}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {4.1}{\ignorespaces Per-stage latency breakdown for ESP32-S3 edge inference pipeline (7 leaves detected)\relax }}{40}{table.caption.22}%
-\contentsline {table}{\numberline {4.2}{\ignorespaces Inference performance comparison across edge AI platforms (7-leaf frame)\relax }}{43}{table.caption.23}%
-\contentsline {table}{\numberline {4.3}{\ignorespaces Frame-level classification accuracy comparison across aggregation strategies\relax }}{46}{table.caption.24}%
-\contentsline {table}{\numberline {4.4}{\ignorespaces Ablation study: incremental contribution of aggregation components\relax }}{48}{table.caption.25}%
-\contentsline {table}{\numberline {4.5}{\ignorespaces LoRaWAN uplink packet structure for disease diagnosis (16 bytes total)\relax }}{50}{table.caption.26}%
-\contentsline {table}{\numberline {4.6}{\ignorespaces LPWAN protocol comparison for vineyard monitoring application\relax }}{54}{table.caption.27}%
-\contentsline {table}{\numberline {4.7}{\ignorespaces Energy consumption breakdown for duty-cycled operation (per 5-minute cycle)\relax }}{57}{table.caption.28}%
-\contentsline {table}{\numberline {4.8}{\ignorespaces Battery capacity vs. autonomy for duty-cycled operation (median case: 0.815 mW)\relax }}{60}{table.caption.29}%
-\contentsline {table}{\numberline {4.9}{\ignorespaces Energy consumption and battery lifetime comparison across operational modes\relax }}{62}{table.caption.30}%
+\contentsline {table}{\numberline {4.1}{\ignorespaces Per-stage latency breakdown for ESP32-S3 edge inference pipeline (7 leaves detected)\relax }}{38}{table.caption.22}%
+\contentsline {table}{\numberline {4.2}{\ignorespaces Inference performance comparison across edge AI platforms (7-leaf frame)\relax }}{41}{table.caption.23}%
+\contentsline {table}{\numberline {4.3}{\ignorespaces Frame-level classification accuracy comparison across aggregation strategies\relax }}{44}{table.caption.24}%
+\contentsline {table}{\numberline {4.4}{\ignorespaces Ablation study: incremental contribution of aggregation components\relax }}{45}{table.caption.25}%
+\contentsline {table}{\numberline {4.5}{\ignorespaces LoRaWAN uplink packet structure for disease diagnosis (16 bytes total)\relax }}{48}{table.caption.26}%
+\contentsline {table}{\numberline {4.6}{\ignorespaces LPWAN protocol comparison for vineyard monitoring application\relax }}{52}{table.caption.27}%
+\contentsline {table}{\numberline {4.7}{\ignorespaces Energy consumption breakdown for duty-cycled operation (per 5-minute cycle)\relax }}{55}{table.caption.28}%
+\contentsline {table}{\numberline {4.8}{\ignorespaces Battery capacity vs. autonomy for duty-cycled operation (median case: 0.815 mW)\relax }}{57}{table.caption.29}%
+\contentsline {table}{\numberline {4.9}{\ignorespaces Energy consumption and battery lifetime comparison across operational modes\relax }}{59}{table.caption.30}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {B.1}{\ignorespaces MobileNetV2 Stage 1 hyperparameters\relax }}{80}{table.caption.33}%
-\contentsline {table}{\numberline {B.2}{\ignorespaces MobileNetV2 Stage 2 hyperparameters\relax }}{80}{table.caption.34}%
-\contentsline {table}{\numberline {B.3}{\ignorespaces Training data augmentation parameters\relax }}{81}{table.caption.35}%
-\contentsline {table}{\numberline {B.4}{\ignorespaces Validation and test data preprocessing\relax }}{81}{table.caption.36}%
-\contentsline {table}{\numberline {B.5}{\ignorespaces ESPDet-Pico training hyperparameters\relax }}{82}{table.caption.37}%
-\contentsline {table}{\numberline {B.6}{\ignorespaces YOLO augmentation parameters\relax }}{82}{table.caption.38}%
-\contentsline {table}{\numberline {B.7}{\ignorespaces INT8 quantization parameters\relax }}{82}{table.caption.39}%
-\contentsline {table}{\numberline {B.8}{\ignorespaces ESP32-S3 configuration parameters\relax }}{83}{table.caption.40}%
-\contentsline {table}{\numberline {B.9}{\ignorespaces Power management settings\relax }}{83}{table.caption.41}%
+\contentsline {table}{\numberline {B.1}{\ignorespaces MobileNetV2 Stage 1 hyperparameters\relax }}{78}{table.caption.33}%
+\contentsline {table}{\numberline {B.2}{\ignorespaces MobileNetV2 Stage 2 hyperparameters\relax }}{78}{table.caption.34}%
+\contentsline {table}{\numberline {B.3}{\ignorespaces Training data augmentation parameters\relax }}{79}{table.caption.35}%
+\contentsline {table}{\numberline {B.4}{\ignorespaces Validation and test data preprocessing\relax }}{79}{table.caption.36}%
+\contentsline {table}{\numberline {B.5}{\ignorespaces ESPDet-Pico training hyperparameters\relax }}{80}{table.caption.37}%
+\contentsline {table}{\numberline {B.6}{\ignorespaces YOLO augmentation parameters\relax }}{80}{table.caption.38}%
+\contentsline {table}{\numberline {B.7}{\ignorespaces INT8 quantization parameters\relax }}{80}{table.caption.39}%
+\contentsline {table}{\numberline {B.8}{\ignorespaces ESP32-S3 configuration parameters\relax }}{81}{table.caption.40}%
+\contentsline {table}{\numberline {B.9}{\ignorespaces Power management settings\relax }}{81}{table.caption.41}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {C.1}{\ignorespaces Troubleshooting common build/flash issues\relax }}{87}{table.caption.42}%
+\contentsline {table}{\numberline {C.1}{\ignorespaces Troubleshooting common build/flash issues\relax }}{85}{table.caption.42}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {D.1}{\ignorespaces Detailed per-class performance metrics\relax }}{90}{table.caption.43}%
-\contentsline {table}{\numberline {D.2}{\ignorespaces PSRAM usage at different pipeline stages\relax }}{90}{table.caption.44}%
-\contentsline {table}{\numberline {D.3}{\ignorespaces Power consumption by component\relax }}{90}{table.caption.45}%
-\contentsline {table}{\numberline {D.4}{\ignorespaces Detailed comparison of aggregation methods\relax }}{91}{table.caption.46}%
-\contentsline {table}{\numberline {D.5}{\ignorespaces Detection latency statistics (1000 runs)\relax }}{91}{table.caption.47}%
-\contentsline {table}{\numberline {D.6}{\ignorespaces Classification latency statistics per leaf (1000 runs)\relax }}{91}{table.caption.48}%
-\contentsline {table}{\numberline {D.7}{\ignorespaces Model size comparison with other edge AI solutions\relax }}{92}{table.caption.49}%
-\contentsline {table}{\numberline {D.8}{\ignorespaces Estimated battery life (3000 mAh battery)\relax }}{92}{table.caption.50}%
-\contentsline {table}{\numberline {D.9}{\ignorespaces LoRaWAN uplink packet structure\relax }}{92}{table.caption.51}%
-\contentsline {table}{\numberline {D.10}{\ignorespaces Comparison with related work on edge AI plant disease detection\relax }}{93}{table.caption.52}%
-\contentsline {table}{\numberline {D.11}{\ignorespaces Most common misclassifications\relax }}{93}{table.caption.53}%
+\contentsline {table}{\numberline {D.1}{\ignorespaces Detailed per-class performance metrics\relax }}{88}{table.caption.43}%
+\contentsline {table}{\numberline {D.2}{\ignorespaces PSRAM usage at different pipeline stages\relax }}{88}{table.caption.44}%
+\contentsline {table}{\numberline {D.3}{\ignorespaces Power consumption by component\relax }}{88}{table.caption.45}%
+\contentsline {table}{\numberline {D.4}{\ignorespaces Detailed comparison of aggregation methods\relax }}{89}{table.caption.46}%
+\contentsline {table}{\numberline {D.5}{\ignorespaces Detection latency statistics (1000 runs)\relax }}{89}{table.caption.47}%
+\contentsline {table}{\numberline {D.6}{\ignorespaces Classification latency statistics per leaf (1000 runs)\relax }}{89}{table.caption.48}%
+\contentsline {table}{\numberline {D.7}{\ignorespaces Model size comparison with other edge AI solutions\relax }}{90}{table.caption.49}%
+\contentsline {table}{\numberline {D.8}{\ignorespaces Estimated battery life (3000 mAh battery)\relax }}{90}{table.caption.50}%
+\contentsline {table}{\numberline {D.9}{\ignorespaces LoRaWAN uplink packet structure\relax }}{90}{table.caption.51}%
+\contentsline {table}{\numberline {D.10}{\ignorespaces Comparison with related work on edge AI plant disease detection\relax }}{91}{table.caption.52}%
+\contentsline {table}{\numberline {D.11}{\ignorespaces Most common misclassifications\relax }}{91}{table.caption.53}%

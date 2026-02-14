@@ -343,55 +343,6 @@ Gulshat Amirkhanova, Syrym Ismailov, Alikhan Amirkhanov, Saltanat Adilzhanova,
   aes-gcm implementation for esp32, mqtt, and raspberry pi.
 \newblock {\em Information}, 17(1):33, 2026.
 
-\bibitem{velez2025framework}
-Sergio V{\'e}lez, Mar Ariza-Sent{\'\i}s, Mario Trivi{\~n}o, Antonio~Carlos
-  Cob-Parro, Miquel Mila, and Jo{\~a}o Valente.
-\newblock Framework for smartphone-based grape detection and vineyard
-  management using uav-trained ai.
-\newblock {\em Heliyon}, 11(4), 2025.
-
-\bibitem{khan2023cloud}
-Murtaza~Ali Khan, Muhammad Zakarya, and Muhammad Haleem.
-\newblock A cloud edge based intelligent system for detection of grape
-  diseases.
-\newblock 2023.
-
-\bibitem{abomhara2024vineyard}
-Mohamed Abomhara, Sule~Yildirim Yayilgan, and Muhammad Fahad.
-\newblock Vineyard leaf disease prediction: Bridging the gap between predictive
-  accuracy and interpretability.
-\newblock {\em New Trends in Disruptive Technologies, Tech Ethics, and
-  Artificial Intelligence: The DITTET 2024 Collection}, page~97, 2024.
-
-\bibitem{hasani2025ai}
-Zirije Hasani, Samedin Krrabaj, Jakup Fondaj, Izet Izeti, Ilda Thaqi, Enes
-  Sofiu, and Hamide Tertini.
-\newblock Ai-powered image processing techniques for grapevine disease
-  detection in agriculture.
-\newblock {\em Rivista di Studi sulla Sostenibilit{\`a}-Review of studies on
-  sustainability-Open access}, 10(2), 2025.
-
-\bibitem{mobeen2024vineyard}
-Noor~E Mobeen, Sarang Shaikh, Livinus~Obiora Nweke, Mohamed Abomhara,
-  Sule~Yildirim Yayilgan, and Muhammad Fahad.
-\newblock Vineyard leaf disease prediction: Bridging the gap between predictive
-  accuracy and interpretability.
-\newblock In {\em International Conference on Disruptive Technologies, Tech
-  Ethics and Artificial Intelligence}, pages 97--108. Springer, 2024.
-
-\bibitem{uniyal2024intelligent}
-Sneha Uniyal, Parveen Dhoundiyal, Vikrant Sharma, and Satvik Vats.
-\newblock An intelligent approach to grape leaf disease diagnosis through
-  machine learning.
-\newblock In {\em 2024 2nd International Conference on Disruptive Technologies
-  (ICDT)}, pages 284--288. IEEE, 2024.
-
-\bibitem{kaur2024novel}
-Navneet Kaur and V~Devendran.
-\newblock A novel framework for semi-automated system for grape leaf disease
-  detection.
-\newblock {\em Multimedia Tools and Applications}, 83(17):50733--50755, 2024.
-
 \bibitem{plantvillage_dataset_2023}
 Abdallah Ali.
 \newblock Plantvillage dataset.

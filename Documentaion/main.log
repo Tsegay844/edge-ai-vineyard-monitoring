@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2026.2.2)  14 FEB 2026 10:01
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2026.2.2)  14 FEB 2026 20:54
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -763,58 +763,49 @@ Package pdftex.def Info: images/chapter2/IKNN.drawio.png  used on input line 27.
 
 
 ] [5 <./images/chapter2/IKNN.drawio.png>] [6]
-Overfull \hbox (14.35428pt too wide) in paragraph at lines 74--75
-[]\T1/lmr/m/n/12 Specialized lightweight ar-chi-tec-tures have been de-vel-oped metic-u-lously de-signed for resource-
+Overfull \hbox (2.60391pt too wide) in paragraph at lines 67--68
+[]\T1/lmr/m/n/12 Specialized lightweight ar-chi-tec-tures have been ex-plic-itly de-signed for resource-constrained
  []
 
 [7]
-<images/chapter2/icrop.png, id=795, 1987.425pt x 465.74pt>
+<images/chapter2/icrop.png, id=796, 1987.425pt x 465.74pt>
 File: images/chapter2/icrop.png Graphic file (type png)
 <use images/chapter2/icrop.png>
-Package pdftex.def Info: images/chapter2/icrop.png  used on input line 92.
+Package pdftex.def Info: images/chapter2/icrop.png  used on input line 74.
 (pdftex.def)             Requested size: 407.66833pt x 95.53416pt.
- [8 <./images/chapter2/icrop.png>] [9]
 
-LaTeX Warning: Citation `tao2025icrop' on page 10 undefined on input line 169.
-
-
-Overfull \hbox (37.75519pt too wide) in paragraph at lines 169--170
-[]\T1/lmr/m/n/12 Recent at-tempts to bridge this gap have made progress but re-main in-suf-fi-cient for microcontroller-
+Overfull \hbox (9.45915pt too wide) in paragraph at lines 97--98
+[]\T1/lmr/m/n/12 Conversely, the sub-stan-tial body of work on deep learn-ing for grape leaf dis-ease detection[[],
  []
 
-[10]
-Overfull \hbox (2.65912pt too wide) in paragraph at lines 182--183
-\T1/lmr/m/n/12 end edge AI sys-tems that per-form real-time grape leaf dis-ease de-tec-tion on microcontroller-
- []
-
-) [11]
+[8 <./images/chapter2/icrop.png>]) [9]
 \openout2 = `chapters/Chapter_3.aux'.
 
  (./chapters/Chapter_3.tex
 Chapter 3.
-<images/system_architecture.png, id=862, 564.1075pt x 204.765pt>
+<images/system_architecture.png, id=832, 564.1075pt x 204.765pt>
 File: images/system_architecture.png Graphic file (type png)
 <use images/system_architecture.png>
 Package pdftex.def Info: images/system_architecture.png  used on input line 15.
 (pdftex.def)             Requested size: 339.72592pt x 123.31923pt.
 
-LaTeX Warning: Reference `chap:results' on page 12 undefined on input line 27.
+LaTeX Warning: Reference `chap:results' on page 10 undefined on input line 27.
 
-[12
-
-
+[10
 
 
- <./images/system_architecture.png>] [13]
+
+
+ <./images/system_architecture.png>] [11]
 Overfull \hbox (3.40193pt too wide) in paragraph at lines 79--80
 \T1/lmr/m/n/12 training regime of trans-fer learn-ing base mod-els (Mo-bileNetV2 for clas-si-fi-ca-tion, YOLO11n
  []
 
-[14]
+[12]
 LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 88.
  (/usr/share/texmf/tex/latex/lm/ts1lmr.fd
 File: ts1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
-) [15] [16]
+) [13] [14]
 LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <10.95> on input line 145.
 
@@ -822,57 +813,57 @@ Overfull \hbox (2.75935pt too wide) in paragraph at lines 172--173
 []\T1/lmr/bx/n/12 Spatial-Channel Down-sam-pling (SC-Down): \T1/lmr/m/n/12 Stride-2 down-sam-pling op-er-a-tions com-
  []
 
-[17]
+[15]
 LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 198.
  (/usr/share/texmf/tex/latex/lm/t1lmtt.fd
 File: t1lmtt.fd 2009/10/30 v1.6 Font defs for Latin Modern
-) [18] [19]
+) [16] [17]
 
-LaTeX Warning: Reference `fig:espdet_training_curves' on page 20 undefined on input line 245.
+LaTeX Warning: Reference `fig:espdet_training_curves' on page 18 undefined on input line 245.
 
 
 Overfull \hbox (18.22438pt too wide) in paragraph at lines 266--267
 \T1/lmr/m/n/12 To quan-tify the accuracy-efficiency trade-off, ESPDet-Pico is com-pared against the YOLO11n
  []
 
-[20]
+[18]
 
-LaTeX Warning: Reference `chap:results' on page 21 undefined on input line 296.
+LaTeX Warning: Reference `chap:results' on page 19 undefined on input line 296.
 
-[21] [22] [23] [24]
+[19] [20] [21] [22]
 
-LaTeX Warning: Reference `fig:mobilenet_training_curves' on page 25 undefined on input line 390.
+LaTeX Warning: Reference `fig:mobilenet_training_curves' on page 23 undefined on input line 390.
 
-[25]
+[23]
 
-LaTeX Warning: Reference `fig:confusion_matrix' on page 26 undefined on input line 440.
+LaTeX Warning: Reference `fig:confusion_matrix' on page 24 undefined on input line 440.
 
-[26] [27]
+[24] [25]
 Overfull \hbox (12.96854pt too wide) in paragraph at lines 489--490
 \T1/lmr/m/n/12 The de-ployed sys-tem is built upon the Freen-ove ESP32-S3 WROOM de-vel-op-ment board [[]],
  []
 
-[28] [29]
+[26] [27]
 Overfull \hbox (81.64087pt too wide) in paragraph at lines 517--528
  [][] 
  []
 
-[30] [31]
+[28] [29]
 Overfull \hbox (36.8092pt too wide) in paragraph at lines 568--569
 []\T1/lmr/bx/n/12 Dedicated Par-ti-tion Load-ing (v12): \T1/lmr/m/n/12 Mod-els stored in cus-tom flash par-ti-tions (\T1/lmtt/m/n/12 espdet_model
  []
 
-[32]
+[30]
 Overfull \hbox (102.8401pt too wide) in paragraph at lines 576--577
 \T1/lmr/m/n/12 mod-els are com-piled into the firmware bi-nary as con-stant ar-rays via GCC's \T1/lmtt/m/n/12 _binary_*_start/_binary_*_end
  []
 
-[33]
+[31]
 Overfull \hbox (81.20537pt too wide) in paragraph at lines 618--619
 []\T1/lmr/bx/n/12 Automatic ex-po-sure/white bal-ance: \T1/lmr/m/n/12 En-abled via sen-sor con-trol reg-is-ters (\T1/lmtt/m/n/12 set_exposure_ctrl\T1/lmr/m/n/12 ,
  []
 
-[34]
+[32]
 Overfull \hbox (10.7853pt too wide) in paragraph at lines 619--620
 []\T1/lmr/bx/n/12 Frame buffer-ing: \T1/lmr/m/n/12 Dual-buffer mode (\T1/lmtt/m/n/12 fb_count=2\T1/lmr/m/n/12 ) en-ables capture-while-processing:
  []
@@ -882,7 +873,7 @@ Overfull \hbox (13.87675pt too wide) in paragraph at lines 622--623
 \T1/lmr/m/n/12 RGB888 for-mat us-ing ESP-IDF's soft-ware JPEG de-coder (\T1/lmtt/m/n/12 dl::image::sw_decode_jpeg()\T1/lmr/m/n/12 )
  []
 
-[35]
+[33]
 Overfull \hbox (57.80435pt too wide) in paragraph at lines 651--652
 \T1/lmr/m/n/12 (\T1/lmtt/m/n/12 input->set_element_ptr(input_buffer_128x128)\T1/lmr/m/n/12 ), and in-fer-ence is trig-gered via \T1/lmtt/m/n/12 model->run()\T1/lmr/m/n/12 ,
  []
@@ -892,58 +883,57 @@ Overfull \hbox (36.49155pt too wide) in paragraph at lines 656--658
 \T1/lmr/m/n/12 ers) em-bed-ded in the model's ten-sor meta-data. The ex-po-nent is re-trieved via \T1/lmtt/m/n/12 output->exponent\T1/lmr/m/n/12 ,
  []
 
-[36] [37]
+[34] [35]
 Overfull \hbox (3.06352pt too wide) in paragraph at lines 705--706
 \T1/lmr/m/n/12 and zero mem-ory leak-age over 8-hour con-tin-u-ous op-er-a-tion, val-i-dat-ing the single-allocation
  []
 
-) [38]
+) [36]
 \openout2 = `chapters/Chapter_4.aux'.
 
  (./chapters/Chapter_4.tex
 Chapter 4.
-[39
+[37
 
 
 
 
-] [40]
+] [38]
 
-LaTeX Warning: Reference `fig:classification_scaling' on page 41 undefined on input line 73.
+LaTeX Warning: Reference `fig:classification_scaling' on page 39 undefined on input line 73.
 
 
 Overfull \hbox (8.44414pt too wide) detected at line 89
 [][][] \OT1/lmr/m/n/12 = 1\OML/lmm/m/it/12 :\OT1/lmr/m/n/12 92 [] \OMS/lmsy/m/n/12 ^^B \OT1/lmr/m/n/12 2 [] = 3\OML/lmm/m/it/12 :\OT1/lmr/m/n/12 84 []
  []
 
-[41]
+[39]
 Overfull \hbox (14.55545pt too wide) in paragraph at lines 117--118
 []\T1/lmr/bx/n/12 Peak frag-men-ta-tion: \T1/lmr/m/n/12 <5% (mea-sured via \T1/lmtt/m/n/12 heap_caps_get_largest_free_block()\T1/lmr/m/n/12 ) 
  []
 
-[42]
 LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <10> on input line 142.
 LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <7> on input line 142.
 LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <5> on input line 142.
- [43]
+[40] [41]
 Overfull \hbox (28.15889pt too wide) in paragraph at lines 182--183
 \T1/lmr/m/n/12 ceive near-full weight, while high-entropy am-bigu-ous pre-dic-tions (e.g., $\OML/lmm/m/it/12 p \OT1/lmr/m/n/12 = [0\OML/lmm/m/it/12 :\OT1/lmr/m/n/12 48\OML/lmm/m/it/12 ; \OT1/lmr/m/n/12 0\OML/lmm/m/it/12 :\OT1/lmr/m/n/12 49\OML/lmm/m/it/12 ; \OT1/lmr/m/n/12 0\OML/lmm/m/it/12 :\OT1/lmr/m/n/12 02\OML/lmm/m/it/12 ; \OT1/lmr/m/n/12 0\OML/lmm/m/it/12 :\OT1/lmr/m/n/12 01]$
  []
 
-[44] [45]
+[42]
 Overfull \hbox (129.12086pt too wide) in paragraph at lines 232--241
  [][] 
  []
 
-[46] [47] [48]
+[43] [44] [45]
 Overfull \hbox (0.12485pt too wide) in paragraph at lines 317--318
 []\T1/lmr/bx/n/12 Uplink-initiated com-mu-ni-ca-tion: \T1/lmr/m/n/12 Nodes trans-mit when-ever in-fer-ence com-pletes
  []
 
-
+[46]
 Underfull \hbox (badness 7540) in paragraph at lines 348--349
 []|\T1/lmr/m/n/10.95 Unix times-tamp bits [31:24]
  []
@@ -973,16 +963,16 @@ Underfull \hbox (badness 7238) in paragraph at lines 358--359
 \T1/lmr/m/n/10.95 [6]=low bat-tery, [5]=mem-ory
  []
 
-[49] [50] [51]
+[47] [48]
 
-LaTeX Warning: Reference `fig:lorawan_protocol' on page 52 undefined on input line 396.
+LaTeX Warning: Reference `fig:lorawan_protocol' on page 49 undefined on input line 396.
 
-
+[49]
 Overfull \hbox (1.59123pt too wide) in paragraph at lines 416--417
 []\T1/lmr/bx/n/12 Aggregation strat-egy se-lec-tion: \T1/lmr/m/n/12 Switch be-tween base-line/en-tropy-/hy-brid modes 
  []
 
-[52] [53]
+[50]
 Overfull \hbox (66.27068pt too wide) in paragraph at lines 465--477
  [][] 
  []
@@ -992,60 +982,59 @@ Overfull \hbox (4.17326pt too wide) in paragraph at lines 481--482
 \T1/lmr/m/n/12 sub-scrip-tions ($1--5 per de-vice per month), pro-hibitive for 100+ node de-ploy-ments ($1,200--
  []
 
-[54]
+[51] [52]
 
-LaTeX Warning: Reference `fig:duty_cycle_timeline' on page 55 undefined on input line 510.
+LaTeX Warning: Reference `fig:duty_cycle_timeline' on page 53 undefined on input line 510.
 
-[55] [56] [57]
+[53] [54]
 Overfull \hbox (4.50043pt too wide) in paragraph at lines 623--624
 \T1/lmr/m/n/12 Solar en-ergy har-vest-ing en-ables in-def-i-nite au-tonomous op-er-a-tion by recharg-ing the lithium-
  []
 
-[58]
+[55] [56]
 Overfull \hbox (102.07016pt too wide) in paragraph at lines 691--702
  [][] 
  []
 
-[59]
 
-LaTeX Warning: Reference `fig:battery_soc_seasonal' on page 60 undefined on input line 712.
+LaTeX Warning: Reference `fig:battery_soc_seasonal' on page 57 undefined on input line 712.
 
-
+[57]
 Overfull \hbox (5.14774pt too wide) in paragraph at lines 722--724
 \T1/lmr/m/n/12 Over 6 months of con-tin-u-ous de-ploy-ment (Oc-to-ber 2025--March 2026), the sys-tem achieved: 
  []
 
-[60]
-Overfull \hbox (9.68324pt too wide) in paragraph at lines 738--739
+
+Overfull \hbox (3.80826pt too wide) in paragraph at lines 738--739
 []\T1/lmr/bx/n/12 Solar panel degra-da-tion: \T1/lmr/m/n/12 Monocrys-talline sil-i-con pan-els de-grade at $\OMS/lmsy/m/n/12 ^^Y$\T1/lmr/m/n/12 0.5% per year [[]].
  []
 
-
+[58]
 Overfull \hbox (115.21747pt too wide) in paragraph at lines 753--764
  [][] 
  []
 
-[61]
+[59]
 Overfull \hbox (48.3669pt too wide) in paragraph at lines 786--788
 \T1/lmr/m/n/12 The ESP32-S3 sup-ports CPU fre-quency scal-ing from 80 MHz to 240 MHz via \T1/lmtt/m/n/12 esp_pm_configure()\T1/lmr/m/n/12 .
  []
 
-[62] [63]) [64]
+[60] [61]) [62]
 \openout2 = `chapters/Chapter_5.aux'.
 
  (./chapters/Chapter_5.tex
 Chapter 5.
-[65
+[63
 
 
 
 
-] [66]
+] [64]
 Overfull \hbox (9.28308pt too wide) in paragraph at lines 72--73
 \T1/lmr/m/n/12 pact com-pared to man-ual scout-ing and blan-ket pes-ti-cide ap-pli-ca-tion. In-ves-ti-gate biodegrad-
  []
 
-[67]) [68] (./main.bbl [69
+[65]) [66] (./main.bbl [67
 
 
 
@@ -1054,7 +1043,7 @@ Underfull \hbox (badness 3158) in paragraph at lines 145--153
 \T1/lmr/m/n/12 Tripp, Ev-er-ardo Inzunza-Gonzalez, En-rique Efrén García-Guerrero, David
  []
 
-[70] [71] [72]
+[68] [69] [70]
 Underfull \hbox (badness 10000) in paragraph at lines 340--345
 []\T1/lmr/m/n/12 Gulshat Amirkhanova, Syrym Is-mailov, Alikhan Amirkhanov, Saltanat
  []
@@ -1064,44 +1053,44 @@ Underfull \hbox (badness 2253) in paragraph at lines 340--345
 \T1/lmr/m/n/12 Adilzhanova, Meiramkul Zha-suza-kova, and Sim-ing Chen.  A lightweight,
  []
 
-[73] [74] [75] [76]
-Underfull \hbox (badness 3735) in paragraph at lines 707--714
+[71] [72] [73]
+Underfull \hbox (badness 3735) in paragraph at lines 658--665
 []\T1/lmr/m/n/12 Brendan McMa-han, Ei-der Moore, Daniel Ra-m-age, Seth Hamp-son, and
  []
 
-) [77]
+[74]) [75]
 \openout2 = `appendices/Appendix_A.aux'.
 
  (./appendices/Appendix_A.tex
 Appendix A.
-[78
+[76
 
 
 ] (/usr/share/texlive/texmf-dist/tex/latex/listings/lstlang1.sty
 File: lstlang1.sty 2020/03/24 1.8d listings language file
 ) (/usr/share/texlive/texmf-dist/tex/latex/listings/lstlang1.sty
 File: lstlang1.sty 2020/03/24 1.8d listings language file
-)) [79]
+)) [77]
 \openout2 = `appendices/Appendix_B.aux'.
 
  (./appendices/Appendix_B.tex
 Appendix B.
-[80
+[78
 
 
 
 
-] [81] [82]) [83]
+] [79] [80]) [81]
 \openout2 = `appendices/Appendix_C.aux'.
 
  (./appendices/Appendix_C.tex
 Appendix C.
-[84
+[82
 
 
 
 
-] [85] [86]
+] [83] [84]
 Underfull \hbox (badness 6300) in paragraph at lines 159--160
 \T1/lmr/m/n/12 RE-SET. Re-lease RE-SET, then re-lease
  []
@@ -1122,7 +1111,7 @@ File: lstlang1.sty 2020/03/24 1.8d listings language file
 File: lstlang1.sty 2020/03/24 1.8d listings language file
 ) (/usr/share/texlive/texmf-dist/tex/latex/listings/lstmisc.sty
 File: lstmisc.sty 2020/03/24 1.8d (Carsten Heinz)
-) [87] [88]
+) [85] [86]
 Overfull \hbox (9.74585pt too wide) in paragraph at lines 253--254
 []\T1/lmr/m/n/12 ESP-IDF Pro-gram-ming Guide: [][]$\T1/lmtt/m/n/12 https : / / docs . espressif . com / projects / esp-[]idf/$[][] 
  []
@@ -1132,17 +1121,17 @@ Overfull \hbox (25.92044pt too wide) in paragraph at lines 254--255
 []\T1/lmr/m/n/12 ESP32-S3 Tech-ni-cal Ref-er-ence Man-ual: [][]$\T1/lmtt/m/n/12 https : / / www . espressif . com / sites / default /
  []
 
-) [89]
+) [87]
 \openout2 = `appendices/Appendix_D.aux'.
 
  (./appendices/Appendix_D.tex
 Appendix D.
-[90
+[88
 
 
 
 
-] [91] [92]) [93] [94
+] [89] [90]) [91] [92
 
 
 ] (./main.aux (./Cover_Page.aux) (./Abstract.aux) (./Acknowledgments.aux) (./List_of_Acronyms.aux) (./chapters/Chapter_1.aux) (./chapters/Chapter_2.aux) (./chapters/Chapter_3.aux) (./chapters/Chapter_4.aux) (./chapters/Chapter_5.aux) (./appendices/Appendix_A.aux) (./appendices/Appendix_B.aux) (./appendices/Appendix_C.aux) (./appendices/Appendix_D.aux))
@@ -1151,18 +1140,18 @@ LaTeX Warning: There were undefined references.
 
  ) 
 Here is how much of TeX's memory you used:
- 22647 strings out of 480247
- 383034 string characters out of 5896152
- 1086249 words of memory out of 5000000
- 39476 multiletter control sequences out of 15000+600000
+ 22631 strings out of 480247
+ 382741 string characters out of 5896152
+ 1086888 words of memory out of 5000000
+ 39469 multiletter control sequences out of 15000+600000
  560555 words of font info for 93 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  67i,15n,77p,12213b,2002s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf/fonts/enc/dvips/lm/lm-ts1.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-ec.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-rm.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathex.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathsy.enc}{/usr/share/texlive/texmf-dist/fonts/enc/dvips/fontawesome5/fa5free1.enc}</usr/share/texlive/texmf-dist/fonts/type1/public/fontawesome5/FontAwesome5Free-Solid.pfb></usr/share/texmf/fonts/type1/public/lm/lmbx10.pfb></usr/share/texmf/fonts/type1/public/lm/lmbx12.pfb></usr/share/texmf/fonts/type1/public/lm/lmbxi10.pfb></usr/share/texmf/fonts/type1/public/lm/lmex10.pfb></usr/share/texmf/fonts/type1/public/lm/lmmi10.pfb></usr/share/texmf/fonts/type1/public/lm/lmmi12.pfb></usr/share/texmf/fonts/type1/public/lm/lmmi8.pfb></usr/share/texmf/fonts/type1/public/lm/lmr10.pfb></usr/share/texmf/fonts/type1/public/lm/lmr12.pfb></usr/share/texmf/fonts/type1/public/lm/lmr17.pfb></usr/share/texmf/fonts/type1/public/lm/lmr6.pfb></usr/share/texmf/fonts/type1/public/lm/lmr7.pfb></usr/share/texmf/fonts/type1/public/lm/lmr8.pfb></usr/share/texmf/fonts/type1/public/lm/lmri10.pfb></usr/share/texmf/fonts/type1/public/lm/lmri12.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy10.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy8.pfb></usr/share/texmf/fonts/type1/public/lm/lmtt10.pfb></usr/share/texmf/fonts/type1/public/lm/lmtt12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb>
-Output written on main.pdf (109 pages, 2023979 bytes).
+Output written on main.pdf (107 pages, 2013615 bytes).
 PDF statistics:
- 2624 PDF objects out of 2984 (max. 8388607)
- 2428 compressed objects within 25 object streams
- 669 named destinations out of 1000 (max. 500000)
+ 2591 PDF objects out of 2984 (max. 8388607)
+ 2398 compressed objects within 24 object streams
+ 660 named destinations out of 1000 (max. 500000)
  1762 words of extra memory for PDF output out of 10000 (max. 10000000)
 

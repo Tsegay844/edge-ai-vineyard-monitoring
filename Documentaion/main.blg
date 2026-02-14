@@ -20,50 +20,48 @@ Warning--entry type for "esp_dl" isn't style-file defined
 --line 1013 of file Bibliography.bib
 Warning--entry type for "freenove2024esp32s3" isn't style-file defined
 --line 1029 of file Bibliography.bib
-Warning--I didn't find a database entry for "tao2025icrop"
 Warning--can't use both volume and number fields in shetty2025grape
-Warning--empty journal in khan2023cloud
 Warning--empty booktitle in howard2017mobilenets
 Warning--can't use both volume and number fields in he2015spatial
-You've used 114 entries,
+You've used 107 entries,
             1791 wiz_defined-function locations,
-            1043 strings with 27934 characters,
-and the built_in function-call counts, 30939 in all, are:
-= -- 2711
-> -- 1572
-< -- 41
-+ -- 567
-- -- 453
-* -- 2100
-:= -- 4739
-add.period$ -- 364
-call.type$ -- 114
-change.case$ -- 113
+            1011 strings with 26175 characters,
+and the built_in function-call counts, 29057 in all, are:
+= -- 2549
+> -- 1465
+< -- 38
++ -- 529
+- -- 422
+* -- 1971
+:= -- 4443
+add.period$ -- 341
+call.type$ -- 107
+change.case$ -- 106
 chr.to.int$ -- 0
-cite$ -- 118
-duplicate$ -- 1403
-empty$ -- 2886
-format.name$ -- 453
-if$ -- 7025
+cite$ -- 110
+duplicate$ -- 1316
+empty$ -- 2721
+format.name$ -- 422
+if$ -- 6598
 int.to.chr$ -- 0
-int.to.str$ -- 114
-missing$ -- 104
-newline$ -- 579
-num.names$ -- 114
-pop$ -- 372
+int.to.str$ -- 107
+missing$ -- 97
+newline$ -- 544
+num.names$ -- 107
+pop$ -- 348
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 0
-skip$ -- 793
+skip$ -- 745
 stack$ -- 0
-substring$ -- 2012
-swap$ -- 478
-text.length$ -- 41
+substring$ -- 1912
+swap$ -- 449
+text.length$ -- 38
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 0
-warning$ -- 4
-while$ -- 287
-width$ -- 117
-write$ -- 1264
-(There were 7 warnings)
+warning$ -- 3
+while$ -- 271
+width$ -- 110
+write$ -- 1187
+(There were 5 warnings)
