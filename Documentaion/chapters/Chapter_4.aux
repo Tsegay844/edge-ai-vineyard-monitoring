@@ -1,128 +1,78 @@
 \relax 
 \providecommand\hyper@newdestlabel[2]{}
-\@writefile{toc}{\contentsline {chapter}{\numberline {4}Results and Discussion}{37}{chapter.4}\protected@file@percent }
+\citation{esp32s3_datasheet}
+\@writefile{toc}{\contentsline {chapter}{\numberline {4}Edge AI Deployment on ESP32-S3 Microcontrollers}{32}{chapter.4}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{chap:results_discussion}{{4}{37}{Results and Discussion}{chapter.4}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.1}On-Device Inference Performance}{37}{section.4.1}\protected@file@percent }
-\newlabel{sec:on_device_performance}{{4.1}{37}{On-Device Inference Performance}{section.4.1}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.1}Pipeline Latency Characterization}{37}{subsection.4.1.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.1.1}Per-Stage Latency Breakdown}{37}{subsubsection.4.1.1.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.1.2}Analysis of Computational Bottlenecks}{37}{subsubsection.4.1.1.2}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {4.1}{\ignorespaces Per-stage latency breakdown for ESP32-S3 edge inference pipeline (7 leaves detected)\relax }}{38}{table.caption.22}\protected@file@percent }
-\newlabel{tab:deployment_latency}{{4.1}{38}{Per-stage latency breakdown for ESP32-S3 edge inference pipeline (7 leaves detected)\relax }{table.caption.22}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.2}MobileNetV2 Inference Scaling Analysis}{38}{subsection.4.1.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.2.1}Per-Leaf Inference Characteristics}{38}{subsubsection.4.1.2.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.2.2}Linear Scaling Validation}{39}{subsubsection.4.1.2.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.2.3}SIMD Utilization Efficiency}{39}{subsubsection.4.1.2.3}\protected@file@percent }
-\citation{asma2022edge}
-\citation{stewart2021end}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.3}Memory Consumption and Stability Analysis}{40}{subsection.4.1.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.3.1}Static Memory Allocation}{40}{subsubsection.4.1.3.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.3.2}Long-Term Stability Testing}{40}{subsubsection.4.1.3.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.4}Comparative Analysis with Alternative Platforms}{40}{subsection.4.1.4}\protected@file@percent }
-\citation{shannon1948mathematical}
+\newlabel{chap:deployment}{{4}{32}{Edge AI Deployment on ESP32-S3 Microcontrollers}{chapter.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.1}Target Hardware Platform and Development Framework}{32}{section.4.1}\protected@file@percent }
+\newlabel{sec:hw_platform}{{4.1}{32}{Target Hardware Platform and Development Framework}{section.4.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.1}ESP32-S3-WROOM-1 Microcontroller Architecture}{32}{subsection.4.1.1}\protected@file@percent }
+\newlabel{subsec:esp32s3_architecture}{{4.1.1}{32}{ESP32-S3-WROOM-1 Microcontroller Architecture}{subsection.4.1.1}{}}
+\citation{freenove2024esp32s3}
+\citation{esp32s3_datasheet}
+\citation{esp_dl}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.2}ESP-IDF Development Framework}{33}{subsection.4.1.2}\protected@file@percent }
+\newlabel{subsec:esp_idf}{{4.1.2}{33}{ESP-IDF Development Framework}{subsection.4.1.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.3}ESP-DL Inference Engine}{33}{subsection.4.1.3}\protected@file@percent }
+\newlabel{subsec:esp_dl}{{4.1.3}{33}{ESP-DL Inference Engine}{subsection.4.1.3}{}}
+\citation{esp_dl_mobilenetv2_tutorial}
+\citation{esp_ppq2023}
+\citation{ppq2022}
+\citation{krishnamoorthi2018quantize}
+\@writefile{toc}{\contentsline {section}{\numberline {4.2}Model Quantization and Format Conversion}{34}{section.4.2}\protected@file@percent }
+\newlabel{sec:quantization_pipeline}{{4.2}{34}{Model Quantization and Format Conversion}{section.4.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.1}The ESP-PPQ Quantization Framework}{34}{subsection.4.2.1}\protected@file@percent }
+\newlabel{subsec:esp_ppq}{{4.2.1}{34}{The ESP-PPQ Quantization Framework}{subsection.4.2.1}{}}
+\newlabel{eq:quantization}{{4.1}{34}{The ESP-PPQ Quantization Framework}{equation.4.2.1}{}}
+\citation{esp_dl_mobilenetv2_tutorial}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.2}ESPDet-Pico Export and Quantization Pipeline}{35}{subsection.4.2.2}\protected@file@percent }
+\newlabel{subsec:espdet_quantization}{{4.2.2}{35}{ESPDet-Pico Export and Quantization Pipeline}{subsection.4.2.2}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.2.1}ONNX Export}{35}{subsubsection.4.2.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.2.2}INT8 Quantization}{35}{subsubsection.4.2.2.2}\protected@file@percent }
+\citation{esp_dl_mobilenetv2_tutorial}
+\citation{esp_dl_mobilenetv2_tutorial}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.3}MobileNetV2 Export and Quantization Pipeline}{36}{subsection.4.2.3}\protected@file@percent }
+\newlabel{subsec:mobilenet_quantization}{{4.2.3}{36}{MobileNetV2 Export and Quantization Pipeline}{subsection.4.2.3}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.3.1}ONNX Export and Simplification}{36}{subsubsection.4.2.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.3.2}Calibration Dataset Preparation}{36}{subsubsection.4.2.3.2}\protected@file@percent }
+\citation{esp_ppq2023}
+\citation{jacob2018quantization}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.3.3}Quantization and ESP-DL Format Conversion}{37}{subsubsection.4.2.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.4}Quantization Accuracy Preservation}{37}{subsection.4.2.4}\protected@file@percent }
+\newlabel{subsec:quantization_accuracy}{{4.2.4}{37}{Quantization Accuracy Preservation}{subsection.4.2.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.3}Firmware Architecture and Memory Management}{38}{section.4.3}\protected@file@percent }
+\newlabel{sec:firmware_memory}{{4.3}{38}{Firmware Architecture and Memory Management}{section.4.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.1}Model Storage Strategy}{38}{subsection.4.3.1}\protected@file@percent }
+\newlabel{subsec:model_storage}{{4.3.1}{38}{Model Storage Strategy}{subsection.4.3.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.2}Initialization Order and PSRAM Fragmentation Avoidance}{39}{subsection.4.3.2}\protected@file@percent }
+\newlabel{subsec:init_order}{{4.3.2}{39}{Initialization Order and PSRAM Fragmentation Avoidance}{subsection.4.3.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.3}Buffer Allocation and Zero-Copy Reuse Strategy}{39}{subsection.4.3.3}\protected@file@percent }
+\newlabel{subsec:buffer_allocation}{{4.3.3}{39}{Buffer Allocation and Zero-Copy Reuse Strategy}{subsection.4.3.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.4}Inference Pipeline Implementation}{40}{section.4.4}\protected@file@percent }
+\newlabel{sec:inference_pipeline}{{4.4}{40}{Inference Pipeline Implementation}{section.4.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.1}Camera Acquisition and JPEG Decoding}{40}{subsection.4.4.1}\protected@file@percent }
+\newlabel{subsec:camera_acquisition}{{4.4.1}{40}{Camera Acquisition and JPEG Decoding}{subsection.4.4.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.2}Leaf Detection and Coordinate Mapping}{41}{subsection.4.4.2}\protected@file@percent }
+\newlabel{subsec:leaf_detection_deployment}{{4.4.2}{41}{Leaf Detection and Coordinate Mapping}{subsection.4.4.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.3}Region Cropping and Classification Preprocessing}{41}{subsection.4.4.3}\protected@file@percent }
+\newlabel{subsec:region_cropping}{{4.4.3}{41}{Region Cropping and Classification Preprocessing}{subsection.4.4.3}{}}
 \citation{dietterich1997solving}
-\citation{ilse2018attention}
-\@writefile{lot}{\contentsline {table}{\numberline {4.2}{\ignorespaces Inference performance comparison across edge AI platforms (7-leaf frame)\relax }}{41}{table.caption.23}\protected@file@percent }
-\newlabel{tab:platform_comparison}{{4.2}{41}{Inference performance comparison across edge AI platforms (7-leaf frame)\relax }{table.caption.23}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.2}Inference Aggregation Strategies}{41}{section.4.2}\protected@file@percent }
-\newlabel{sec:aggregation_strategies}{{4.2}{41}{Inference Aggregation Strategies}{section.4.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.4}Disease Classification and INT8 Dequantization}{42}{subsection.4.4.4}\protected@file@percent }
+\newlabel{subsec:classification_dequant}{{4.4.4}{42}{Disease Classification and INT8 Dequantization}{subsection.4.4.4}{}}
+\newlabel{eq:dequant}{{4.5}{42}{Disease Classification and INT8 Dequantization}{equation.4.4.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.5}Multi-Leaf Aggregation Strategies}{42}{subsection.4.4.5}\protected@file@percent }
+\newlabel{subsec:aggregation_strategies}{{4.4.5}{42}{Multi-Leaf Aggregation Strategies}{subsection.4.4.5}{}}
 \citation{shannon1948mathematical}
-\citation{gal2016dropout}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.1}Aggregation Strategy Formulations}{42}{subsection.4.2.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.1.1}Baseline: Detection-Confidence Weighting}{42}{subsubsection.4.2.1.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.1.2}Entropy-Based Uncertainty Weighting}{42}{subsubsection.4.2.1.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.1.3}Hybrid Spatial-Quality Weighting}{42}{subsubsection.4.2.1.3}\protected@file@percent }
-\citation{ilse2018attention}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.2}Experimental Methodology}{43}{subsection.4.2.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.2.1}Evaluation Dataset and Protocol}{43}{subsubsection.4.2.2.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.2.2}Implementation and Computational Overhead}{43}{subsubsection.4.2.2.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.3}Results and Comparative Analysis}{44}{subsection.4.2.3}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {4.3}{\ignorespaces Frame-level classification accuracy comparison across aggregation strategies\relax }}{44}{table.caption.24}\protected@file@percent }
-\newlabel{tab:aggregation_comparison}{{4.3}{44}{Frame-level classification accuracy comparison across aggregation strategies\relax }{table.caption.24}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.3.1}Baseline Performance}{44}{subsubsection.4.2.3.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.3.2}Entropy-Aware Strategy Improvements}{44}{subsubsection.4.2.3.2}\protected@file@percent }
-\citation{ilse2018attention}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.3.3}Hybrid Strategy Superiority}{45}{subsubsection.4.2.3.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.4}Ablation Study and Component Analysis}{45}{subsection.4.2.4}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {4.4}{\ignorespaces Ablation study: incremental contribution of aggregation components\relax }}{45}{table.caption.25}\protected@file@percent }
-\newlabel{tab:aggregation_ablation}{{4.4}{45}{Ablation study: incremental contribution of aggregation components\relax }{table.caption.25}{}}
-\citation{lorawan_specification}
-\citation{adelantado2017understanding}
-\citation{adelantado2017understanding}
-\citation{lorawan_specification}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.5}Deployment Considerations}{46}{subsection.4.2.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {4.3}LoRaWAN Packet Structure and Communication Protocol Design}{46}{section.4.3}\protected@file@percent }
-\newlabel{sec:lorawan_protocol}{{4.3}{46}{LoRaWAN Packet Structure and Communication Protocol Design}{section.4.3}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.1}LoRaWAN Network Architecture}{46}{subsection.4.3.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.1.1}End Devices (ESP32-S3 Nodes)}{46}{subsubsection.4.3.1.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.1.2}Gateway Infrastructure}{47}{subsubsection.4.3.1.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.1.3}Network Server and Application Server}{47}{subsubsection.4.3.1.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.2}Packet Structure Design}{47}{subsection.4.3.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.2.1}Byte-Level Packet Layout}{47}{subsubsection.4.3.2.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.2.2}Field Encoding Rationale}{47}{subsubsection.4.3.2.2}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {4.5}{\ignorespaces LoRaWAN uplink packet structure for disease diagnosis (16 bytes total)\relax }}{48}{table.caption.26}\protected@file@percent }
-\newlabel{tab:lorawan_packet}{{4.5}{48}{LoRaWAN uplink packet structure for disease diagnosis (16 bytes total)\relax }{table.caption.26}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.3}Communication Protocol Workflow}{49}{subsection.4.3.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.3.1}Uplink Transmission Sequence}{49}{subsubsection.4.3.3.1}\protected@file@percent }
-\citation{lorawan_specification}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.3.2}Downlink Reception and Configuration Updates}{50}{subsubsection.4.3.3.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.3.3}Gateway and Network Server Processing}{50}{subsubsection.4.3.3.3}\protected@file@percent }
-\citation{mekki2019comparative}
-\citation{sinha2017survey}
-\citation{adelantado2017understanding}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.4}Payload Efficiency and Bandwidth Analysis}{51}{subsection.4.3.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.4.1}Information Density}{51}{subsubsection.4.3.4.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.4.2}Network Capacity Estimation}{51}{subsubsection.4.3.4.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.4.3}Comparison with Alternative Protocols}{51}{subsubsection.4.3.4.3}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {4.6}{\ignorespaces LPWAN protocol comparison for vineyard monitoring application\relax }}{52}{table.caption.27}\protected@file@percent }
-\newlabel{tab:lpwan_comparison}{{4.6}{52}{LPWAN protocol comparison for vineyard monitoring application\relax }{table.caption.27}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.5}Security and Authentication}{52}{subsection.4.3.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.5.1}Network-Level Security (NwkSKey)}{52}{subsubsection.4.3.5.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.5.2}Application-Level Security (AppSKey)}{52}{subsubsection.4.3.5.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.5.3}Over-The-Air Activation (OTAA)}{52}{subsubsection.4.3.5.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {4.4}Duty-Cycled Edge AI Operations for Energy Efficiency}{52}{section.4.4}\protected@file@percent }
-\newlabel{sec:duty_cycle}{{4.4}{52}{Duty-Cycled Edge AI Operations for Energy Efficiency}{section.4.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.1}Duty Cycle Configuration and Timing Analysis}{53}{subsection.4.4.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.4.1.1}Operational State Timeline}{53}{subsubsection.4.4.1.1}\protected@file@percent }
-\citation{raghunathan2005design}
-\citation{sinha2017survey}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.4.1.2}Duty Cycle Percentage Calculation}{54}{subsubsection.4.4.1.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.2}Energy Budget Analysis}{54}{subsection.4.4.2}\protected@file@percent }
-\newlabel{sec:energy_budget}{{4.4.2}{54}{Energy Budget Analysis}{subsection.4.4.2}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.4.2.1}Key Energy Insights}{54}{subsubsection.4.4.2.1}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {4.7}{\ignorespaces Energy consumption breakdown for duty-cycled operation (per 5-minute cycle)\relax }}{55}{table.caption.28}\protected@file@percent }
-\newlabel{tab:energy_budget}{{4.7}{55}{Energy consumption breakdown for duty-cycled operation (per 5-minute cycle)\relax }{table.caption.28}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.4.2.2}Daily and Monthly Energy Requirements}{55}{subsubsection.4.4.2.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.3}Solar Energy Harvesting and Battery Sizing}{56}{subsection.4.4.3}\protected@file@percent }
-\newlabel{sec:battery_lifetime}{{4.4.3}{56}{Solar Energy Harvesting and Battery Sizing}{subsection.4.4.3}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.4.3.1}Solar Energy Availability}{56}{subsubsection.4.4.3.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.4.3.2}Energy Balance Analysis}{56}{subsubsection.4.4.3.2}\protected@file@percent }
-\citation{sudevalayam2011energy}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.4.3.3}Battery Capacity Requirements and Autonomy}{57}{subsubsection.4.4.3.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.4.3.4}Comparison with Alternative Battery Capacities}{57}{subsubsection.4.4.3.4}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {4.8}{\ignorespaces Battery capacity vs. autonomy for duty-cycled operation (median case: 0.815 mW)\relax }}{57}{table.caption.29}\protected@file@percent }
-\newlabel{tab:battery_comparison}{{4.8}{57}{Battery capacity vs. autonomy for duty-cycled operation (median case: 0.815 mW)\relax }{table.caption.29}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.4}Long-Term Deployment Sustainability}{57}{subsection.4.4.4}\protected@file@percent }
-\citation{pham2019solar}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.4.4.1}Seasonal Energy Performance}{58}{subsubsection.4.4.4.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.4.4.2}System Uptime and Reliability}{58}{subsubsection.4.4.4.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.4.4.3}Multi-Year Deployment Projections}{58}{subsubsection.4.4.4.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.5}Comparison with Continuous Operation}{59}{subsection.4.4.5}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {4.9}{\ignorespaces Energy consumption and battery lifetime comparison across operational modes\relax }}{59}{table.caption.30}\protected@file@percent }
-\newlabel{tab:duty_cycle_comparison}{{4.9}{59}{Energy consumption and battery lifetime comparison across operational modes\relax }{table.caption.30}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.4.5.1}Continuous Operation Infeasibility}{59}{subsubsection.4.4.5.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.4.5.2}1-Minute Duty Cycle Over-Engineering}{59}{subsubsection.4.4.5.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.4.5.3}10-Minute and 30-Minute Trade-offs}{60}{subsubsection.4.4.5.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.6}Power Optimization Strategies}{60}{subsection.4.4.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.4.6.1}Dynamic Voltage and Frequency Scaling (DVFS)}{60}{subsubsection.4.4.6.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.4.6.2}Adaptive Duty Cycle Based on Disease Detection}{60}{subsubsection.4.4.6.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.4.6.3}Model Compression and Pruning}{61}{subsubsection.4.4.6.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.7}Summary and Energy Efficiency Conclusions}{61}{subsection.4.4.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4.5}Implementation Constraints and Design Trade-offs}{43}{section.4.5}\protected@file@percent }
+\newlabel{sec:implementation_constraints}{{4.5}{43}{Implementation Constraints and Design Trade-offs}{section.4.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5.1}Build System and Model Embedding Constraints}{43}{subsection.4.5.1}\protected@file@percent }
+\newlabel{subsec:build_constraints}{{4.5.1}{43}{Build System and Model Embedding Constraints}{subsection.4.5.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5.2}Class Index Mapping and Framework Compatibility}{44}{subsection.4.5.2}\protected@file@percent }
+\newlabel{subsec:class_mapping}{{4.5.2}{44}{Class Index Mapping and Framework Compatibility}{subsection.4.5.2}{}}
 \@setckpt{chapters/Chapter_4}{
-\setcounter{page}{63}
-\setcounter{equation}{19}
+\setcounter{page}{45}
+\setcounter{equation}{10}
 \setcounter{enumi}{3}
 \setcounter{enumii}{0}
 \setcounter{enumiii}{0}
@@ -131,14 +81,14 @@
 \setcounter{mpfootnote}{0}
 \setcounter{part}{0}
 \setcounter{chapter}{4}
-\setcounter{section}{4}
-\setcounter{subsection}{7}
+\setcounter{section}{5}
+\setcounter{subsection}{2}
 \setcounter{subsubsection}{0}
 \setcounter{paragraph}{0}
 \setcounter{subparagraph}{0}
 \setcounter{figure}{0}
-\setcounter{table}{9}
-\setcounter{Item}{15}
+\setcounter{table}{0}
+\setcounter{Item}{12}
 \setcounter{Hfootnote}{0}
 \setcounter{bookmark@seq@number}{0}
 \setcounter{float@type}{8}

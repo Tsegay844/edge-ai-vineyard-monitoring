@@ -1,42 +1,67 @@
 \relax 
 \providecommand\hyper@newdestlabel[2]{}
-\@writefile{toc}{\contentsline {chapter}{\numberline {5}Conclusion and Future Work}{63}{chapter.5}\protected@file@percent }
+\citation{freenove2024esp32s3}
+\@writefile{toc}{\contentsline {chapter}{\numberline {5}Performance Evaluation and Discussion}{45}{chapter.5}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{chap:conclusion}{{5}{63}{Conclusion and Future Work}{chapter.5}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {5.1}Summary of Contributions}{63}{section.5.1}\protected@file@percent }
-\newlabel{sec:summary_contributions}{{5.1}{63}{Summary of Contributions}{section.5.1}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.1}Dual-Model Cascade Architecture}{63}{subsection.5.1.1}\protected@file@percent }
-\newlabel{subsec:architecture_contribution}{{5.1.1}{63}{Dual-Model Cascade Architecture}{subsection.5.1.1}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.2}Multi-Leaf Aggregation Strategy}{63}{subsection.5.1.2}\protected@file@percent }
-\newlabel{subsec:aggregation_contribution}{{5.1.2}{63}{Multi-Leaf Aggregation Strategy}{subsection.5.1.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.3}Battery-Powered Duty-Cycled Operation}{63}{subsection.5.1.3}\protected@file@percent }
-\newlabel{subsec:energy_contribution}{{5.1.3}{63}{Battery-Powered Duty-Cycled Operation}{subsection.5.1.3}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.4}LoRaWAN Protocol Design}{63}{subsection.5.1.4}\protected@file@percent }
-\newlabel{subsec:communication_contribution}{{5.1.4}{63}{LoRaWAN Protocol Design}{subsection.5.1.4}{}}
-\citation{tzeng2017adversarial}
-\citation{ilse2018attention}
-\citation{tan2019mnasnet}
-\@writefile{toc}{\contentsline {section}{\numberline {5.2}Key Findings}{64}{section.5.2}\protected@file@percent }
-\newlabel{sec:key_findings}{{5.2}{64}{Key Findings}{section.5.2}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {5.3}Limitations}{64}{section.5.3}\protected@file@percent }
-\newlabel{sec:limitations}{{5.3}{64}{Limitations}{section.5.3}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {5.4}Future Work}{64}{section.5.4}\protected@file@percent }
-\newlabel{sec:future_work}{{5.4}{64}{Future Work}{section.5.4}{}}
-\citation{jones2004thermal}
-\citation{mahlein2012hyperspectral}
-\citation{mcmahan2017communication}
-\citation{mallya2018packnet}
-\citation{pang2021deep}
-\citation{rose2016towards}
-\citation{caffi2010mechanistic}
-\citation{kuhnle2021designing}
-\citation{irimia2016organic}
-\@writefile{toc}{\contentsline {section}{\numberline {5.5}Concluding Remarks}{65}{section.5.5}\protected@file@percent }
-\newlabel{sec:concluding_remarks}{{5.5}{65}{Concluding Remarks}{section.5.5}{}}
+\newlabel{chap:performance_evaluation}{{5}{45}{Performance Evaluation and Discussion}{chapter.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.1}Inference Latency Analysis}{45}{section.5.1}\protected@file@percent }
+\newlabel{sec:latency_analysis}{{5.1}{45}{Inference Latency Analysis}{section.5.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.1}Per-Stage Latency Breakdown}{45}{subsection.5.1.1}\protected@file@percent }
+\newlabel{subsec:per_stage_latency}{{5.1.1}{45}{Per-Stage Latency Breakdown}{subsection.5.1.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5.1}{\ignorespaces Per-stage latency breakdown for the inference pipeline (10 detected leaves)\relax }}{45}{table.caption.28}\protected@file@percent }
+\newlabel{tab:per_stage_latency}{{5.1}{45}{Per-stage latency breakdown for the inference pipeline (10 detected leaves)\relax }{table.caption.28}{}}
+\citation{esp32s3_datasheet}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.2}End-to-End Pipeline Latency and Throughput}{46}{subsection.5.1.2}\protected@file@percent }
+\newlabel{subsec:e2e_latency}{{5.1.2}{46}{End-to-End Pipeline Latency and Throughput}{subsection.5.1.2}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5.2}{\ignorespaces End-to-end latency and throughput versus number of detected leaves\relax }}{46}{table.caption.29}\protected@file@percent }
+\newlabel{tab:latency_vs_leaves}{{5.2}{46}{End-to-end latency and throughput versus number of detected leaves\relax }{table.caption.29}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.3}SIMD Utilization and Computational Efficiency}{46}{subsection.5.1.3}\protected@file@percent }
+\newlabel{subsec:simd_efficiency}{{5.1.3}{46}{SIMD Utilization and Computational Efficiency}{subsection.5.1.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.2}Model Accuracy Validation}{47}{section.5.2}\protected@file@percent }
+\newlabel{sec:accuracy_validation}{{5.2}{47}{Model Accuracy Validation}{section.5.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.1}ESPDet-Pico Detection Accuracy}{47}{subsection.5.2.1}\protected@file@percent }
+\newlabel{subsec:espdet_accuracy}{{5.2.1}{47}{ESPDet-Pico Detection Accuracy}{subsection.5.2.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5.3}{\ignorespaces ESPDet-Pico detection accuracy: FP32 vs INT8 quantized\relax }}{47}{table.caption.30}\protected@file@percent }
+\newlabel{tab:espdet_accuracy_comparison}{{5.3}{47}{ESPDet-Pico detection accuracy: FP32 vs INT8 quantized\relax }{table.caption.30}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.2}MobileNetV2 Classification Accuracy}{47}{subsection.5.2.2}\protected@file@percent }
+\newlabel{subsec:mobilenet_accuracy}{{5.2.2}{47}{MobileNetV2 Classification Accuracy}{subsection.5.2.2}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5.4}{\ignorespaces MobileNetV2 classification accuracy: FP32 vs INT8 quantized\relax }}{48}{table.caption.31}\protected@file@percent }
+\newlabel{tab:mobilenet_accuracy_comparison}{{5.4}{48}{MobileNetV2 classification accuracy: FP32 vs INT8 quantized\relax }{table.caption.31}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.3}Aggregation Strategy Evaluation}{48}{subsection.5.2.3}\protected@file@percent }
+\newlabel{subsec:aggregation_evaluation}{{5.2.3}{48}{Aggregation Strategy Evaluation}{subsection.5.2.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5.5}{\ignorespaces Sample aggregation output: hybrid spatial-quality weighting (10 leaves)\relax }}{48}{table.caption.32}\protected@file@percent }
+\newlabel{tab:aggregation_sample}{{5.5}{48}{Sample aggregation output: hybrid spatial-quality weighting (10 leaves)\relax }{table.caption.32}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.3}Memory Utilization and Runtime Stability}{48}{section.5.3}\protected@file@percent }
+\newlabel{sec:memory_utilization}{{5.3}{48}{Memory Utilization and Runtime Stability}{section.5.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3.1}Memory Footprint Analysis}{48}{subsection.5.3.1}\protected@file@percent }
+\newlabel{subsec:memory_footprint}{{5.3.1}{48}{Memory Footprint Analysis}{subsection.5.3.1}{}}
+\citation{esp32s3_datasheet}
+\@writefile{lot}{\contentsline {table}{\numberline {5.6}{\ignorespaces PSRAM allocation breakdown during system initialization\relax }}{49}{table.caption.33}\protected@file@percent }
+\newlabel{tab:memory_footprint}{{5.6}{49}{PSRAM allocation breakdown during system initialization\relax }{table.caption.33}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3.2}Long-Term Stability Validation}{49}{subsection.5.3.2}\protected@file@percent }
+\newlabel{subsec:long_term_stability}{{5.3.2}{49}{Long-Term Stability Validation}{subsection.5.3.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.4}Power Consumption and Energy Efficiency}{50}{section.5.4}\protected@file@percent }
+\newlabel{sec:power_consumption}{{5.4}{50}{Power Consumption and Energy Efficiency}{section.5.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4.1}Active and Sleep Power Measurements}{50}{subsection.5.4.1}\protected@file@percent }
+\newlabel{subsec:power_measurements}{{5.4.1}{50}{Active and Sleep Power Measurements}{subsection.5.4.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4.2}Duty-Cycle Energy Analysis}{50}{subsection.5.4.2}\protected@file@percent }
+\newlabel{subsec:duty_cycle}{{5.4.2}{50}{Duty-Cycle Energy Analysis}{subsection.5.4.2}{}}
+\newlabel{eq:avg_power}{{5.3}{50}{Duty-Cycle Energy Analysis}{equation.5.4.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.5}Comparative Analysis with Alternative Edge Platforms}{51}{section.5.5}\protected@file@percent }
+\newlabel{sec:comparative_analysis}{{5.5}{51}{Comparative Analysis with Alternative Edge Platforms}{section.5.5}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5.7}{\ignorespaces Comparison of edge AI platforms for vineyard disease detection deployment\relax }}{51}{table.caption.34}\protected@file@percent }
+\newlabel{tab:platform_comparison}{{5.7}{51}{Comparison of edge AI platforms for vineyard disease detection deployment\relax }{table.caption.34}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.6}Discussion}{52}{section.5.6}\protected@file@percent }
+\newlabel{sec:discussion}{{5.6}{52}{Discussion}{section.5.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.6.1}Trade-offs Between Accuracy, Latency, and Power}{52}{subsection.5.6.1}\protected@file@percent }
+\newlabel{subsec:tradeoffs}{{5.6.1}{52}{Trade-offs Between Accuracy, Latency, and Power}{subsection.5.6.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.6.2}Limitations and Deployment Considerations}{52}{subsection.5.6.2}\protected@file@percent }
+\newlabel{subsec:limitations}{{5.6.2}{52}{Limitations and Deployment Considerations}{subsection.5.6.2}{}}
+\citation{adelantado2017understanding}
 \@setckpt{chapters/Chapter_5}{
-\setcounter{page}{67}
-\setcounter{equation}{0}
+\setcounter{page}{54}
+\setcounter{equation}{3}
 \setcounter{enumi}{3}
 \setcounter{enumii}{0}
 \setcounter{enumiii}{0}
@@ -45,14 +70,14 @@
 \setcounter{mpfootnote}{0}
 \setcounter{part}{0}
 \setcounter{chapter}{5}
-\setcounter{section}{5}
-\setcounter{subsection}{0}
+\setcounter{section}{6}
+\setcounter{subsection}{2}
 \setcounter{subsubsection}{0}
 \setcounter{paragraph}{0}
 \setcounter{subparagraph}{0}
 \setcounter{figure}{0}
-\setcounter{table}{0}
-\setcounter{Item}{15}
+\setcounter{table}{7}
+\setcounter{Item}{12}
 \setcounter{Hfootnote}{0}
 \setcounter{bookmark@seq@number}{0}
 \setcounter{float@type}{8}

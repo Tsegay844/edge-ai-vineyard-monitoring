@@ -1,0 +1,36 @@
+\chapter{Conclusion and Future Work}
+\label{chap:conclusion}
+
+\section{Conclusion}
+
+This thesis presented the design, implementation, and evaluation of an edge AI system for grape leaf disease detection deployed on the ESP32-S3 microcontroller, extending the existing LoRaWAN-based vineyard monitoring system with direct visual-based disease diagnosis capabilities. The work addressed the fundamental limitation of environmental-only monitoring---which provides indirect indicators of disease risk rather than direct plant health assessment---by integrating a complete inference pipeline at the sensor level.
+
+The proposed system employs a four-stage pipeline architecture: image acquisition via OV3660 camera at VGA resolution, leaf localization using ESPDet-Pico (an ESP-optimized YOLO11n derivative with 360K parameters and 478~KB INT8 model size), multi-class disease classification using MobileNetV2 (2.27~MB INT8), and weighted multi-leaf aggregation for robust per-frame disease diagnosis. This two-model architecture separates the distinct tasks of leaf localization and disease classification, enabling each model to be independently optimized for its specific objective under the strict resource constraints of the target platform.
+
+ESPDet-Pico achieves 56.4\% mAP@50 for leaf detection while reducing model complexity by 86\% compared to the YOLO11n baseline (2.59M~$\rightarrow$~360K parameters), retaining 91.4\% of the baseline detection accuracy. The MobileNetV2 classifier attains $99.80\% \pm 0.065\%$ test accuracy across four disease classes (Black Rot, Esca, Healthy, and Leaf Blight), validated through multi-seed experimental protocol. Both models undergo post-training quantization via the ESP-PPQ framework with layerwise equalization, achieving INT8 precision with less than 1 percentage point accuracy degradation for detection and less than 0.3 percentage points for classification.
+
+The deployment on the ESP32-S3 required addressing several engineering challenges, including PSRAM fragmentation avoidance through enforced initialization ordering, RODATA-based model embedding for deterministic flash access, zero-copy buffer reuse strategies for long-term memory stability, and explicit INT8 dequantization to resolve cross-framework compatibility issues between PyTorch and the ESP-DL inference runtime. The production firmware (v29) completes a full inference cycle---including capture, detection, and classification of up to 10 leaves---in 6.4 seconds, with MobileNetV2 classification dominating latency at 92.3\% of total pipeline time.
+
+The duty-cycled operation strategy, capturing four frames per day at 6-hour intervals, reduces average power consumption to 98~$\mu$W, enabling theoretical multi-year battery autonomy from a standard 2000~mAh lithium-polymer cell. At approximately \$10 per ESP32-S3 module, the system enables spatially distributed deployment architectures where sensor density compensates for individual node processing speed---a fundamentally different paradigm from GPU-accelerated edge platforms that offer higher throughput but at orders-of-magnitude greater power and cost.
+
+This work demonstrates that deploying a two-stage deep learning pipeline on a resource-constrained microcontroller for agricultural disease detection is feasible and practically viable, bridging the gap between high-accuracy laboratory models and deployable field monitoring systems. The integration of edge AI computing with the existing LoRaWAN infrastructure provides a pathway toward intelligent precision agriculture systems that combine reliable long-range communication with on-device visual intelligence.
+
+
+\section{Future Work}
+
+Several directions for future research emerge from this work:
+
+\textbf{On-field validation.} All accuracy metrics reported in this thesis are obtained from controlled test sets (PlantVillage dataset for classification, Roboflow-annotated images for detection) and a printed grapevine banner for system integration testing. Comprehensive field validation with live grapevine canopy under natural environmental conditions---variable lighting, wind-induced leaf motion, rain, and dust accumulation---is essential to characterize real-world detection and classification performance. This validation is planned for the upcoming growing season.
+
+\textbf{LoRaWAN communication integration.} The current prototype outputs diagnostic results via serial interface to an STM32 microcontroller connected to the LoRaWAN network. Full integration of the disease detection payload into the existing LoRaWAN uplink frame format, including the compact encoding of aggregated classification results alongside environmental sensor data, remains to be completed and validated end-to-end.
+
+\textbf{Temporal disease tracking.} The current system provides single-frame disease classification without temporal context. Implementing disease progression monitoring by storing historical predictions in non-volatile storage (NVS) and comparing across consecutive capture cycles would enable trend detection and early warning capabilities. This extension is architecturally feasible within the current firmware design.
+
+\textbf{Environmental robustness enhancement.} Extreme lighting conditions---direct sunlight causing sensor saturation, heavy shadow, fog, or rain---may degrade both detection recall and classification accuracy. Investigating adaptive preprocessing techniques, exposure control strategies, or training with diverse environmental conditions could improve system robustness for year-round operation.
+
+\textbf{Model architecture improvements.} As TinyML frameworks and hardware accelerators continue to evolve, revisiting the accuracy-efficiency trade-off with newer architectures (e.g., EfficientNet-Lite, MobileNetV3) or hardware-aware neural architecture search could yield improved classification accuracy at equivalent or reduced computational cost. Additionally, exploring quantization-aware training (QAT) rather than post-training quantization may further reduce the quantization-induced accuracy gap.
+
+\textbf{Multi-crop and multi-disease generalization.} Extending the system to additional crop types and disease categories beyond the four grape leaf classes would broaden its applicability in precision agriculture. The modular pipeline architecture---where the detection and classification stages are independently trained---facilitates such extensions by requiring only the classification model to be retrained for new disease taxonomies.
+
+\textbf{Energy harvesting integration.} While the duty-cycled operation already achieves extreme energy efficiency, integrating a small solar panel for energy harvesting would enable truly indefinite autonomous operation, eliminating battery replacement as a maintenance requirement for large-scale vineyard deployments.
+

@@ -1,4 +1,4 @@
-\begin{thebibliography}{100}
+\begin{thebibliography}{10}
 
 \bibitem{shantkumari2023machine}
 M~Shantkumari and SV~Uma.
@@ -343,6 +343,10 @@ Gulshat Amirkhanova, Syrym Ismailov, Alikhan Amirkhanov, Saltanat Adilzhanova,
   aes-gcm implementation for esp32, mqtt, and raspberry pi.
 \newblock {\em Information}, 17(1):33, 2026.
 
+\bibitem{esp32s3_datasheet}
+Espressif Systems.
+\newblock Esp32-s3 datasheet, 2022.
+
 \bibitem{plantvillage_dataset_2023}
 Abdallah Ali.
 \newblock Plantvillage dataset.
@@ -359,7 +363,9 @@ Nicolaas Regnier.
 {Roboflow Universe}.
 \newblock Grape leaf roi detection dataset, version 6.
 \newblock Roboflow, 2026.
-\newblock CC BY 4.0 License, Exported: January 29, 2026.
+\newblock CC BY 4.0 License, Exported: January 29, 2026 from Roboflow Universe
+  at
+  \url{https://universe.roboflow.com/grape-disease-rxjfx/grape-leaf-roi-detection/dataset/6}.
 
 \bibitem{ren2015faster}
 Shaoqing Ren, Kaiming He, Ross Girshick, and Jian Sun.
@@ -381,11 +387,9 @@ Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy, Scott Reed,
 \newblock In {\em European Conference on Computer Vision (ECCV)}, pages 21--37,
   2016.
 
-\bibitem{jocher2022ultralytics}
-Glenn Jocher et~al.
-\newblock Ultralytics yolo.
-\newblock \url{https://github.com/ultralytics/ultralytics}, 2022.
-\newblock Accessed: February 2026.
+\bibitem{yolo11_ultralytics}
+Glenn Jocher and Jing Qiu.
+\newblock Ultralytics yolo11, 2024.
 
 \bibitem{lin2017feature}
 Tsung-Yi Lin, Piotr Doll\'ar, Ross Girshick, Kaiming He, Bharath Hariharan, and
@@ -394,32 +398,27 @@ Tsung-Yi Lin, Piotr Doll\'ar, Ross Girshick, Kaiming He, Bharath Hariharan, and
 \newblock In {\em Proceedings of the IEEE Conference on Computer Vision and
   Pattern Recognition (CVPR)}, pages 2117--2125, 2017.
 
-\bibitem{li2023espdet}
-Xing Li et~al.
-\newblock Espdet: Efficient real-time object detection for edge devices.
-\newblock In {\em Proceedings of the International Conference on Computer
-  Vision Workshops}, 2023.
-\newblock ESP-optimized YOLO variant for embedded systems.
-
 \bibitem{howard2017mobilenets}
 Andrew~G. Howard, Menglong Zhu, Bo~Chen, Dmitry Kalenichenko, Weijun Wang,
   Tobias Weyand, Marco Andreetto, and Hartwig Adam.
 \newblock Mobilenets: Efficient convolutional neural networks for mobile vision
   applications.
-\newblock 2017.
-
-\bibitem{mehta2018espnetv2}
-Sachin Mehta, Mohammad Rastegari, Linda Shapiro, and Hannaneh Hajishirzi.
-\newblock Espnetv2: A light-weight, power efficient, and general purpose
-  convolutional neural network.
-\newblock {\em arXiv preprint arXiv:1811.11431}, 2018.
+\newblock arXiv preprint arXiv:1704.04861, 2017.
 
 \bibitem{he2015spatial}
 Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun.
 \newblock Spatial pyramid pooling in deep convolutional networks for visual
   recognition.
-\newblock In {\em IEEE Transactions on Pattern Analysis and Machine
-  Intelligence}, volume~37, pages 1904--1916, 2015.
+\newblock {\em IEEE Transactions on Pattern Analysis and Machine Intelligence},
+  37(9):1904--1916, 2015.
+
+\bibitem{li2020generalized}
+Xiang Li, Wenhai Wang, Lijun Wu, Shuo Chen, Xiaolin Hu, Jun Li, Jinhui Tang,
+  and Jian Yang.
+\newblock Generalized focal loss: Learning qualified and distributed bounding
+  boxes for dense object detection.
+\newblock In {\em Advances in Neural Information Processing Systems (NeurIPS)},
+  volume~33, pages 21002--21012, 2020.
 
 \bibitem{loshchilov2017decoupled}
 Ilya Loshchilov and Frank Hutter.
@@ -440,23 +439,18 @@ Zhaohui Zheng, Ping Wang, Wei Liu, Jinze Li, Rongguang Ye, and Dongwei Ren.
 \newblock {\em Proceedings of the AAAI Conference on Artificial Intelligence},
   34(07):12993--13000, 2020.
 
-\bibitem{bochkovskiy2020yolov4}
-Alexey Bochkovskiy, Chien-Yao Wang, and Hong-Yuan~Mark Liao.
-\newblock Yolov4: Optimal speed and accuracy of object detection.
-\newblock {\em arXiv preprint arXiv:2004.10934}, 2020.
-
-\bibitem{zhang2018mixup}
-Hongyi Zhang, Moustapha Cisse, Yann~N. Dauphin, and David Lopez-Paz.
-\newblock mixup: Beyond empirical risk minimization.
-\newblock In {\em International Conference on Learning Representations (ICLR)},
-  2018.
-
 \bibitem{lin2014microsoft}
 Tsung-Yi Lin, Michael Maire, Serge Belongie, James Hays, Pietro Perona, Deva
   Ramanan, Piotr Doll\'ar, and C.~Lawrence Zitnick.
-\newblock Microsoft coco: Common objects in context.
+\newblock Microsoft coco: ommon objects in context.
 \newblock In {\em European Conference on Computer Vision (ECCV)}, pages
   740--755. Springer, 2014.
+
+\bibitem{esp_ppq2023}
+{Espressif Systems}.
+\newblock Esp-ppq: Post-training quantization for esp-dl.
+\newblock \url{https://github.com/espressif/esp-ppq}, 2023.
+\newblock Accessed: February 2026.
 
 \bibitem{sandler2018mobilenetv2}
 Mark Sandler, Andrew Howard, Menglong Zhu, Andrey Zhmoginov, and Liang-Chieh
@@ -496,23 +490,6 @@ Peter Henderson, Riashat Islam, Philip Bachman, Joelle Pineau, Doina Precup,
 \newblock {\em Proceedings of the AAAI Conference on Artificial Intelligence},
   32(1), 2018.
 
-\bibitem{ferentinos2018deep}
-Konstantinos~P. Ferentinos.
-\newblock Deep learning models for plant disease detection and diagnosis.
-\newblock {\em Computers and Electronics in Agriculture}, 145:311--318, 2018.
-
-\bibitem{esp_ppq2023}
-{Espressif Systems}.
-\newblock Esp-ppq: Post-training quantization for esp-dl.
-\newblock \url{https://github.com/espressif/esp-ppq}, 2023.
-\newblock Accessed: February 2026.
-
-\bibitem{ppq2022}
-{OpenPPL}.
-\newblock Ppq: Pytorch post-training quantization.
-\newblock \url{https://github.com/openppl-public/ppq}, 2022.
-\newblock Accessed: February 2026.
-
 \bibitem{jacob2018quantization}
 Benoit Jacob, Skirmantas Kligys, Bo~Chen, Menglong Zhu, Matthew Tang, Andrew
   Howard, Hartwig Adam, and Dmitry Kalenichenko.
@@ -527,179 +504,41 @@ Freenove.
 \newblock Official hardware documentation including specifications, schematics,
   and example code for camera, WiFi, and sensor integration.
 
-\bibitem{espressif2022esp32s3}
-Espressif Systems.
-\newblock {\em ESP32-S3 Technical Reference Manual}.
-\newblock Espressif Systems, 2022.
-
 \bibitem{esp_dl}
 Espressif Systems.
 \newblock Esp-dl: Espressif deep learning library, 2024.
 
-\bibitem{ferrandez2018precision}
-Francisco-Javier Ferr\'andez-Pastor, Juan-Manuel Garc\'ia-Chamizo, Mario
-  Nieto-Hidalgo, and Jos\'e Mora-Mart\'inez.
-\newblock Precision agriculture design method using a distributed computing
-  architecture on internet of things context.
-\newblock {\em Sensors}, 18(6):1731, 2018.
+\bibitem{esp_dl_mobilenetv2_tutorial}
+{Espressif Systems}.
+\newblock How to deploy {MobileNetV2} on {ESP32} --- model quantization, 2024.
+\newblock ESP-DL Official Documentation.
 
-\bibitem{talavera2017review}
-Jes\'us~Mart\'in Talavera, Luis~Eduardo Tob\'on, Jairo~Alejandro G\'omez,
-  Mar\'ia~Alejandra Culman, Juan~Manuel Aranda, Diana~Tamara Parra,
-  Luis~Alfredo Quiroz, Adolfo Hoyos, and Luis~Ernesto Garreta.
-\newblock Review of iot applications in agro-industrial and environmental
-  fields.
-\newblock {\em Computers and Electronics in Agriculture}, 142:283--297, 2017.
+\bibitem{ppq2022}
+{OpenPPL}.
+\newblock Ppq: Pytorch post-training quantization.
+\newblock \url{https://github.com/openppl-public/ppq}, 2022.
+\newblock Accessed: February 2026.
 
-\bibitem{adelantado2017understanding}
-Ferran Adelantado, Xavier Vilajosana, Pere Tuset-Peiro, Borja Martinez, Joan
-  Meli\`a-Segu\'i, and Thomas Watteyne.
-\newblock Understanding the limits of lorawan.
-\newblock {\em IEEE Communications Magazine}, 55(9):34--40, 2017.
-
-\bibitem{asma2022edge}
-Shaukat Asma, Cristiano Andr\'e da~Costa Rizi, Emiliano Sisinni, Paolo Ferrari,
-  and Alessandra Flammini.
-\newblock Edge computing architectures for internet of things applications: A
-  survey.
-\newblock {\em Sensors}, 22(7):2570, 2022.
-
-\bibitem{stewart2021end}
-Kathryn Stewart, Maral~Ettehad Andani, Amir Gholami, Joseph Gonzalez, Ion
-  Stoica, and Kurt Keutzer.
-\newblock End-to-end benchmarking of deep learning inference on embedded
-  devices.
-\newblock {\em IEEE Design \& Test}, 38(5):89--99, 2021.
-
-\bibitem{shannon1948mathematical}
-Claude~E. Shannon.
-\newblock A mathematical theory of communication.
-\newblock {\em Bell System Technical Journal}, 27(3):379--423, 1948.
+\bibitem{krishnamoorthi2018quantize}
+Raghuraman Krishnamoorthi.
+\newblock Quantizing deep convolutional networks for efficient inference: A
+  whitepaper.
+\newblock {\em arXiv preprint arXiv:1806.08342}, 2018.
 
 \bibitem{dietterich1997solving}
 Thomas~G. Dietterich, Richard~H. Lathrop, and Tom\'as Lozano-P\'erez.
 \newblock Solving the multiple instance problem with axis-parallel rectangles.
 \newblock {\em Artificial Intelligence}, 89(1-2):31--71, 1997.
 
-\bibitem{ilse2018attention}
-Maximilian Ilse, Jakub~M. Tomczak, and Max Welling.
-\newblock Attention-based deep multiple instance learning.
-\newblock {\em International Conference on Machine Learning (ICML)}, pages
-  2127--2136, 2018.
+\bibitem{shannon1948mathematical}
+Claude~E. Shannon.
+\newblock A mathematical theory of communication.
+\newblock {\em Bell System Technical Journal}, 27(3):379--423, 1948.
 
-\bibitem{gal2016dropout}
-Yarin Gal and Zoubin Ghahramani.
-\newblock Dropout as a bayesian approximation: Representing model uncertainty
-  in deep learning.
-\newblock {\em International Conference on Machine Learning (ICML)}, pages
-  1050--1059, 2016.
-
-\bibitem{lorawan_specification}
-{LoRa Alliance}.
-\newblock Lorawan 1.0.4 specification.
-\newblock
-  \url{https://lora-alliance.org/resource_hub/lorawan-specification-v1-0-4/},
-  2023.
-
-\bibitem{mekki2019comparative}
-Kais Mekki, Eddy Bajic, Fr\'ed\'eric Chaxel, and Fernand Meyer.
-\newblock A comparative study of lpwan technologies for large-scale iot
-  deployment.
-\newblock {\em ICT Express}, 5(1):1--7, 2019.
-
-\bibitem{sinha2017survey}
-Rupam~Sankar Sinha, Yiqiao Wei, and Seung-Hoon Hwang.
-\newblock A survey on lpwa technology: Lora and nb-iot.
-\newblock {\em ICT Express}, 3(1):14--21, 2017.
-
-\bibitem{raghunathan2005design}
-Vijay Raghunathan, Curt Schurgers, Sung Park, and Mani~B. Srivastava.
-\newblock Energy-aware wireless microsensor networks.
-\newblock {\em IEEE Signal Processing Magazine}, 19(2):40--50, 2002.
-
-\bibitem{sudevalayam2011energy}
-Sujesha Sudevalayam and Purushottam Kulkarni.
-\newblock Energy harvesting sensor nodes: Survey and implications.
-\newblock {\em IEEE Communications Surveys \& Tutorials}, 13(3):443--461, 2011.
-
-\bibitem{pham2019solar}
-Congduc Pham, Afif Rahim, and Caspar Hartmann.
-\newblock Deploying a fully automated, multi-hop, multi-channel lora sensor
-  network.
-\newblock {\em Sensors}, 19(20):4431, 2019.
-
-\bibitem{tzeng2017adversarial}
-Eric Tzeng, Judy Hoffman, Kate Saenko, and Trevor Darrell.
-\newblock Adversarial discriminative domain adaptation.
-\newblock In {\em Proceedings of the IEEE Conference on Computer Vision and
-  Pattern Recognition (CVPR)}, pages 7167--7176, 2017.
-
-\bibitem{tan2019mnasnet}
-Mingxing Tan, Bo~Chen, Ruoming Pang, Vijay Vasudevan, Mark Sandler, Andrew
-  Howard, and Quoc~V. Le.
-\newblock Mnasnet: Platform-aware neural architecture search for mobile.
-\newblock In {\em Proceedings of the IEEE Conference on Computer Vision and
-  Pattern Recognition (CVPR)}, pages 2820--2828, 2019.
-
-\bibitem{jones2004thermal}
-Hamlyn~G. Jones.
-\newblock Application of thermal imaging and infrared sensing in plant
-  physiology and ecophysiology.
-\newblock {\em Advances in Botanical Research}, 41:107--163, 2004.
-
-\bibitem{mahlein2012hyperspectral}
-Anne-Katrin Mahlein, Ulrike Steiner, Christian Hillnh\"utter, Heinz-Wilhelm
-  Dehne, and Erich-Christian Oerke.
-\newblock Hyperspectral imaging for small-scale analysis of symptoms caused by
-  different sugar beet diseases.
-\newblock {\em Plant Methods}, 8(1):3, 2012.
-
-\bibitem{mcmahan2017communication}
-Brendan McMahan, Eider Moore, Daniel Ramage, Seth Hampson, and Blaise~Aguera
-  y~Arcas.
-\newblock Communication-efficient learning of deep networks from decentralized
-  data.
-\newblock In {\em Proceedings of the 20th International Conference on
-  Artificial Intelligence and Statistics (AISTATS)}, volume~54, pages
-  1273--1282, 2017.
-
-\bibitem{mallya2018packnet}
-Arun Mallya and Svetlana Lazebnik.
-\newblock Packnet: Adding multiple tasks to a single network by iterative
-  pruning.
-\newblock In {\em Proceedings of the IEEE Conference on Computer Vision and
-  Pattern Recognition (CVPR)}, pages 7765--7773, 2018.
-
-\bibitem{pang2021deep}
-Guansong Pang, Chunhua Shen, Longbing Cao, and Anton Van~Den Hengel.
-\newblock Deep learning for anomaly detection: A review.
-\newblock {\em ACM Computing Surveys}, 54(2):1--38, 2021.
-
-\bibitem{rose2016towards}
-David~Christian Rose, William~J. Sutherland, Chris Parker, Matt Lobley, Michael
-  Winter, Carol Morris, Stephen Twining, Charles Ffoulkes, Tatsuya Amano, and
-  Lynn~V. Dicks.
-\newblock Decision support tools for agriculture: Towards effective design and
-  delivery.
-\newblock {\em Agricultural Systems}, 149:165--174, 2016.
-
-\bibitem{caffi2010mechanistic}
-Tito Caffi, Vittorio Rossi, and Enrico Cosatti.
-\newblock A mechanistic model simulating ascosporic infections by plasmopara
-  viticola, the causal agent of grapevine downy mildew.
-\newblock {\em Ecological Modelling}, 221(17):2231--2241, 2010.
-
-\bibitem{kuhnle2021designing}
-Julian K\"uhnle, Lukas Kaiser, Franz Theisel, Niklas Stricker, and Gisela
-  Lanza.
-\newblock Designing an adaptive production control system using reinforcement
-  learning.
-\newblock {\em Journal of Intelligent Manufacturing}, 32:855--876, 2021.
-
-\bibitem{irimia2016organic}
-Mihai Irimia-Vladu.
-\newblock "green" electronics: Biodegradable and biocompatible materials and
-  devices for sustainable future.
-\newblock {\em Chemical Society Reviews}, 43(2):588--610, 2014.
+\bibitem{adelantado2017understanding}
+Ferran Adelantado, Xavier Vilajosana, Pere Tuset-Peiro, Borja Martinez, Joan
+  Meli\`a-Segu\'i, and Thomas Watteyne.
+\newblock Understanding the limits of lorawan.
+\newblock {\em IEEE Communications Magazine}, 55(9):34--40, 2017.
 
 \end{thebibliography}

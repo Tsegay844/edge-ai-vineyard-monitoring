@@ -1,84 +1,304 @@
-\chapter{Conclusion and Future Work}
-\label{chap:conclusion}
+\chapter{Performance Evaluation and Discussion}
+\label{chap:performance_evaluation}
 
-This thesis has demonstrated the feasibility of deploying sophisticated deep learning inference on ultra-low-power microcontrollers for autonomous vineyard monitoring. The system achieves 97.4\% plant-level disease classification accuracy while consuming only 0.815mW average power, enabling maintenance-free battery-powered operation for multi-month deployments.
+This chapter presents the quantitative evaluation of the deployed vineyard disease detection system on the ESP32-S3 platform. Section~\ref{sec:latency_analysis} provides a detailed latency analysis of each inference pipeline stage. Section~\ref{sec:accuracy_validation} validates model accuracy after quantization and deployment. Section~\ref{sec:memory_utilization} examines memory footprint and runtime stability. Section~\ref{sec:power_consumption} characterizes power consumption and duty-cycle energy efficiency. Section~\ref{sec:comparative_analysis} compares the ESP32-S3 deployment against alternative edge computing platforms. Finally, Section~\ref{sec:discussion} discusses the trade-offs inherent in the system design and acknowledges current limitations.
 
-%----------------------------------------------------------------
-\section{Summary of Contributions}
-\label{sec:summary_contributions}
+All measurements reported in this chapter are obtained from the production firmware (v29) running on the Freenove ESP32-S3-WROOM development board~\cite{freenove2024esp32s3} with OV3660 camera module, using serial monitor output at 115,200 baud for timing and memory profiling data.
 
-This work advances agricultural edge AI through four primary contributions:
 
-\subsection{Dual-Model Cascade Architecture}
-\label{subsec:architecture_contribution}
+\section{Inference Latency Analysis}
+\label{sec:latency_analysis}
 
-The system combines ESPDet-Pico object detection with MobileNetV2 classification in a two-stage pipeline optimized for ESP32-S3. INT8 quantization reduces model sizes to 2.3MB and 8.7MB while maintaining 99.75\% classification accuracy on the four-class grape disease dataset. The deployment achieves 94-97\% SIMD efficiency on Xtensa LX7 vector extensions, with total inference latency of 4.17 seconds for a 7-leaf image.
+\subsection{Per-Stage Latency Breakdown}
+\label{subsec:per_stage_latency}
 
-\subsection{Multi-Leaf Aggregation Strategy}
-\label{subsec:aggregation_contribution}
+The inference pipeline is instrumented with microsecond-resolution timing measurements at each processing stage. Table~\ref{tab:per_stage_latency} presents the measured latency for each stage during a representative inference cycle capturing a grapevine image with 10 detected leaves.
 
-A hybrid count-weighted aggregation approach synthesizes predictions from multiple leaves within each image to produce robust plant-level diagnoses. By combining leaf detection counts with entropy-weighted class probabilities, the strategy achieves 97.4\% plant-level accuracy—a 3.2 percentage point improvement over single-leaf inference and 3.2 points above baseline majority voting.
+\begin{table}[htbp]
+\centering
+\caption{Per-stage latency breakdown for the inference pipeline (10 detected leaves)}
+\label{tab:per_stage_latency}
+\begin{tabular}{lrc}
+\toprule
+\textbf{Pipeline Stage} & \textbf{Latency (ms)} & \textbf{Percentage} \\
+\midrule
+Camera capture (JPEG)                                    & 78     & 1.2\%   \\
+JPEG decode (RGB888)                                     & 52     & 0.8\%   \\
+Leaf detection (incl.\ letterbox preprocessing)           & 365    & 5.7\%   \\
+Disease classification ($\times$10 leaves, incl.\ crop)   & 5,918  & 92.3\%  \\
+\midrule
+\textbf{Total end-to-end}                                  & \textbf{6,413}  & \textbf{100\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-\subsection{Battery-Powered Duty-Cycled Operation}
-\label{subsec:energy_contribution}
+MobileNetV2 classification dominates the pipeline at 92.3\% of total latency. The classification time of 5,918~ms for 10 leaves corresponds to approximately 590~ms per leaf, which decomposes into crop and resize preprocessing ($\sim$1--2~ms), tensor setup ($\sim$0.1~ms), the INT8 forward pass ($\sim$550~ms), and softmax post-processing ($\sim$0.1~ms). The forward pass constitutes approximately 96\% of the per-leaf classification time and is dominated by depthwise separable convolution operations executing in INT8 arithmetic on the Xtensa LX7 SIMD units.
 
-The 1.57\% duty cycle architecture (4.17s active, 295.83s sleep per 5-minute period) consumes 3.4J per cycle. Battery autonomy of 9.1 days is achieved with standard lithium-polymer cells. Six-month field deployment achieved 99.8\% uptime, validating long-term autonomous operation.
+The detection stage accounts for 5.7\% of total latency despite processing the full $416 \times 320$ input. This time includes letterbox preprocessing ($\sim$22~ms), the ESPDet-Pico INT8 forward pass ($\sim$340~ms), and non-maximum suppression post-processing. The favorable detection speed relative to classification reflects ESPDet-Pico's substantially smaller parameter count (360K vs $\sim$2.2M for MobileNetV2) and the computational efficiency of the anchor-free single-pass architecture.
 
-\subsection{LoRaWAN Protocol Design}
-\label{subsec:communication_contribution}
+Image acquisition stages (capture and JPEG decode) together contribute only 2.0\% of total latency, confirming that neural network inference --- not I/O or preprocessing --- constitutes the computational bottleneck in embedded edge AI deployments.
 
-A custom 16-byte payload efficiently encodes disease counts, confidence scores, and system telemetry within LoRaWAN MTU constraints. The 29-byte total frame size transmits in 0.5-2 seconds depending on spreading factor, supporting scalable multi-node deployments.
+\subsection{End-to-End Pipeline Latency and Throughput}
+\label{subsec:e2e_latency}
 
-%----------------------------------------------------------------
-\section{Key Findings}
-\label{sec:key_findings}
+The end-to-end latency scales linearly with the number of detected leaves, as classification is applied sequentially to each detected region:
 
-\textbf{Edge AI on Microcontrollers is Viable:} Modern microcontrollers with SIMD extensions can execute sophisticated multi-stage deep learning pipelines for agricultural vision tasks. The 4.17-second inference latency is acceptable for monitoring applications where crop phenological changes occur over days to weeks.
+\begin{equation}
+T_{\text{total}} = T_{\text{capture}} + T_{\text{decode}} + T_{\text{detect}} + N \cdot (T_{\text{crop}} + T_{\text{classify}}) + T_{\text{aggregate}}
+\end{equation}
 
-\textbf{Aggregation Improves Accuracy:} Multi-leaf aggregation that accounts for prediction uncertainty and instance counts significantly outperforms naive voting, providing a 3.2 percentage point accuracy gain that elevates the system from marginally useful (94\%) to production-ready (97\%).
+where $N$ denotes the number of detected leaves and $T_{\text{classify}} \approx 550$~ms per leaf. This linear relationship yields the following throughput estimates:
 
-\textbf{Battery Power Enables Long-Term Autonomy:} The ultra-low power consumption enables 9.1-day battery autonomy, providing maintenance-free operation with periodic battery replacement or recharging cycles.
+\begin{table}[htbp]
+\centering
+\caption{End-to-end latency and throughput versus number of detected leaves}
+\label{tab:latency_vs_leaves}
+\begin{tabular}{ccc}
+\toprule
+\textbf{Leaves Detected} & \textbf{Estimated Latency (ms)} & \textbf{Throughput (FPS)} \\
+\midrule
+1   & $\sim$1,070   & 0.93  \\
+3   & $\sim$2,170   & 0.46  \\
+5   & $\sim$3,270   & 0.31  \\
+7   & $\sim$4,370   & 0.23  \\
+10  & 6,413         & 0.16  \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-\textbf{LoRaWAN Suits Sparse Telemetry:} The 16-byte payload efficiently encodes all essential diagnostic information within LoRaWAN MTU constraints while maintaining 2-15km range, making it well-suited for vineyard-scale deployments without cellular subscription fees.
+At the maximum detection count of 10 leaves per frame, the system achieves 0.16 FPS, corresponding to one complete inference cycle every 6.4 seconds. For the target application of periodic vineyard monitoring --- where disease symptoms evolve over days rather than hours --- the system performs four inference cycles per day at 6-hour intervals. The resulting duty cycle is negligible (6.4~s active out of 21,600~s per cycle $\approx$ 0.03\%), ensuring that latency imposes no operational constraint on the monitoring schedule.
 
-%----------------------------------------------------------------
-\section{Limitations}
-\label{sec:limitations}
+\subsection{SIMD Utilization and Computational Efficiency}
+\label{subsec:simd_efficiency}
 
-\textbf{Domain Gap:} Training on PlantVillage studio images introduces distribution shift relative to real vineyard conditions (variable lighting, occlusions, background clutter). Field accuracy may degrade on heavily shadowed or occluded leaves, though entropy-weighted aggregation mitigates this by down-weighting uncertain predictions.
+The Xtensa LX7 SIMD extension (PIE --- Processor Interface Extension) enables parallel INT8 multiply-accumulate operations, processing multiple weight-activation products in a single instruction cycle. The ESP-DL runtime exploits these SIMD instructions for all convolutional and fully connected layers, constituting the primary acceleration mechanism for quantized inference on this platform.
 
-\textbf{Limited Disease Coverage:} The system classifies four disease categories, but real vineyards exhibit additional foliar diseases (Downy Mildew, Powdery Mildew, Anthracnose) and abiotic stresses. Multi-label classification would require architectural modifications and new annotated datasets.
+INT8 arithmetic on the Xtensa LX7 achieves approximately $4\times$ throughput compared to equivalent FP32 operations, as the SIMD pipeline processes four 8-bit operands in the same cycle required for one 32-bit operation~\cite{esp32s3_datasheet}. Non-vectorizable operations --- including batch normalization parameter scaling, activation function (ReLU6) branching, and memory access stalls when fetching weights from flash via the instruction cache --- constitute a minor fraction of total execution time. This hardware-level acceleration is the key enabler of the sub-second per-leaf classification latency observed in the deployed system.
 
-\textbf{Single-Crop Specificity:} Models are specialized for grape leaf morphology and disease phenotypes. Deploying for other crops would require retraining, though transfer learning could reduce annotation burden to 100-500 images per class.
 
-\textbf{Environmental Robustness:} The system has not been tested under extreme temperatures (<0°C), and the IP54 enclosure allows dust accumulation on camera lens over weeks. Biofouling from insects and spiders requires periodic manual cleaning.
+\section{Model Accuracy Validation}
+\label{sec:accuracy_validation}
 
-\textbf{Single-Node Validation:} Scaling to dense sensor networks introduces challenges in LoRaWAN gateway capacity, collision probability, and spatial power heterogeneity due to canopy shading.
+This section evaluates the accuracy of both models in their quantized INT8 form deployed on the ESP32-S3, comparing against the FP32 training baselines established in Chapter~\ref{chap:system_architecture}.
 
-%----------------------------------------------------------------
-\section{Future Work}
-\label{sec:future_work}
+\subsection{ESPDet-Pico Detection Accuracy}
+\label{subsec:espdet_accuracy}
 
-\textbf{Domain Adaptation and Model Improvement:} Fine-tune classification models on vineyard images using domain adaptation techniques~\cite{tzeng2017adversarial} or transfer learning to bridge the distribution gap between studio PlantVillage images and real field conditions. Implement attention-based aggregation~\cite{ilse2018attention} to model spatial relationships between leaves. Deploy neural architecture search~\cite{tan2019mnasnet} to discover custom architectures optimized for ESP32-S3 hardware characteristics.
+Table~\ref{tab:espdet_accuracy_comparison} compares the detection performance of the FP32 training model against the post-quantization INT8 model evaluated on the held-out test set (103 images).
 
-\textbf{Multi-Modal Sensing:} Integrate thermal cameras for water stress detection~\cite{jones2004thermal}, multispectral sensors for vegetation indices~\cite{mahlein2012hyperspectral}, and environmental sensors (temperature, humidity, leaf wetness) to expand diagnostic capabilities beyond visual disease detection. Fuse modality-specific predictions to improve early disease detection and reduce false positives from abiotic stresses.
+\begin{table}[htbp]
+\centering
+\caption{ESPDet-Pico detection accuracy: FP32 vs INT8 quantized}
+\label{tab:espdet_accuracy_comparison}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Metric} & \textbf{FP32} & \textbf{INT8} & \textbf{Degradation} \\
+\midrule
+mAP@50 (\%)         & 56.42 & 55.8  & $-$0.62 pp \\
+mAP@50-95 (\%)      & 32.29 & 31.5  & $-$0.79 pp \\
+Precision (\%)      & 62.77 & 61.9  & $-$0.87 pp \\
+Recall (\%)         & 54.17 & 53.5  & $-$0.67 pp \\
+\midrule
+Model size          & 1.06~MB & 478~KB & $-$55\% \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-\textbf{Federated Learning and Continual Adaptation:} Implement federated learning~\cite{mcmahan2017communication} or continual learning~\cite{mallya2018packnet} to enable gradual model improvement as sensor networks accumulate field data. Deploy anomaly detection~\cite{pang2021deep} to identify images with high uncertainty for human expert review, enabling the system to recognize the boundaries of its knowledge.
+INT8 accuracy values are obtained by evaluating the quantized model on the same held-out test set used for FP32 validation, using the ESP-PPQ framework's built-in accuracy evaluation pipeline. The quantization introduces less than 1 percentage point degradation across all detection metrics. The mAP@50 decrease from 56.42\% to 55.8\% represents a 1.1\% relative accuracy loss, well within acceptable bounds for the leaf localization task where the detector serves as a region proposal mechanism for the downstream classifier. The minimal degradation reflects the effectiveness of the layerwise equalization strategy (Section~\ref{subsec:quantization_accuracy}) in preserving detection performance despite aggressive 32-bit to 8-bit precision reduction.
 
-\textbf{Multi-Node Cooperation:} Develop spatial interpolation algorithms to construct disease distribution maps from sparse node observations. Implement collaborative inference offloading where energy-rich nodes process images from energy-constrained neighbors to balance computational load across heterogeneous power availability.
+The quantized model retains sufficient detection capability for the downstream classification pipeline: at the production confidence threshold ($\tau = 0.25$), the detector reliably localizes leaves in vineyard imagery, providing region proposals for disease classification.
 
-\textbf{Decision Support Integration:} Integrate sensor networks with vineyard decision support systems~\cite{rose2016towards} that recommend treatment timing and pesticide selection. Develop disease forecasting models~\cite{caffi2010mechanistic} that predict progression based on environmental conditions. Optimize treatment strategies using reinforcement learning~\cite{kuhnle2021designing} to maximize economic return while minimizing pesticide usage.
+\subsection{MobileNetV2 Classification Accuracy}
+\label{subsec:mobilenet_accuracy}
 
-\textbf{Sustainability Analysis:} Conduct life-cycle assessment to quantify environmental impact compared to manual scouting and blanket pesticide application. Investigate biodegradable electronics~\cite{irimia2016organic} for disposable sensor nodes that degrade naturally after end-of-season.
+Table~\ref{tab:mobilenet_accuracy_comparison} presents the classification accuracy comparison between the FP32 and INT8 models on the held-out test set (814 images).
 
-%----------------------------------------------------------------
-\section{Concluding Remarks}
-\label{sec:concluding_remarks}
+\begin{table}[htbp]
+\centering
+\caption{MobileNetV2 classification accuracy: FP32 vs INT8 quantized}
+\label{tab:mobilenet_accuracy_comparison}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Metric} & \textbf{FP32} & \textbf{INT8} & \textbf{Degradation} \\
+\midrule
+Test Accuracy (\%)    & 99.80 & $>$99.5 & $<$0.3 pp \\
+Macro F1-score        & 0.998 & $>$0.995 & $<$0.003 \\
+\midrule
+Model size (ONNX)     & 8.48~MB & 2.27~MB & $-$73.2\% \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-This thesis demonstrates that edge AI systems deploying deep learning on ultra-low-power microcontrollers represent a practical approach for continuous agricultural monitoring. The convergence of efficient neural architectures, microcontroller hardware acceleration, and energy harvesting technologies enables autonomous operation that provides real-time crop health diagnostics for precision agriculture management.
+Evaluation of the INT8 quantized model on the same held-out test set used for FP32 validation indicates accuracy above 99.5\%, with less than 0.3 percentage point degradation from the FP32 baseline. The robustness to quantization is attributed to three factors: (1) batch normalization layers in MobileNetV2's inverted residual blocks stabilize activation distributions, reducing sensitivity to precision reduction; (2) the layerwise equalization technique redistributes weight magnitudes to minimize per-layer quantization error; and (3) the moderate complexity of the four-class classification task (compared to ImageNet's 1000 classes) provides inherent margin for precision loss.
 
-The key technical insight is that computational demands of deep learning inference have decreased while microcontroller capabilities have increased to the point where these domains now intersect—enabling inference workloads on milliwatt-scale platforms that previously required embedded GPUs or TPUs. The methodological contribution of multi-leaf aggregation demonstrates that edge AI systems should be designed holistically, synthesizing multiple predictions into actionable intelligence rather than treating individual inferences as independent.
+\subsection{Aggregation Strategy Evaluation}
+\label{subsec:aggregation_evaluation}
 
-From a sustainability perspective, battery-powered operation with ultra-low power consumption proves that maintenance-free, grid-independent deployment is achievable for edge AI workloads. The environmental and economic benefits of reducing pesticide usage through early disease detection likely outweigh the embodied energy and manufacturing emissions within 2-3 growing seasons.
+The three multi-leaf aggregation strategies (Section~\ref{subsec:aggregation_strategies}) were evaluated on the system integration test using a printed grapevine banner with OV3660 camera capture. Table~\ref{tab:aggregation_sample} presents a representative frame-level aggregation result from the hybrid spatial-quality weighting strategy with 10 detected leaves.
 
-Looking forward, edge AI agricultural sensing will transition from research prototypes to commodity products within the next 5-10 years. As deployment scales from single nodes to dense networks, the fusion of edge AI with decision support systems, robotic actuators, and big data analytics will enable a new paradigm of precision agriculture that optimizes resource usage while maintaining crop yields and quality. This work represents a step toward that vision, demonstrating that the fundamental technological barriers have been overcome and edge AI vineyard monitoring is ready for real-world deployment.
+\begin{table}[htbp]
+\centering
+\caption{Sample aggregation output: hybrid spatial-quality weighting (10 leaves)}
+\label{tab:aggregation_sample}
+\begin{tabular}{lc}
+\toprule
+\textbf{Aggregated Class Score} & \textbf{Probability} \\
+\midrule
+Black Rot       & 11.55\% \\
+Esca            & 8.82\%  \\
+\textbf{Healthy}& \textbf{54.65\%} \\
+Leaf Blight     & 24.98\% \\
+\midrule
+\textbf{Frame diagnosis:} & Healthy (54.6\% confidence) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The hybrid aggregation strategy assigns per-leaf weights based on the product of detection confidence, classification certainty (1 $-$ normalized entropy), and bounding box quality. Observed leaf weights range from 0.0147 (low-quality edge detection with high entropy, 7.2\% certainty) to 0.0644 (central, well-detected leaf with moderate certainty, 18.2\%). Leaves with high classification entropy (indicating ambiguous predictions near class boundaries) are effectively downweighted, reducing the influence of unreliable classifications on the frame-level diagnosis.
+
+The aggregation computation adds less than 2~ms to the pipeline latency, introducing negligible overhead. A comprehensive comparative evaluation of the three aggregation strategies on field test data is planned as part of the on-field validation described in Section~\ref{subsec:limitations}.
+
+
+\section{Memory Utilization and Runtime Stability}
+\label{sec:memory_utilization}
+
+\subsection{Memory Footprint Analysis}
+\label{subsec:memory_footprint}
+
+Table~\ref{tab:memory_footprint} presents the PSRAM allocation breakdown measured from the boot log serial output of the production firmware, showing free PSRAM at each initialization stage.
+
+\begin{table}[htbp]
+\centering
+\caption{PSRAM allocation breakdown during system initialization}
+\label{tab:memory_footprint}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Initialization Stage} & \textbf{Free PSRAM (KB)} & \textbf{Consumed (KB)} & \textbf{Time (ms)} \\
+\midrule
+System boot (heap init)            & 8,386  & ---      & ---  \\
+After ESPDet-Pico init             & 7,095  & 1,291    & 144  \\
+After MobileNetV2 init             & 4,207  & 2,888    & 348  \\
+After camera init                  & ---    & $\sim$122 & ---  \\
+During inference (steady state)    & 3,910  & ---      & ---  \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The total PSRAM consumption is approximately 4,476~KB (53.4\% of 8~MB), leaving 3,910~KB free during steady-state inference. This memory budget includes:
+
+\begin{itemize}
+    \item \textbf{ESPDet-Pico activation buffers:} $\sim$1,291~KB for detection model activation tensors and internal buffers.
+    \item \textbf{MobileNetV2 activation buffers:} $\sim$2,839~KB for classification model activation tensors plus the 49~KB persistent input buffer.
+    \item \textbf{Camera DMA buffers:} $2 \times 61$~KB = 122~KB for double-buffered frame capture.
+    \item \textbf{JPEG decode buffer:} $\sim$900~KB (dynamically allocated and freed per frame).
+\end{itemize}
+
+The 3,910~KB free PSRAM during inference provides sufficient margin for the temporary JPEG decode buffer allocation ($\sim$900~KB) and other runtime overhead, with approximately 3~MB remaining as safety margin against unexpected allocations or memory alignment overhead.
+
+Flash memory allocation is dominated by the firmware binary (4,356,032 bytes = 4.15~MB of 5~MB factory partition), of which 2,971,836 bytes (2.83~MB) is memory-mapped model data and 1,268,968 bytes (1.21~MB) is application code. Internal SRAM (274~KB of 512~KB available at boot for dynamic allocation) is used by the ESP-DL runtime for weight tile caching (up to 64~KB) and FreeRTOS task stacks.
+
+\subsection{Long-Term Stability Validation}
+\label{subsec:long_term_stability}
+
+The single-allocation zero-copy buffer strategy (Section~\ref{subsec:buffer_allocation}) is validated through continuous operation testing. The system monitors free PSRAM before and after each inference cycle, verifying that the post-inference free memory returns to the same baseline value (3,910~KB $\pm$ 1~KB) after every cycle. This confirms the absence of memory leakage from unfreed dynamic allocations or fragmentation-induced memory loss.
+
+The deterministic memory behavior stems from the design decision to eliminate all dynamic allocations within the inference loop: the JPEG decode buffer is the only runtime allocation, and its allocation-free pattern is verified through explicit size assertions. All other buffers (classification input, model activations, camera framebuffers) are allocated once during initialization and reused across all subsequent inference cycles without reallocation.
+
+
+\section{Power Consumption and Energy Efficiency}
+\label{sec:power_consumption}
+
+\subsection{Active and Sleep Power Measurements}
+\label{subsec:power_measurements}
+
+Power consumption is characterized for two operational states. Active-mode power is derived from the ESP32-S3 datasheet maximum current specification~\cite{esp32s3_datasheet} for 240~MHz dual-core operation with peripherals active; deep sleep current is directly measured using a bench multimeter in series with the 3.3~V supply rail:
+
+\begin{itemize}
+    \item \textbf{Active mode (inference):} During neural network inference at 240~MHz with PSRAM access, camera operation, and flash reads, the system draws approximately 74~mA at 3.3~V (244~mW). This represents the ESP32-S3's maximum operating current under full dual-core computational load with octal PSRAM active at 80~MHz. Power consumption during inference is dominated by the Xtensa LX7 cores executing INT8 SIMD operations and the octal PSRAM interface transferring activation data at each layer boundary.
+    \item \textbf{Deep sleep mode:} Between inference cycles, the system enters deep sleep with all peripherals powered down (camera, PSRAM controller, flash interface). Only the RTC domain remains active for timed wakeup. The measured deep sleep current is 8~$\mu$A (26~$\mu$W at 3.3~V), consistent with the ESP32-S3 datasheet specification for deep sleep with RTC timer wakeup enabled.
+\end{itemize}
+
+\subsection{Duty-Cycle Energy Analysis}
+\label{subsec:duty_cycle}
+
+Since grapevine foliar diseases such as Black Rot (\textit{Guignardia bidwellii}) and Esca develop visible symptoms over days to weeks, the system's condition does not change appreciably between consecutive captures at sub-hour intervals. Accordingly, the deployed monitoring schedule performs four inference cycles per day at 6-hour intervals (e.g., 06:00, 12:00, 18:00, 00:00), capturing disease state across the diurnal lighting cycle while spending the vast majority of time in deep sleep. Each inference cycle completes in approximately 6.4 seconds for a 10-leaf frame. The per-cycle duty cycle is:
+
+\begin{equation}
+D = \frac{T_{\text{active}}}{T_{\text{cycle}}} = \frac{6.4~\text{s}}{21{,}600~\text{s}} \approx 0.030\%
+\end{equation}
+
+The average power consumption over one complete duty cycle combines the active and sleep contributions:
+
+\begin{equation}
+P_{\text{avg}} = D \cdot P_{\text{active}} + (1 - D) \cdot P_{\text{sleep}} = 2.96 \times 10^{-4} \times 244~\text{mW} + 0.9997 \times 0.026~\text{mW} \approx 0.098~\text{mW}
+\label{eq:avg_power}
+\end{equation}
+
+At an average consumption of 98~$\mu$W, the system's daily energy requirement (four cycles) is approximately 2.4~mWh. A standard 3.7~V, 2000~mAh lithium-polymer battery (7,400~mWh capacity) could theoretically sustain the system for over 8 years without recharging, far exceeding the practical battery shelf life. In practice, battery self-discharge ($\sim$3--5\% per month for LiPo cells) becomes the dominant energy loss mechanism, yielding realistic autonomous operation of 6--12 months depending on environmental temperature. With a modest solar panel (e.g., 1~W rated capacity receiving 4 effective sun-hours per day), the system achieves indefinite energy-autonomous operation throughout the growing season and beyond.
+
+The 6-hour monitoring interval is well-matched to the temporal dynamics of grapevine disease progression. The capture interval is configurable via the \texttt{CAPTURE\_INTERVAL\_SEC} firmware parameter, allowing operators to increase monitoring frequency during periods of high disease pressure (e.g., humid conditions favoring fungal growth) at the cost of proportionally higher energy consumption.
+
+
+\section{Comparative Analysis with Alternative Edge Platforms}
+\label{sec:comparative_analysis}
+
+To contextualize the ESP32-S3 deployment within the broader landscape of edge AI platforms, Table~\ref{tab:platform_comparison} compares key performance characteristics against established alternatives.
+
+\begin{table}[htbp]
+\centering
+\caption{Comparison of edge AI platforms for vineyard disease detection deployment}
+\label{tab:platform_comparison}
+\small
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Parameter} & \textbf{ESP32-S3} & \textbf{RPi 4B} & \textbf{Jetson Nano} & \textbf{Coral Edge TPU} \\
+\midrule
+Processor         & Xtensa LX7      & ARM Cortex-A72 & ARM A57 + GPU & ARM A53 + TPU \\
+Clock (MHz)       & 240             & 1,500          & 1,430         & 1,500 \\
+RAM               & 8~MB PSRAM      & 4~GB DDR4      & 4~GB LPDDR4   & 1~GB LPDDR4 \\
+Neural accelerator & SIMD (INT8)    & None (CPU)     & 128-core GPU  & Edge TPU \\
+Sleep power       & 8~$\mu$A        & $\sim$1.5~W    & $\sim$1~W     & $\sim$0.5~W \\
+Board cost (USD)  & $\sim$10        & $\sim$35--55   & $\sim$100--150 & $\sim$60--75 \\
+\midrule
+Inference type     & INT8 MCU       & FP32/INT8 CPU  & FP16 GPU      & INT8 TPU \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The ESP32-S3 occupies a distinct position in the cost-power-performance Pareto space for edge AI agricultural monitoring. While Raspberry Pi 4B, Jetson Nano, and Google Coral offer substantially higher computational throughput (enabling real-time video-rate inference at 10--30+ FPS), they consume orders of magnitude more power even in their lowest-power idle states. Critically, none of these platforms achieve deep sleep currents below 1~mA, whereas the ESP32-S3 operates at 8~$\mu$A --- a factor of $10^5$ lower than the Raspberry Pi's idle power draw. For duty-cycled agricultural monitoring where inference occurs once every 5 minutes, this difference translates directly into deployment feasibility: the ESP32-S3 system's average power consumption of 98~$\mu$W (Equation~\ref{eq:avg_power}) enables multi-year theoretical battery autonomy, whereas the Raspberry Pi 4B's idle consumption ($\sim$3~W) would exhaust the same 7,400~mWh battery in under 2.5 hours.
+
+The $\sim$\$10 unit cost of the ESP32-S3 module (excluding camera) enables spatially distributed deployment architectures in which sensor density compensates for individual node processing speed. A vineyard equipped with 50 ESP32-S3 monitoring nodes --- providing fine-grained spatial coverage across 10--25 hectares --- costs approximately the same as 5 Jetson Nano deployments, each of which would additionally require active cooling and mains power infrastructure.
+
+The primary engineering trade-off is inference throughput: the ESP32-S3 requires 6.4 seconds per frame (10 leaves) compared to sub-second inference on GPU-accelerated platforms. This limitation precludes real-time video analysis but is operationally acceptable for periodic monitoring applications where the temporal resolution of disease progression (days to weeks) far exceeds the capture interval (minutes). The ESP32-S3 is therefore positioned not as a competitor to high-performance edge platforms, but as an enabler of a fundamentally different deployment paradigm: dense, autonomous, energy-harvesting sensor networks for precision agriculture.
+
+
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{Trade-offs Between Accuracy, Latency, and Power}
+\label{subsec:tradeoffs}
+
+The deployed system embodies a three-way engineering trade-off between accuracy, inference latency, and power consumption:
+
+\textbf{Accuracy vs. Model Size:} ESPDet-Pico sacrifices 8.6\% relative mAP@50 compared to YOLO11n (56.42\% vs 61.75\%) in exchange for an 86\% parameter reduction that enables in-memory deployment. MobileNetV2 at $128 \times 128$ input resolution trades potential accuracy gains from higher resolution ($224 \times 224$) for a 3$\times$ reduction in activation memory, enabling co-deployment with the detection model within the 8~MB PSRAM budget. Despite these compromises, the classification model achieves 99.80\% accuracy on the controlled test set, indicating that the accuracy trade-offs are well justified for this task complexity.
+
+\textbf{Latency vs. Accuracy:} The choice of nearest-neighbor interpolation over bilinear for crop resizing sacrifices image quality for 5--8$\times$ speedup per crop operation. INT8 quantization provides $\sim$4$\times$ computational speedup via SIMD utilization at the cost of marginal accuracy degradation ($<$0.3 pp for classification). The maximum detection limit of 10 leaves per frame bounds worst-case latency at 6.4 seconds while potentially missing additional leaves in dense canopy regions.
+
+\textbf{Power vs. Throughput:} The 6-hour capture interval (four times daily) trades temporal resolution for extreme energy efficiency, reducing average power consumption to 98~$\mu$W --- a level at which battery self-discharge dominates over system consumption. For applications requiring higher monitoring frequency (e.g., hourly captures during humid conditions favoring rapid fungal onset), the duty cycle can be increased at the cost of proportionally higher energy consumption, though even at 5-minute intervals the system remains well within solar-harvesting feasibility.
+
+\subsection{Limitations and Deployment Considerations}
+\label{subsec:limitations}
+
+The current evaluation has several limitations that should be acknowledged:
+
+\textbf{Laboratory vs. field accuracy:} All accuracy metrics reported in Sections~\ref{subsec:espdet_accuracy} and~\ref{subsec:mobilenet_accuracy} are obtained from controlled test sets (PlantVillage dataset for classification, Roboflow-annotated images for detection). The system integration test described in Section~\ref{subsec:aggregation_evaluation} uses a printed grapevine banner to validate the inference pipeline end-to-end, but does not constitute field-level accuracy validation. On-field testing with live grapevine canopy under natural environmental conditions (variable lighting, wind-induced leaf motion, rain droplets, dust accumulation on camera lens) remains a planned future activity, pending vineyard preparation for the upcoming growing season.
+
+\textbf{Environmental robustness:} The OV3660 camera's automatic exposure and white balance provide basic adaptation to lighting variations. However, extreme conditions --- direct sunlight causing sensor saturation, heavy shadow creating underexposure, or fog/rain degrading image clarity --- may adversely affect both detection recall and classification accuracy. The impact of these environmental factors on system performance has not yet been quantified.
+
+\textbf{Disease progression monitoring:} The current system provides single-frame disease classification without temporal tracking across consecutive capture cycles. Implementing change detection or disease progression monitoring would require storing historical predictions in NVS (non-volatile storage) and comparing across frames, which is feasible within the current firmware architecture but not yet implemented.
+
+\textbf{Communication integration:} The deployed prototype outputs diagnostic results via serial monitor. Integration with LoRaWAN~\cite{adelantado2017understanding} for wireless transmission of disease alerts to a central gateway is architecturally planned (the system architecture in Chapter~\ref{chap:system_architecture} shows LoRaWAN integration) but not yet implemented in the current firmware. The 4.15~MB firmware binary leaves approximately 850~KB of the 5~MB factory partition for LoRaWAN stack integration.
+
+\textbf{Aggregation strategy validation:} The comparative evaluation of the three aggregation strategies (baseline, entropy-based, hybrid) requires on-field data with known ground-truth disease labels across multiple leaves per frame. This validation is contingent on the vineyard field trials described above and is planned as a priority evaluation task for the next growing season.
+
+Despite these limitations, the results presented in this chapter demonstrate that the complete inference pipeline --- from camera capture through multi-leaf aggregation --- executes reliably on a microcontroller-class device, achieving classification accuracy consistent with the FP32 training baselines while operating within the strict memory and power constraints of the ESP32-S3 platform. The implications of these findings and directions for future work are discussed in Chapter~\ref{chap:conclusion}.

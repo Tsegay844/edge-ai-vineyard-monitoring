@@ -6,7 +6,7 @@ The existing vineyard monitoring system was developed as a long-range, low-power
 
 \begin{figure}[htbp]
    
-    \includegraphics[width=0.7\linewidth]{images/lora2.drawio.png}
+    \includegraphics[width=1\linewidth]{images/lora2.drawio.png}
     \caption{\ LoRaWAN-based vineyard monitoring system architecture that only relies on environmental data for disease risk assessment}
     \label{fig:lora}
 \end{figure}
@@ -26,23 +26,4 @@ The main aim of this research was to design, implement, and validate Edge AI sys
 
 Overall, this work provide a complete system architecture that filled the gap between environmental only monitoring and direct visual based disease detection. This research established a foundation for Intelligent precision agricultural systems that combine the reliability of LoRaWAN with optimized deep learning models deployed at the edge.
 
-The Thesis organized in five chapters. Chapter 1 introduced background of the research, outlining the research gap, main aim, and contributions of the study. Chapter 2 reviews some related works in the fields of IoT, LoRaWAN for precision agriculture, deep learning and edge computing for plants disease detection. Chapter 3 describes system design and implementation, including hardware selection, model architecture, dataset preparation, training process, and integration with the existing LoRaWAN-based monitoring platform. Chapter 4 presents the experimental setup, evaluation metrics, and results of the system validation in both controlled and field conditions. Finally, Chapter 5 concludes the thesis by summarizing the findings, discussing implications and future research.
-
-% The existing vineyard monitoring is developed in a long-range, low-power, wireless sensor network (WSN) platform for environmental monitoring and management of vineyards, aiming to provide methods to evaluate and improve the energy consumption of the sensor nodes. The goal of this monitoring system is to provide an efficient and reliable way to detect conditions adverse to the grapes by measuring environmental data such as temperature, pressure, soil mixture, and humidity levels of the vineyard fields. The platform is composed of a set of data acquisition sensors scattered over large open-field areas, a gateway node, and a remote server to process and store the acquired data. This monitoring platform is based on the LoRaWAN specification, which is suitable for long-range and low-power and lossy networks (LLNs) applications and provides a reliable link layer protocol for the deployed End Nodes (sensor nodes) to access and transmit data to a central gateway, forming a star network topology. The gateway node provides IP connectivity, forwarding the frames from the wireless sensor network (WSN) to a local application server, which then sends the data to the LoRaWAN Network server called The Things Stack Running from INFN's VM. The telemetry data at the servers is, gathered, stored in the MongoDB database, and displayed on the Grafana dashboard  back to the Users, providing flexibility in the use and access of the measured environmental conditions.
-
-% Extension: Integrating Edge AI Computing for Grape Leaf Disease Detection
-% To further enhance this vineyard monitoring system’s intelligence, this research adds an extension feature focused on edge computing for grape leaf disease detection. This feature Integrated edge AI at the sensor level, moving beyond the traditional environmental monitoring, for nearly real-time visual-based insights into grape leaves. By processing leaf images and running CNN classification model at the edge sensor, the system improves its ability to identify grape diseases. This differentiates the monitoring system from other systems that only rely on environmental data, thereby providing a more intelligent and efficient solution for vineyard management.
-
-% The visual-based disease detection necessitates the tactical use of Edge AI computing to overcome the bandwidth limitations inherent in LoRaWAN communication for transmitting image data. Even though LoRaWAN excels at transmitting concise data frames for environmental readings, raw image transmission is too power-hungry and impractical for a low-power WSN. Utilizing the ESP32-S3’s Edge AI capabilities, which support AI and can process images, the development process becomes more flexible and efficient, enabling real-time grape leaf detection and classification directly at the edge sensor. This approach reduces power consumption by transmitting only the output of the clas- sification CNN, e.g. “Leaf Blight” with confidence 90\%, which is then seamlessly appended to the existing LoRaWAN data frame. Besides, by setting specified periodic intervals for image capture and on-device processing, followed by extended sleep periods (duty cycle operation) for the edge node, it aligns perfectly with a low-power, event-driven monitoring strategy, providing actionable insights while minimizing the impact on battery lifetime. Moreover, this comprehensive approach enhances the vineyard monitoring system by enabling early, localized detection of plant health issues, supporting more responsive and targeted interventions in precision agriculture.
-
-
-
-
-
-
-
-
-
-
-
-
+The thesis is organized in six chapters. Chapter~\ref{chap:introduction} introduces the background of the research, outlining the research gap, main aim, and contributions of the study. Chapter~\ref{chap:literature_review} reviews related works in the fields of IoT and LoRaWAN for precision agriculture, deep learning for grape disease detection, and edge computing for plant disease detection. Chapter~\ref{chap:system_architecture} describes the proposed system architecture and model design, including dataset preparation, the ESPDet-Pico leaf localization model, MobileNetV2 disease classification model, and multi-leaf aggregation strategy. Chapter~\ref{chap:deployment} presents the edge AI deployment pipeline on the ESP32-S3 microcontroller, covering model quantization, firmware architecture, memory management, and inference pipeline implementation. Chapter~\ref{chap:performance_evaluation} reports the performance evaluation and discussion, including latency analysis, accuracy validation, memory utilization, power consumption, and comparative analysis with alternative platforms. Finally, Chapter~\ref{chap:conclusion} concludes the thesis by summarizing the findings, discussing implications, and outlining directions for future research.

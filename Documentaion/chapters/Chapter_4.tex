@@ -1,841 +1,328 @@
-\chapter{Results and Discussion}
-\label{chap:results_discussion}
+\chapter{Edge AI Deployment on ESP32-S3 Microcontrollers}
+\label{chap:deployment}
 
-This chapter presents the experimental evaluation of the deployed edge AI system, analyzing inference performance, aggregation strategies, communication protocols, and power consumption characteristics under real-world vineyard deployment conditions. Section~\ref{sec:on_device_performance} characterizes the computational performance of the ESP32-S3 deployment, quantifying per-stage latency, memory utilization, and inference throughput. Section~\ref{sec:aggregation_strategies} evaluates the effectiveness of multi-leaf aggregation strategies for frame-level diagnosis. Section~\ref{sec:lorawan_protocol} presents the LoRaWAN packet structure and communication protocol design. Section~\ref{sec:duty_cycle} analyzes duty-cycled operation and power consumption under battery-powered deployment.
+This chapter presents the complete deployment pipeline for the two-stage vineyard disease detection system on the ESP32-S3 microcontroller platform. Following the model design and training described in Chapter~\ref{chap:system_architecture}, this chapter addresses the engineering challenges of translating trained neural network models into a functional embedded system. It begins with a description of the target hardware platform and the associated software frameworks in Section~\ref{sec:hw_platform}. Section~\ref{sec:quantization_pipeline} details the post-training quantization pipeline that converts both models from floating-point to 8-bit integer representations compatible with the ESP-DL inference engine. Section~\ref{sec:firmware_memory} discusses the firmware architecture and memory management strategies developed through iterative prototyping to resolve PSRAM fragmentation and allocation challenges. Section~\ref{sec:inference_pipeline} describes the complete inference pipeline implementation, from camera acquisition through multi-leaf aggregation. Finally, Section~\ref{sec:implementation_constraints} documents the key implementation constraints and design trade-offs encountered during deployment.
 
-\section{On-Device Inference Performance}
-\label{sec:on_device_performance}
+\section{Target Hardware Platform and Development Framework}
+\label{sec:hw_platform}
 
-The dual-model inference pipeline presented in Section~\ref{sec:deployment} exhibits distinct performance characteristics shaped by the computational constraints of the ESP32-S3 platform. This section presents comprehensive latency profiling, memory consumption analysis, and throughput measurements from the field-deployed system. Performance evaluation is based on 200+ inference cycles spanning diverse vineyard scenes with varying leaf counts (3--15 leaves per frame), lighting conditions, and occlusion patterns.
+\subsection{ESP32-S3-WROOM-1 Microcontroller Architecture}
+\label{subsec:esp32s3_architecture}
 
-\subsection{Pipeline Latency Characterization}
+The deployment target is the ESP32-S3-WROOM-1 system-on-chip (SoC) module manufactured by Espressif Systems~\cite{esp32s3_datasheet}. The ESP32-S3 integrates a dual-core Xtensa LX7 processor operating at 240~MHz, providing the computational foundation for neural network inference. The Xtensa LX7 cores support single-instruction multiple-data (SIMD) operations through the PIE (Processor Interface Extension) instruction set, enabling vectorized INT8 multiply-accumulate operations that directly accelerate quantized neural network computations.
 
-Extensive timing profiling reveals the per-stage computational bottlenecks and execution characteristics of the deployed system. All latency measurements are captured using the ESP32-S3's high-resolution microsecond timer (\texttt{esp\_timer\_get\_time()}) with $\pm$1~$\mu$s precision, providing deterministic profiling without sampling bias.
-
-\subsubsection{Per-Stage Latency Breakdown}
-
-Table~\ref{tab:deployment_latency} presents the latency decomposition for a representative single-frame inference cycle processing 7 detected leaves—the median leaf count observed in field deployment across 200+ captures.
-
-\begin{table}[htbp]
-\centering
-\caption{Per-stage latency breakdown for ESP32-S3 edge inference pipeline (7 leaves detected)}
-\label{tab:deployment_latency}
-\small
-\begin{tabular}{lrrc}
-\toprule
-\textbf{Pipeline Stage} & \textbf{Latency (ms)} & \textbf{Percentage} & \textbf{Location} \\
-\midrule
-Camera Capture          & 42                    & 4.8\%               & Hardware (OV3660)  \\
-JPEG Decode             & 68                    & 7.8\%               & PSRAM (software)   \\
-Detection Inference     & 285                   & 32.8\%              & SRAM+PSRAM (INT8)  \\
-Crop \& Resize ($7\times$) & 38                 & 4.4\%               & PSRAM (NN interp.) \\
-Classification ($7\times$) & 3,710              & 42.8\%              & SRAM+PSRAM (INT8)  \\
-Aggregation             & 2                     & 0.2\%               & SRAM (softmax)     \\
-Logging \& Overhead     & 25                    & 2.9\%               & UART + misc        \\
-\midrule
-\textbf{Total}          & \textbf{4,170}        & \textbf{100\%}      & \textbf{---}       \\
-\textbf{Throughput}     & \multicolumn{3}{c}{\textbf{0.24 FPS}}                                  \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-The pipeline exhibits heavily compute-bound behavior, with 75.6\% of execution time consumed by neural network inference (32.8\% detection + 42.8\% classification). Camera acquisition and JPEG decoding contribute only 12.6\% combined, indicating that vision processing overhead is well-optimized relative to deep learning inference. The negligible aggregation time (2~ms for 7 leaves, 0.2\%) validates the computational efficiency of the weighted averaging implementation.
-
-\subsubsection{Analysis of Computational Bottlenecks}
-
-\textbf{Classification dominates pipeline latency.} The MobileNetV2 classification stage consumes 3,710~ms (42.8\%) for 7 leaves, exceeding detection inference by 13× (3,710~ms vs 285~ms). This disparity arises from two factors: (1) classification processes each detected leaf independently without batching, incurring repeated model invocations, and (2) MobileNetV2's 17 inverted residual blocks contain significantly more depthwise separable convolutions than ESPDet-Pico's 11-layer backbone.
-
-\textbf{Detection inference remains efficient.} Despite processing the full 640$\times$480 input frame, ESPDet-Pico completes inference in 285~ms (32.8\%), demonstrating the effectiveness of architectural pruning and anchor-free design. The detection model successfully localizes leaves at 3.5~FPS (1/0.285s) when isolated, providing sufficient throughput for continuous video-based monitoring if leaf count were not a limiting factor.
-
-\textbf{Vision preprocessing is non-critical.} Camera capture (42~ms) and JPEG decoding (68~ms) together contribute 110~ms (12.6\%), well below neural network inference. The OV3660's hardware JPEG encoder offloads compression from the ESP32-S3, while software decoding executes efficiently via ESP-IDF's optimized JPEG library. Further optimization of preprocessing stages would yield negligible system-level throughput gains.
-
-\textbf{Aggregation overhead is negligible.} Frame-level diagnosis via weighted aggregation (Section~\ref{sec:aggregation_strategies}) adds only 2~ms overhead, confirming that the aggregation strategy does not compromise real-time performance. This enables deployment of sophisticated aggregation algorithms (entropy-based weighting, spatial quality metrics) without latency penalties.
-
-\subsection{MobileNetV2 Inference Scaling Analysis}
-
-Classification latency exhibits near-linear scaling with the number of detected leaves, as ESP-DL's static memory allocation strategy precludes dynamic batching. Each leaf undergoes independent inference through the full MobileNetV2 forward pass, resulting in predictable scaling behavior crucial for worst-case latency analysis.
-
-\subsubsection{Per-Leaf Inference Characteristics}
-
-Isolated single-leaf profiling (50 repeated measurements with pre-allocated buffers to eliminate initialization overhead) reveals the following per-leaf timing breakdown:
+The memory subsystem comprises a three-tier hierarchy critical for embedded deep learning deployment:
 
 \begin{itemize}
-    \item \textbf{Single-leaf total:} 530~ms (average across 50 measurements, $\sigma = 3.2$~ms)
-    \item \textbf{Tensor setup:} 8~$\mu$s (pointer assignment, negligible overhead)
-    \item \textbf{Forward pass:} 520~ms (98.1\% of classification time)
-    \item \textbf{Softmax computation:} 90~$\mu$s (numerically-stable exponentiation)
+    \item \textbf{Internal SRAM (512~KB):} High-speed on-chip memory with single-cycle access latency, partitioned between instruction RAM (IRAM), data RAM (DRAM), and DMA-accessible regions. The ESP-DL runtime uses SRAM for frequently accessed weight tiles via a least-recently-used (LRU) caching policy, storing up to 64~KB of active parameters.
+    \item \textbf{External PSRAM (8~MB):} Octal SPI PSRAM (AP Memory, 3.3V variant) operating at 80~MHz with Hybrid Wrap burst mode and 32-byte burst length. PSRAM provides the primary storage for model activation buffers, camera framebuffers, and inference intermediate tensors. Access latency is approximately 10 read cycles at fixed latency, with 32~KB reserved for DMA and internal allocations by the ESP-IDF heap allocator.
+    \item \textbf{External Flash (16~MB):} QIO-mode flash storage at 80~MHz clock speed, used for firmware binary storage including model weights embedded in the \texttt{.rodata} section. The flash partition table allocates a 5~MB factory application partition (offset \texttt{0x10000}) to accommodate the dual-model firmware binary, alongside NVS (24~KB) and PHY initialization (4~KB) partitions.
 \end{itemize}
 
-The forward pass dominates classification latency (98.1\%), with INT8 depthwise separable convolutions consuming the majority of compute cycles. Tensor setup and softmax computation together contribute <0.02\%, indicating that preprocessing and postprocessing overheads are negligible compared to neural network execution.
+The development board (Freenove ESP32-S3-WROOM~\cite{freenove2024esp32s3}) integrates an OV3660 camera sensor connected via 8-bit parallel DVP interface. The OV3660 captures at VGA resolution (640$\times$480) with on-chip JPEG compression, supporting clock frequencies up to 40~MHz~\cite{esp32s3_datasheet}. Camera data is transferred to PSRAM through DMA channels, enabling capture-while-processing operation.
 
-\subsubsection{Linear Scaling Validation}
+\subsection{ESP-IDF Development Framework}
+\label{subsec:esp_idf}
 
-Figure~\ref{fig:classification_scaling} (to be generated) would illustrate the linear relationship between leaf count and total classification latency. Extrapolating from the single-leaf baseline:
+The firmware is developed using the Espressif IoT Development Framework (ESP-IDF) version 5.3.3, Espressif's official C/C++ development platform for ESP32-series microcontrollers. ESP-IDF provides a FreeRTOS-based real-time operating system with hardware abstraction layers for peripheral management, memory allocation, and power management. The build system uses CMake with Ninja, compiling the application into a single monolithic binary that includes the bootloader, partition table, and application code.
+
+Key ESP-IDF subsystems utilized in the deployment include:
 
 \begin{itemize}
-    \item \textbf{3 leaves:} $3 \times 530 = 1,590$~ms (minimum observed in deployment)
-    \item \textbf{7 leaves:} $7 \times 530 = 3,710$~ms (median, matches Table~\ref{tab:deployment_latency})
-    \item \textbf{10 leaves:} $10 \times 530 = 5,300$~ms (confirmed via isolated measurement)
-    \item \textbf{15 leaves:} $15 \times 530 = 7,950$~ms (maximum observed, 0.13~FPS)
+    \item \textbf{Heap allocator:} Manages both internal SRAM and external PSRAM through a unified \texttt{heap\_caps} API. Memory allocations can be directed to specific memory regions via capability flags (e.g., \texttt{MALLOC\_CAP\_SPIRAM} for PSRAM allocation, \texttt{MALLOC\_CAP\_DMA} for DMA-accessible SRAM).
+    \item \textbf{Camera driver:} Configures the DVP camera interface, manages DMA transfers, and provides double-buffered frame capture. The driver supports multiple pixel formats including JPEG, RGB565, and YUV422.
+    \item \textbf{SPI flash driver:} Provides memory-mapped access to flash contents, enabling direct pointer-based reads of model weights stored in the \texttt{.rodata} section without explicit partition reads.
+    \item \textbf{Power management:} Supports deep sleep modes with configurable wakeup sources for duty-cycled operation, reducing power consumption to microampere levels between inference cycles.
 \end{itemize}
 
-The linear scaling relationship holds across all measured leaf counts (Pearson correlation $r > 0.999$), confirming that per-leaf inference time remains constant regardless of batch size. This predictability enables deterministic scheduling for duty-cycled operation (Section~\ref{sec:duty_cycle}), where worst-case execution time (15 leaves $\approx$ 8 seconds) determines sleep cycle duration.
+\subsection{ESP-DL Inference Engine}
+\label{subsec:esp_dl}
 
-\subsubsection{SIMD Utilization Efficiency}
+ESP-DL~\cite{esp_dl} is Espressif's neural network inference library optimized for ESP32-series microcontrollers. The library provides a C++ inference runtime that executes quantized INT8 models directly on the Xtensa LX7 cores, leveraging SIMD instructions for vectorized computation.
 
-Profiling with ESP-IDF's trace infrastructure (\texttt{esp\_timer\_dump()}) indicates that INT8 depthwise convolution kernels achieve 45--60~GOPS effective throughput on the Xtensa LX7 dual-core processor. The ESP32-S3 dual-core architecture delivers a theoretical peak of 3.84~GOPS:
+The ESP-DL runtime provides the following capabilities relevant to this deployment:
+
+\begin{itemize}
+    \item \textbf{Model loading:} The \texttt{dl::Model} class loads quantized models from flash RODATA, with an optional \texttt{minimize()} method that deletes unused variables to reduce memory footprint at the cost of debug capability.
+    \item \textbf{Image preprocessing:} The \texttt{dl::image::ImagePreprocessor} handles color space conversion, resizing, and normalization. On ESP32-S3, input images use \texttt{DL\_IMAGE\_CAP\_RGB565\_BIG\_ENDIAN} format for hardware-compatible pixel ordering.
+    \item \textbf{Detection post-processing:} The \texttt{dl::detect::ESPDetPostProcessor} implements non-maximum suppression (NMS), confidence thresholding, and coordinate transformation for object detection models, handling INT8 dequantization internally.
+    \item \textbf{Memory management:} A static memory allocation planner computes buffer sizes offline during quantization, enabling deterministic memory usage without runtime allocation calls during inference.
+    \item \textbf{Software JPEG decoder:} The \texttt{dl::image::sw\_decode\_jpeg()} function decodes JPEG-compressed camera frames to RGB888 format, as the ESP32-S3 lacks a dedicated hardware JPEG decoder.
+\end{itemize}
+
+
+\section{Model Quantization and Format Conversion}
+\label{sec:quantization_pipeline}
+
+Deploying neural network models on microcontrollers requires converting trained floating-point models to integer representations compatible with the target inference engine. This section describes the quantization pipeline that transforms both ESPDet-Pico and MobileNetV2 from PyTorch FP32 to the ESPDL INT8 format. The pipeline follows the model quantization methodology documented in Espressif's official ESP-DL deployment tutorial~\cite{esp_dl_mobilenetv2_tutorial}, adapted to the specific requirements of each model architecture.
+
+\subsection{The ESP-PPQ Quantization Framework}
+\label{subsec:esp_ppq}
+
+Both models are quantized using ESP-PPQ~\cite{esp_ppq2023}, Espressif's fork of the PPQ (Post-Processing Quantization) framework~\cite{ppq2022}. ESP-PPQ extends the open-source PPQ library with hardware-specific quantization configurations targeting the ESP-DL inference runtime. The framework applies per-tensor symmetric quantization with power-of-2 scaling factors, where floating-point values are linearly mapped to the 8-bit integer range $[-128, 127]$:
+
 \begin{equation}
-\text{Theoretical GOPS} = 1.92 \, \text{GOPS/core} \times 2 \, \text{cores} = 3.84 \, \text{GOPS at 240~MHz with 8-bit SIMD}
+x_{\text{int8}} = \text{clamp}\left(\text{round}\left(\frac{x_{\text{float}}}{2^e}\right), -128, 127\right)
+\label{eq:quantization}
 \end{equation}
 
-The measured 45--60~GOPS range corresponds to 94--97\% SIMD utilization efficiency, indicating near-optimal exploitation of hardware capabilities. The remaining 3--6\% overhead arises from memory access latency (weight/activation loading from PSRAM), control flow in non-convolution layers (pooling, element-wise operations), and FreeRTOS scheduling overhead.
+where $e$ denotes the quantization exponent, computed to minimize quantization error over the calibration dataset. The power-of-2 constraint on the scale factor ($s = 2^e$) enables efficient dequantization via bit-shift operations on the Xtensa LX7 processor, avoiding costly floating-point division during inference.
 
-This high utilization efficiency suggests that further software-level optimization of MobileNetV2 inference would yield marginal gains (<5\%). Substantial throughput improvements would require either: (1) hardware acceleration via dedicated neural network accelerators, (2) model compression beyond INT8 quantization (e.g., 4-bit quantization, pruning), or (3) architectural redesign to reduce layer count or channel dimensions.
+The quantization settings are configured via \texttt{QuantizationSettingFactory.espdl\_setting()} with the \texttt{ESPDL\_INT8} target platform. A key optimization is \textbf{layerwise equalization}~\cite{krishnamoorthi2018quantize}, which redistributes weight magnitudes across consecutive layers to reduce the dynamic range that must be represented within the 8-bit precision. Equalization is configured with 4 iterations, a value threshold of 0.4, and optimization level 2. This technique addresses the challenge of MobileNetV2's depthwise separable convolutions, where weight magnitude distributions vary significantly across channels, leading to high quantization error under uniform per-tensor scaling.
 
-\subsection{Memory Consumption and Stability Analysis}
+Weights are quantized to 8-bit integers, biases to 20-bit integers (range $[-524288, 524287]$) for accumulation precision, and activations to 8-bit integers. All quantization is per-tensor (not per-channel), symmetric, and uses power-of-2 scale factors. The output format is the \texttt{.espdl} binary, directly loadable by the ESP-DL runtime.
 
-Runtime memory profiling using \texttt{heap\_caps\_get\_free\_size()} confirms stable memory usage patterns throughout continuous operation, validating the single-allocation zero-copy buffer strategy (Section~\ref{sec:deployment}, 3.6.1).
+\subsection{ESPDet-Pico Export and Quantization Pipeline}
+\label{subsec:espdet_quantization}
 
-\subsubsection{Static Memory Allocation}
+The ESPDet-Pico quantization pipeline comprises two stages: ONNX export and INT8 quantization.
 
-Post-initialization memory state (after model loading and buffer pre-allocation, before first inference):
+\subsubsection{ONNX Export}
+
+The trained PyTorch model is exported to ONNX format (opset version 13) using a custom export path that produces six separate output tensors rather than the single concatenated tensor used in standard YOLO inference. A custom \texttt{ESP\_YOLO} wrapper class replaces the standard detection head's forward method with \texttt{export\_onnx\_forward}, which outputs separate box regression and classification score tensors for each of the three detection scales:
+
+\begin{equation}
+\text{Output} = \{(\mathbf{B}_s, \mathbf{S}_s)\}_{s \in \{P3, P4, P5\}}
+\end{equation}
+
+where $\mathbf{B}_s \in \mathbb{R}^{1 \times 4 \times H_s \times W_s}$ contains raw box edge distances and $\mathbf{S}_s \in \mathbb{R}^{1 \times 1 \times H_s \times W_s}$ contains class logits at scale $s$. This six-tensor format avoids complex tensor concatenation and reshaping operations that are computationally expensive on the ESP32-S3 and allows the ESP-DL post-processor to handle each scale independently.
+
+An \texttt{ESP\_Attention} module replaces the standard attention mechanism's forward pass for ONNX compatibility, as certain attention operations are not supported by the ONNX opset. After export, the ONNX graph is simplified using \texttt{onnxsim} to eliminate redundant operations, constant-fold static computations, and fuse batch normalization layers into preceding convolutions. The choice of simplification tool is critical, as alternative ONNX simplifiers were observed to incorrectly reshape NCHW-ordered tensors in YOLO-derived architectures, corrupting the spatial dimensions of detection head outputs.
+
+\subsubsection{INT8 Quantization}
+
+The simplified ONNX model is quantized using \texttt{espdl\_quantize\_onnx()} from the \texttt{esp\_ppq.api} module, following the procedure documented in the ESP-DL model quantization guide~\cite{esp_dl_mobilenetv2_tutorial}. A custom \texttt{CaliDataset} class loads calibration images from the training set, applying \texttt{torchvision.transforms.ToTensor()} (which scales pixel values from $[0, 255]$ to $[0, 1]$), resize to the target input dimensions $(320 \times 416)$, and identity normalization (mean$=[0,0,0]$, std$=[1,1,1]$). A collate function transfers each batch to the target device for calibration.
+
+A critical constraint for rectangular input shapes is that the \textbf{batch size must be set to 1} during calibration. Unlike square-input models where batch dimensions are interchangeable, rectangular models with asymmetric spatial dimensions $(H \neq W)$ require individual sample processing to preserve correct spatial ordering during calibration statistics collection. Calibration proceeds for 32 steps with equalization enabled using the same parameters described in Section~\ref{subsec:esp_ppq}.
+
+The \texttt{espdl\_quantize\_onnx()} function performs quantization and format conversion in a single call, producing three output files: the \texttt{.espdl} binary directly loadable by the ESP-DL runtime, a \texttt{.json} metadata file containing per-layer quantization parameters (bit widths, scale factors, zero points), and a \texttt{.info} file providing detailed per-layer quantization error analysis. The error report (\texttt{error\_report=True}) generates a layer-by-layer quantization noise analysis that enables identifying layers with excessive quantization error for potential mixed-precision treatment. The detection model's INT8 weights total 478~KB, a 55\% reduction from the 1.06~MB FP32 model.
+
+\subsection{MobileNetV2 Export and Quantization Pipeline}
+\label{subsec:mobilenet_quantization}
+
+The MobileNetV2 quantization pipeline follows the methodology documented in Espressif's official ESP-DL deployment tutorial for MobileNetV2~\cite{esp_dl_mobilenetv2_tutorial}, adapted to the grape disease classification model with domain-specific calibration parameters.
+
+\subsubsection{ONNX Export and Simplification}
+
+The fine-tuned PyTorch model (loaded from \texttt{finetuned\_mobilenet\_128.pth}) is first exported to ONNX format using \texttt{torch.onnx.export()} with opset version 13, constant folding enabled, and explicitly named input/output tensors (\texttt{input} and \texttt{output}). Any prefix inconsistencies in the state dictionary keys (e.g., \texttt{mobilenet.} prefix from the wrapper training class) are resolved prior to export. Unlike ESPDet-Pico's multi-tensor export, MobileNetV2 produces a single output tensor of shape $[1, 4]$ containing class logits. The ONNX model is verified using \texttt{onnx.checker.check\_model()} to ensure graph validity.
+
+Following export, the ONNX graph undergoes simplification using \texttt{onnxsim.simplify()}, which performs constant folding, eliminates redundant operations, and fuses batch normalization layers into preceding convolutions. The simplified model passes through \texttt{onnx.shape\_inference.infer\_shapes()} to annotate all intermediate tensor dimensions, which is required by the ESP-PPQ quantizer for memory planning. The exported FP32 ONNX model occupies 8.48~MB.
+
+\subsubsection{Calibration Dataset Preparation}
+
+Calibration requires a representative subset of training data to collect activation statistics for determining optimal quantization scale factors. Following the ESP-DL documentation recommendation~\cite{esp_dl_mobilenetv2_tutorial}, 1,024 calibration samples are drawn from the grape disease training set, loaded via \texttt{torchvision.datasets.ImageFolder} to preserve the alphabetical class ordering (\texttt{Black\_rot}, \texttt{Esca}, \texttt{Healthy}, \texttt{Leaf\_blight} $\rightarrow$ indices 0--3). A \texttt{torch.utils.data.Subset} selects the first 1,024 samples, and a custom collate function strips class labels, returning only the image tensors for calibration.
+
+Calibration images undergo the same preprocessing applied during training: resize to 144 pixels on the shorter edge, center crop to $128 \times 128$, conversion to tensor, and ImageNet normalization ($\mu = [0.485, 0.456, 0.406]$, $\sigma = [0.229, 0.224, 0.225]$). Maintaining identical preprocessing between training and calibration is essential for accurate activation range estimation; mismatched normalization would shift activation distributions and degrade post-quantization accuracy.
+
+\subsubsection{Quantization and ESP-DL Format Conversion}
+
+Quantization and format conversion are performed in a single call to \texttt{espdl\_quantize\_onnx()} from the \texttt{esp\_ppq.api} module, which internally performs INT8 calibration and exports the result directly to the \texttt{.espdl} binary format. The quantization is configured with the following parameters:
 
 \begin{itemize}
-    \item \textbf{PSRAM free:} 4.2~MB (8.0~MB total - 1.2~MB detection activations - 0.8~MB classification activations - 0.9~MB decode buffer - 0.9~MB DMA buffers)
-    \item \textbf{SRAM free:} 186~KB (512~KB total - 128~KB FreeRTOS heap - 198~KB WiFi/BT stack)
+    \item \textbf{Target platform:} \texttt{esp32s3}, selecting Xtensa LX7-optimized INT8 kernels.
+    \item \textbf{Bit width:} 8 bits for weights and activations.
+    \item \textbf{Input shape:} $[1, 3, 128, 128]$ (batch, channels, height, width).
+    \item \textbf{Calibration steps:} 32 batches of 32 images (1,024 samples total).
+    \item \textbf{Equalization:} Enabled with 4 iterations, value threshold 0.4, and optimization level 2 (Section~\ref{subsec:esp_ppq}).
+    \item \textbf{Error reporting:} Enabled (\texttt{error\_report=True}) to generate per-layer quantization noise analysis.
 \end{itemize}
 
-During active inference, the JPEG decode buffer (0.9~MB) is temporarily allocated and freed, reducing available PSRAM to 3.3~MB. This allocation/deallocation occurs once per frame outside the main inference loop, avoiding heap fragmentation via ESP-IDF's memory pool allocator.
+The quantization process converts 100 operations and 277 variables to INT8 representations using the per-tensor symmetric scheme with power-of-2 scale factors (Equation~\ref{eq:quantization}). The resulting \texttt{.espdl} model is 2.27~MB, a 73.2\% reduction from the 8.48~MB FP32 ONNX model (3.74$\times$ compression). Unlike the ESPDet-Pico pipeline which requires batch size 1 for rectangular inputs, MobileNetV2's square $128 \times 128$ input allows batch calibration (batch size 32), reducing calibration time.
 
-\subsubsection{Long-Term Stability Testing}
+\subsection{Quantization Accuracy Preservation}
+\label{subsec:quantization_accuracy}
 
-A dedicated 8-hour continuous operation test (duty-cycled captures every 5 minutes, totaling 96 inference cycles) demonstrates zero memory leakage:
+Post-training quantization introduces rounding errors that can degrade model accuracy. The layerwise equalization strategy is selected specifically to address this challenge. To contextualize the quantization--accuracy trade-off, Espressif's quantization documentation~\cite{esp_ppq2023} reports comparative results for three strategies applied to a standard MobileNetV2 model (ImageNet classification, 1000 classes):
 
 \begin{itemize}
-    \item \textbf{Initial PSRAM free (cycle 1):} 4.2~MB
-    \item \textbf{Final PSRAM free (cycle 96):} 4.2~MB (no degradation)
-    \item \textbf{Peak fragmentation:} <5\% (measured via \texttt{heap\_caps\_get\_largest\_free\_block()})
+    \item \textbf{Default 8-bit quantization:} Produces 25.6\% last-layer error, reducing Top-1 accuracy from 71.9\% (float) to 60.5\%.
+    \item \textbf{Mixed precision (INT16 for worst layer):} Reduces last-layer error to 9.1\%, achieving 69.6\% accuracy.
+    \item \textbf{Layerwise equalization:} Achieves 9.0\% last-layer error with 69.8\% accuracy, matching mixed precision while maintaining uniform INT8 quantization.
 \end{itemize}
 
-The absence of memory leaks validates two critical design decisions: (1) the single-allocation strategy for classification input buffers (49~KB allocated once, reused for all leaves), and (2) the RODATA-based model storage strategy that eliminates runtime heap allocation for model weights (Section~\ref{sec:deployment}, 3.6.1).
+The equalization approach is adopted for both models because it preserves uniform INT8 quantization (avoiding mixed-precision overhead on the ESP-DL runtime) while achieving accuracy comparable to more complex strategies. The grape disease MobileNetV2 model maintains test accuracy above 99.5\% after INT8 quantization, with less than 0.3 percentage point degradation from the FP32 baseline. This robustness reflects MobileNetV2's batch normalization layers and the inherently quantization-friendly nature of inverted residual blocks~\cite{jacob2018quantization}.
 
-Memory fragmentation remains below 5\% throughout the 8-hour test, indicating that the alternating allocation/deallocation of the decode buffer does not fragment the PSRAM heap. This stability is crucial for long-term deployment (weeks to months), where cumulative fragmentation could eventually trigger out-of-memory failures.
 
-\subsection{Comparative Analysis with Alternative Platforms}
+\section{Firmware Architecture and Memory Management}
+\label{sec:firmware_memory}
 
-To contextualize ESP32-S3 performance, Table~\ref{tab:platform_comparison} compares inference latency and power consumption against alternative edge AI platforms commonly deployed in precision agriculture.
+Deploying two concurrent neural network models on a microcontroller with 8~MB PSRAM and 512~KB SRAM imposes stringent memory management requirements. This section presents the firmware architecture decisions governing model storage, initialization sequencing, and buffer allocation strategies, each of which critically influences both deployment reliability and inference performance.
 
-\begin{table}[htbp]
-\centering
-\caption{Inference performance comparison across edge AI platforms (7-leaf frame)}
-\label{tab:platform_comparison}
-\small
-\begin{tabular}{lcccc}
-\toprule
-\textbf{Platform} & \textbf{Total Latency} & \textbf{Throughput} & \textbf{Active Power} & \textbf{Cost (USD)} \\
-\midrule
-ESP32-S3 (this work)  & 4,170~ms               & 0.24 FPS            & 245~mW                & \$15--20            \\
-Raspberry Pi 4B       & $\sim$850~ms\textsuperscript{*}  & 1.18 FPS            & 5.1~W                 & \$55--75            \\
-Jetson Nano           & $\sim$120~ms\textsuperscript{*}  & 8.33 FPS            & 10~W                  & \$99                \\
-Google Coral (TPU)    & $\sim$90~ms\textsuperscript{*}   & 11.1 FPS            & 2~W                   & \$59.99             \\
-\bottomrule
-\multicolumn{5}{l}{\footnotesize \textsuperscript{*}Estimated from published benchmarks on similar workloads~\cite{asma2022edge,stewart2021end}.}
-\end{tabular}
-\end{table}
+\subsection{Model Storage Strategy}
+\label{subsec:model_storage}
 
-\textbf{Throughput vs. Power Trade-off:} ESP32-S3 achieves the lowest power consumption (245~mW active, 49× less than Jetson Nano) at the cost of reduced throughput (0.24 FPS vs 8.33 FPS). For duty-cycled vineyard monitoring with infrequent captures (5-minute intervals), this trade-off strongly favors ESP32-S3: the system spends 98.6\% of time in deep sleep (8.2~$\mu$W), yielding 3.4~mW average power consumption. Higher-throughput platforms cannot achieve comparable energy efficiency due to idle power consumption exceeding 500~mW even in low-power states.
+The strategy for loading model weights into the inference engine significantly affects initialization latency, runtime reliability, and PSRAM availability. Four distinct approaches were evaluated during firmware development:
 
-\textbf{Cost-Performance Ratio:} ESP32-S3 development boards (\$15--20) enable 100-node deployments at \$1,500--2,000 capital cost. Jetson Nano-based deployments would require \$9,900 (6.6× higher), prohibitive for large-scale agricultural installations. The 35× throughput advantage of Jetson Nano does not justify the cost differential for applications where real-time video processing is unnecessary.
+\textbf{1. Dedicated Flash Partition Loading:} Models stored in custom flash partitions (e.g., \texttt{espdet\_model} at offset \texttt{0x600000}) and loaded via \texttt{MODEL\_LOCATION\_IN\_FLASH\_PARTITION}. This approach introduces cache coherency issues and memory management unit (MMU) mapping conflicts when accessing partition data, resulting in non-deterministic model loading failures that preclude reliable autonomous deployment.
 
-\textbf{Deployment Suitability:} For vineyard monitoring scenarios requiring infrequent captures (minutes to hours between frames) with battery-powered autonomous operation, ESP32-S3's ultra-low sleep power (8.2~$\mu$W) and sub-\$20 cost make it uniquely suited compared to higher-performance alternatives. Applications requiring real-time continuous video analysis (e.g., robotic navigation, high-speed sorting) would benefit from Jetson Nano or Google Coral despite higher power and cost.
+\textbf{2. Memory-Mapped Access:} Direct memory-mapped I/O with \texttt{param\_copy=false}, reading model parameters directly from flash without PSRAM copy. Although this approach minimizes memory footprint, it exhibits instability under high memory utilization: cache lines holding model parameters are evicted when the camera DMA controller claims buffer regions, causing sporadic inference failures.
 
-\section{Inference Aggregation Strategies}
-\label{sec:aggregation_strategies}
+\textbf{3. Chunked PSRAM Copy:} Incremental model loading to PSRAM in 16~KB chunks to avoid large contiguous allocations. This approach resolves allocation failures but introduces 15--20\% inference latency degradation due to the overhead of repeated partition reads (10--50~$\mu$s per operation) and the resulting fragmented PSRAM memory layout.
 
-Vineyard frames captured at VGA resolution (640$\times$480 pixels) typically contain 5--15 visible grape leaves, each requiring independent classification inference due to the absence of batching in ESP-DL's static memory allocation framework. This multi-leaf scenario necessitates aggregation of individual leaf-level predictions into a single frame-level diagnosis. The aggregation strategy critically impacts system-level accuracy: naive approaches may amplify false positives from background clutter or partially occluded leaves, while sophisticated weighting schemes can leverage detection confidence, classification uncertainty, and spatial quality to improve robustness.
+\textbf{4. RODATA Embedding with Direct Flash Access (adopted):} Both models are compiled into the firmware binary as constant arrays in the \texttt{.rodata} section, accessed via GCC linker symbols (\texttt{\_binary\_*\_espdl\_start}/\texttt{\_binary\_*\_espdl\_end}). Models remain in flash and are accessed directly through the instruction cache without PSRAM copy. The ESP-DL runtime internally caches frequently accessed weight tiles in SRAM via an LRU eviction policy (up to 64~KB), balancing flash access latency with memory capacity.
 
-This section presents a comparative evaluation of three aggregation strategies implemented and deployed on the ESP32-S3 platform. The strategies range from a simple detection-confidence baseline to a hybrid approach incorporating Shannon entropy~\cite{shannon1948mathematical} and spatial quality metrics. The evaluation methodology follows principles from multiple instance learning (MIL)~\cite{dietterich1997solving,ilse2018attention}, where frame-level labels are inferred from bag-level predictions over multiple leaf instances.
+The RODATA approach reduces initialization time from 1,200~ms (chunked copy) to approximately 350--500~ms for both models combined, while conserving PSRAM exclusively for activation buffers and camera framebuffers. The trade-off is a larger firmware binary (4.4~MB for the production v29 build), which fits within the 5~MB factory partition.
 
-\subsection{Aggregation Strategy Formulations}
+\subsection{Initialization Order and PSRAM Fragmentation Avoidance}
+\label{subsec:init_order}
 
-The three evaluated aggregation strategies are formulated as follows, with implementation details provided in Section~\ref{sec:deployment} (3.6.2).
+A critical constraint discovered during development is that \textbf{model initialization must precede camera initialization} to prevent PSRAM fragmentation. The ESP32 camera driver allocates DMA framebuffers at initialization --- two 61,440-byte buffers ($2 \times 61$~KB $\approx 122$~KB total) plus associated node buffers (16~KB each, 60 nodes) --- which fragment the PSRAM heap into non-contiguous regions. Subsequent attempts to allocate contiguous activation buffers (1--2~MB blocks) fail despite adequate total free memory.
 
-\subsubsection{Baseline: Detection-Confidence Weighting}
+The enforced initialization sequence, validated through boot log memory profiling (Section~\ref{sec:memory_utilization}), is:
 
-The baseline strategy aggregates leaf-level class probabilities using detection confidence as weights:
+\begin{enumerate}
+    \item \textbf{Detection model initialization (144~ms):} ESPDet-Pico loaded first from flash RODATA. The \texttt{dl::Model} constructor allocates activation buffers in a contiguous PSRAM region. The \texttt{minimize()} method is called to release auxiliary model metadata, reducing PSRAM consumption. After initialization, approximately 7,095~KB of the original 8,386~KB PSRAM remains free (1,291~KB consumed).
+    \item \textbf{Classification model initialization (348~ms):} MobileNetV2 loaded second, allocating activation buffers and a persistent $128 \times 128 \times 3$ RGB input buffer (49,152 bytes) in PSRAM via \texttt{heap\_caps\_malloc(MALLOC\_CAP\_SPIRAM)}. After initialization, approximately 4,207~KB PSRAM remains free (additional 2,888~KB consumed).
+    \item \textbf{Camera driver initialization:} The camera interface is initialized last, allocating DMA framebuffers in the remaining PSRAM. The camera driver allocates its buffers in non-contiguous regions without requiring large contiguous blocks, accommodating the fragmented post-model heap.
+\end{enumerate}
+
+Violating this order --- for example, initializing the camera before models --- results in allocation failure (\texttt{ESP\_ERR\_NO\_MEM}) during model loading, necessitating system reboot. This constraint is enforced through assertion checks in the production firmware.
+
+\subsection{Buffer Allocation and Zero-Copy Reuse Strategy}
+\label{subsec:buffer_allocation}
+
+To minimize runtime memory allocation overhead and prevent heap fragmentation during continuous operation, the inference pipeline employs a \textbf{single-allocation, zero-copy buffer strategy}:
+
+\begin{itemize}
+    \item \textbf{Classification input buffer (49~KB):} A single $128 \times 128 \times 3$ RGB888 buffer allocated in PSRAM during classifier initialization and reused across all detected leaf regions within a frame. This eliminates repeated \texttt{malloc}/\texttt{free} calls that would accumulate heap fragmentation over hours of operation.
+    \item \textbf{Camera framebuffers (122~KB):} Two framebuffers allocated by the camera driver in PSRAM via \texttt{CAMERA\_FB\_IN\_PSRAM}. The driver manages double-buffering internally: one buffer captures the next frame while the other undergoes processing.
+    \item \textbf{JPEG decode buffer ($\sim$900~KB):} The decoded RGB888 frame ($640 \times 480 \times 3 = 921{,}600$ bytes) is allocated dynamically by the software JPEG decoder. This temporary allocation is freed immediately after detection inference completes and leaf regions are extracted from the decoded buffer.
+    \item \textbf{Model activation buffers ($\sim$2~MB total):} Intermediate feature maps allocated by the ESP-DL memory manager during model initialization. These buffers persist throughout execution using a static allocation plan computed offline during quantization.
+\end{itemize}
+
+The elimination of dynamic allocation in the inference loop ensures deterministic memory behavior and prevents the gradual heap degradation that would compromise long-term deployment stability.
+
+
+\section{Inference Pipeline Implementation}
+\label{sec:inference_pipeline}
+
+The complete inference pipeline orchestrates five sequential stages: camera acquisition, JPEG decoding, leaf detection, region extraction with preprocessing, and disease classification, followed by cross-leaf aggregation for frame-level diagnosis.
+
+\subsection{Camera Acquisition and JPEG Decoding}
+\label{subsec:camera_acquisition}
+
+Image acquisition begins with the OV3660 camera module configured for VGA resolution ($640 \times 480$) with on-chip JPEG compression. Camera configuration prioritizes deployment robustness:
+
+\begin{itemize}
+    \item \textbf{Pixel format:} \texttt{PIXFORMAT\_JPEG} with quality setting 12 (scale 0--63, lower = higher quality), balancing compression ratio ($\sim$10:1) with minimal blocking artifacts that could degrade detection accuracy. Captured JPEG frames occupy typically 14--80~KB.
+    \item \textbf{Automatic exposure and white balance:} Enabled via sensor control registers (\texttt{set\_exposure\_ctrl}, \texttt{set\_whitebal}, \texttt{set\_awb\_gain}) to adapt to varying vineyard lighting conditions without manual recalibration.
+    \item \textbf{Frame buffering:} Dual-buffer mode (\texttt{fb\_count=2}) enables capture-while-processing: the camera populates buffer 1 while the inference pipeline processes buffer 0.
+\end{itemize}
+
+Captured JPEG frames are decoded to RGB888 format using ESP-DL's software JPEG decoder (\texttt{dl::image::sw\_decode\_jpeg()}), as the ESP32-S3 lacks hardware JPEG decoding. The decoder writes directly to a heap-allocated RGB888 buffer ($640 \times 480 \times 3 = 921{,}600$ bytes) in PSRAM, avoiding intermediate color space conversions.
+
+\subsection{Leaf Detection and Coordinate Mapping}
+\label{subsec:leaf_detection_deployment}
+
+The decoded RGB888 frame undergoes ESPDet-Pico detection inference to localize individual leaf regions. The \texttt{dl::image::ImagePreprocessor} resizes the $640 \times 480$ input to $416 \times 320$ via letterbox padding with gray fill (RGB$=[114, 114, 114]$), preserving the original aspect ratio. Input pixels are normalized by scaling to $[0, 1]$ (mean$=[0,0,0]$, std$=[255,255,255]$), consistent with the model's training preprocessing.
+
+Detection inference produces six output tensors (box and score predictions at three scales), processed by the \texttt{ESPDetPostProcessor} with the following parameters:
+
+\begin{itemize}
+    \item \textbf{Confidence threshold:} $\tau = 0.25$, tuned empirically to balance recall and computational cost.
+    \item \textbf{NMS IoU threshold:} 0.7, eliminating duplicate detections of overlapping leaves.
+    \item \textbf{Maximum detections:} 10 per frame, limiting worst-case classification latency.
+    \item \textbf{Anchor strides:} $\{8, 16, 32\}$ for the three detection scales, with grid sizes corresponding to P3/8, P4/16, and P5/32 feature maps.
+\end{itemize}
+
+Detected bounding box coordinates are mapped from the $416 \times 320$ detection space back to the original $640 \times 480$ frame space via inverse letterbox transformation:
+\begin{equation}
+x_{\text{orig}} = \frac{(x_{\text{det}} - \text{pad}_x) \times W_{\text{orig}}}{W_{\text{det}} - 2\text{pad}_x}, \quad
+y_{\text{orig}} = \frac{(y_{\text{det}} - \text{pad}_y) \times H_{\text{orig}}}{H_{\text{det}} - 2\text{pad}_y}
+\end{equation}
+This transformation ensures that cropped leaf regions align precisely with the original RGB888 frame for downstream classification.
+
+\subsection{Region Cropping and Classification Preprocessing}
+\label{subsec:region_cropping}
+
+For each detected bounding box, the corresponding leaf region is extracted from the $640 \times 480$ RGB888 frame and prepared for MobileNetV2 classification. The cropping operation implements \textbf{square expansion with letterbox padding}: the rectangular bounding box is expanded to a square centered on the box's midpoint, with side length equal to $\max(\text{width}, \text{height})$. This preserves the leaf's aspect ratio and prevents distortion that could impair classification accuracy on elongated or irregularly shaped leaves.
+
+The squared region is resized to $128 \times 128$ pixels using \textbf{nearest-neighbor interpolation}:
+\begin{equation}
+I_{128}[y, x] = I_{\text{frame}}\!\left[\left\lfloor y \cdot s_y \right\rfloor,\; \left\lfloor x \cdot s_x \right\rfloor\right]
+\end{equation}
+where $s_x = W_{\text{bbox}} / 128$ and $s_y = H_{\text{bbox}} / 128$. Nearest-neighbor interpolation is chosen over bilinear interpolation to minimize per-crop preprocessing time (1--2~ms versus 10--12~ms per crop), a significant saving when processing up to 10 leaves per frame.
+
+Cropped regions are written directly into the persistent $128 \times 128 \times 3$ classification input buffer in PSRAM, eliminating intermediate allocations. Pixels outside the original frame bounds (due to square expansion) are filled with gray padding (RGB$=[127, 127, 127]$), approximating ImageNet's mean pixel value.
+
+\subsection{Disease Classification and INT8 Dequantization}
+\label{subsec:classification_dequant}
+
+The cropped $128 \times 128$ RGB888 leaf image undergoes MobileNetV2 classification inference. The model's input tensor pointer is set directly to the pre-allocated classification buffer (\texttt{input->set\_element\_ptr(input\_buffer)}), and inference is triggered via \texttt{model->run()}, executing the quantized INT8 forward pass through 17 inverted residual blocks.
+
+The model outputs a 4-dimensional INT8 logit vector representing unnormalized class scores for \texttt{Black\_rot} (index 0), \texttt{Esca} (index 1), \texttt{Healthy} (index 2), and \texttt{Leaf\_blight} (index 3), ordered alphabetically per PyTorch's \texttt{ImageFolder} class indexing convention. The INT8 logits must be dequantized to floating-point before probability interpretation:
+
+\begin{equation}
+\text{logit}_{\text{float}}^{(c)} = \text{logit}_{\text{int8}}^{(c)} \times 2^{e}
+\label{eq:dequant}
+\end{equation}
+
+where $e$ denotes the quantization exponent embedded in the output tensor's metadata, retrieved via \texttt{output->exponent}. The scale factor $s = 2^e$ is computed using the ESP-DL macro \texttt{DL\_SCALE(e)}.
+
+A significant implementation constraint arises from the asymmetry in how the ESP-DL framework handles dequantization across model types. The detection model's \texttt{ESPDetPostProcessor} performs dequantization internally as part of its NMS pipeline, transparently converting INT8 outputs to floating-point coordinates and confidence scores. In contrast, the classification model outputs \textbf{raw INT8 logits} that require explicit dequantization before softmax computation. Omitting this dequantization step --- feeding raw INT8 values (range $[-128, 127]$) directly to the softmax function --- causes extreme probability concentration due to the large magnitude differences, resulting in near-100\% confidence on a single class regardless of input (Section~\ref{subsec:class_mapping}).
+
+Dequantized logits are converted to probabilities via numerically stable softmax:
+\begin{equation}
+p^{(c)} = \frac{\exp\!\left(\text{logit}^{(c)} - \max_j \text{logit}^{(j)}\right)}{\sum_{k=1}^{C} \exp\!\left(\text{logit}^{(k)} - \max_j \text{logit}^{(j)}\right)}
+\end{equation}
+where the subtraction of $\max_j \text{logit}^{(j)}$ prevents floating-point overflow in the exponential. The predicted class corresponds to $\arg\max_c\, p^{(c)}$, returned alongside the maximum probability as the classification confidence.
+
+\subsection{Multi-Leaf Aggregation Strategies}
+\label{subsec:aggregation_strategies}
+
+Since vineyard images typically contain multiple leaves (5--15 visible leaves per $640 \times 480$ frame in field conditions), frame-level disease assessment requires aggregating predictions across all detected instances. The aggregation module implements three strategies, drawing from multi-instance learning (MIL) principles~\cite{dietterich1997solving}:
+
+\textbf{1. Detection-Confidence Weighting (Baseline):} Each leaf's class probabilities are weighted by its detection confidence $c_{\text{det}}$:
 \begin{equation}
 p_{\text{frame}}^{(c)} = \frac{\sum_{i=1}^{N} c_{\text{det}}^{(i)} \cdot p_i^{(c)}}{\sum_{i=1}^{N} c_{\text{det}}^{(i)}}
 \end{equation}
-where $N$ denotes the number of detected leaves, $c_{\text{det}}^{(i)} \in [0, 1]$ represents the detection confidence for leaf $i$ from ESPDet-Pico, and $p_i^{(c)}$ denotes the softmax probability for class $c$ from MobileNetV2. This approach prioritizes leaves with high localization confidence, under the assumption that well-detected leaves yield more reliable classifications.
+This baseline assumes higher-confidence detections correspond to better-localized leaves with more reliable classification features.
 
-\subsubsection{Entropy-Based Uncertainty Weighting}
-
-The entropy-aware strategy extends the baseline by downweighting predictions with high classification uncertainty. Shannon entropy~\cite{shannon1948mathematical} quantifies the uniformity of the probability distribution:
+\textbf{2. Entropy-Based Uncertainty Weighting:} Shannon entropy~\cite{shannon1948mathematical} quantifies per-leaf classification uncertainty:
 \begin{equation}
 H_i = -\sum_{c=1}^{C} p_i^{(c)} \log p_i^{(c)}
 \end{equation}
-where $C = 4$ (Black Rot, Esca, Healthy, Leaf Blight). Entropy is normalized to $[0, 1]$ via division by $H_{\max} = \log C$, and the aggregation weight becomes:
+Leaves with low entropy (confident predictions) receive higher aggregation weight than ambiguous predictions. The normalized weight becomes:
 \begin{equation}
-w_i = c_{\text{det}}^{(i)} \cdot \left(1 - \frac{H_i}{H_{\max}}\right)
+w_i = c_{\text{det}}^{(i)} \cdot \left(1 - \frac{H_i}{\log C}\right)
+\end{equation}
+where $\log C$ normalizes entropy to $[0, 1]$. This approach downweights leaves near class boundaries (e.g., Black Rot--Esca confusion) exhibiting high classification uncertainty.
+
+\textbf{3. Hybrid Spatial-Quality Weighting (Production):} Bounding box geometry provides additional quality indicators, combined with detection confidence and entropy:
+
+\begin{itemize}
+    \item \textbf{Relative size:} $r_{\text{size}} = A_{\text{bbox}} / A_{\text{frame}}$, penalizing excessively small (noise) or large (misdetections) boxes outside the range $[0.005, 0.5]$ of frame area.
+    \item \textbf{Aspect ratio:} Scoring function centered at ideal ratio 1.0 with tolerance 0.5, penalizing elongated boxes corresponding to stems or trellis wires.
+    \item \textbf{Centrality:} $d_{\text{center}} = \|(x_c, y_c) - (W/2, H/2)\|$, downweighting edge-positioned leaves that may be partially occluded or distorted by lens aberration.
+\end{itemize}
+
+The combined quality score $q_i \in [0, 1]$ multiplies the detection-entropy weight:
+\begin{equation}
+w_i^{\text{hybrid}} = c_{\text{det}}^{(i)} \cdot \left(1 - \frac{H_i}{\log C}\right) \cdot q_i
 \end{equation}
 
-Low-entropy predictions (e.g., $p = [0.02, 0.03, 0.95, 0.00]$ for a healthy leaf, $H \approx 0.23$) receive near-full weight, while high-entropy ambiguous predictions (e.g., $p = [0.48, 0.49, 0.02, 0.01]$ for a Black Rot--Esca boundary case, $H \approx 0.69$) are downweighted. This approach adapts aggregation based on model confidence, similar to uncertainty-based weighting in Bayesian deep learning~\cite{gal2016dropout}.
+The frame-level diagnosis selects the class $c^* = \arg\max_c\, p_{\text{frame}}^{(c)}$ with the aggregated confidence as the final output.
 
-\subsubsection{Hybrid Spatial-Quality Weighting}
 
-The hybrid strategy augments entropy weighting with spatial quality metrics derived from bounding box geometry:
-\begin{equation}
-w_i^{\text{hybrid}} = c_{\text{det}}^{(i)} \cdot \left(1 - \frac{H_i}{H_{\max}}\right) \cdot q_i
-\end{equation}
-where $q_i \in [0, 1]$ represents a composite spatial quality score:
-\begin{itemize}
-    \item \textbf{Relative size:} $r_{\text{size}} = A_{\text{bbox}} / A_{\text{frame}}$, with triangular membership function penalizing excessively small (<0.5\% frame area, likely noise) or large (>50\% frame area, likely misdetection) bounding boxes. Optimal range: 5--15\% for typical grape leaves at VGA resolution.
-    \item \textbf{Aspect ratio:} $r_{\text{aspect}} = \max(w, h) / \min(w, h)$, penalizing extremely elongated boxes (stems, trellis wires) with ideal ratio 1.0--1.5 for grape leaf morphology.
-    \item \textbf{Centrality:} $d_{\text{center}} = \|(x_c, y_c) - (W/2, H/2)\| / \sqrt{W^2 + H^2}$, downweighting edge-positioned leaves that may be partially occluded or distorted by lens aberration.
-\end{itemize}
+\section{Implementation Constraints and Design Trade-offs}
+\label{sec:implementation_constraints}
 
-The combined quality score $q_i$ is computed as the product of these three normalized components. This approach draws inspiration from attention-based MIL~\cite{ilse2018attention}, where instance-level contributions are modulated by learned quality scores.
+\subsection{Build System and Model Embedding Constraints}
+\label{subsec:build_constraints}
 
-\subsection{Experimental Methodology}
+Embedding neural network models as RODATA in the firmware binary introduces build system constraints that affect the development workflow. Both \texttt{.espdl} model files are referenced via GCC inline assembly directives (\texttt{asm("\_binary\_custom\_detect\_espdl\_start")}) that resolve at link time. Any modification to model files --- including re-quantization with different calibration data, architecture changes, or weight updates --- requires a full clean build (\texttt{idf.py fullclean}) to ensure the linker symbol references point to the updated model binaries. Incremental builds may silently retain stale model data, leading to initialization failures or incorrect inference results that are difficult to diagnose.
 
-\subsubsection{Evaluation Dataset and Protocol}
+The production v29 firmware binary occupies 4,356,032 bytes (4.15~MB), comprising 2,971,836 bytes of memory-mapped model data (segment 0, mapped to virtual address \texttt{0x3c140020}) and 1,268,968 bytes of application code (segment 3). This binary size fits within the 5~MB factory partition but leaves limited margin for firmware expansion, such as the addition of communication stacks (WiFi, LoRaWAN) or additional model variants.
 
-Aggregation strategies are evaluated on a held-out test set comprising 120 vineyard frames captured under field deployment conditions (varying illumination, leaf density, occlusion patterns). Each frame contains 3--15 detected leaves (median 7 leaves), totaling 856 individual leaf classifications. Ground truth frame-level labels are assigned based on majority voting over manually-annotated leaf-level labels, simulating realistic vineyard monitoring scenarios where per-frame diagnosis drives intervention decisions.
+Binary size verification serves as a critical deployment check: a firmware binary substantially smaller than expected (e.g., 1.28~MB instead of 4.15~MB) indicates that model embedding failed silently, and the system will crash at boot with null pointer access when attempting to load models from \texttt{.rodata}.
 
-Performance is measured using frame-level classification accuracy, defined as the proportion of frames where the aggregated prediction matches the ground truth frame label. To isolate aggregation performance from classification errors, the evaluation uses leaf-level predictions from the MobileNetV2 model that achieved 99.75\% test accuracy on single-leaf images (Section~\ref{sec:mobilenetv2}).
+\subsection{Class Index Mapping and Framework Compatibility}
+\label{subsec:class_mapping}
 
-\subsubsection{Implementation and Computational Overhead}
+Deploying PyTorch-trained models on the ESP-DL runtime introduces a cross-framework interoperability challenge in class label ordering. PyTorch's \texttt{ImageFolder} dataset loader assigns class indices based on alphabetical directory sorting: \texttt{Black\_rot}$\rightarrow$0, \texttt{Esca}$\rightarrow$1, \texttt{Healthy}$\rightarrow$2, \texttt{Leaf\_blight}$\rightarrow$3. The class name array in the ESP32 firmware must replicate this exact ordering for correct label assignment from model output indices.
 
-All three aggregation strategies are implemented in C++ within the ESP32-S3 firmware (version v17, described in Section~\ref{sec:deployment}). The implementations share common components:
-\begin{itemize}
-    \item Detection confidence extraction from ESPDet-Pico output tensors
-    \item Softmax probability decoding from INT8-quantized MobileNetV2 logits
-    \item Weighted averaging over detected leaf instances
-\end{itemize}
+A related challenge concerns the dequantization interface asymmetry in the ESP-DL framework. The detection post-processor (\texttt{ESPDetPostProcessor}) handles INT8-to-float conversion internally, transparently returning floating-point confidence scores and bounding box coordinates. The classification model, however, outputs raw INT8 logit values through the \texttt{dl::Model} interface, requiring explicit dequantization via multiplication by $2^{\text{exponent}}$ (Equation~\ref{eq:dequant}) before softmax probability computation. Without this step, raw INT8 values in the range $[-128, 127]$ produce extreme softmax outputs (near-100\% for a single class) due to the exponential amplification of large magnitude differences.
 
-Additional computations for entropy-aware and hybrid strategies include:
-\begin{itemize}
-    \item \textbf{Entropy computation:} $N$ passes over 4-element probability vectors, $O(NC)$ complexity
-    \item \textbf{Spatial quality:} Bounding box area, aspect ratio, and centroid distance calculations, $O(N)$ complexity
-\end{itemize}
+As a concrete illustration, consider an output tensor with exponent $e = -7$ (scale $= 0.0078125$). Raw INT8 logits $[23, -15, 87, 12]$ should dequantize to $[0.180, -0.117, 0.680, 0.094]$, yielding a meaningful probability distribution via softmax. Without dequantization, softmax of $[23, -15, 87, 12]$ produces $[\approx 0\%, \approx 0\%, \approx 100\%, \approx 0\%]$, masking any meaningful class discrimination. These constraints underscore the importance of end-to-end integration testing when deploying quantized models across heterogeneous frameworks.
 
-As shown in Table~\ref{tab:deployment_latency} (Section~\ref{sec:on_device_performance}), aggregation consumes only 2~ms for 7 leaves (0.2\% of total pipeline latency), indicating that computational overhead is negligible even for the most sophisticated hybrid strategy.
-
-\subsection{Results and Comparative Analysis}
-
-Table~\ref{tab:aggregation_comparison} presents the frame-level classification accuracy for the three aggregation strategies on the 120-frame test set.
-
-\begin{table}[htbp]
-\centering
-\caption{Frame-level classification accuracy comparison across aggregation strategies}
-\label{tab:aggregation_comparison}
-\begin{tabular}{lccc}
-\toprule
-\textbf{Aggregation Strategy} & \textbf{Accuracy (\%)} & \textbf{Improvement over Baseline} & \textbf{Computational Overhead} \\
-\midrule
-Baseline (Detection-Conf.)    & 94.2                   & ---                                 & 1.8~ms (reference)              \\
-Entropy-Aware                  & 96.7                   & +2.5~pp                             & 2.0~ms (+11\%)                  \\
-Hybrid (Entropy + Spatial)     & 97.4                   & +3.2~pp                             & 2.2~ms (+22\%)                  \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\subsubsection{Baseline Performance}
-
-The detection-confidence baseline achieves 94.2\% frame-level accuracy, demonstrating that simple confidence-weighted averaging provides reasonable performance. However, the baseline exhibits systematic failures in two scenarios:
-
-\textbf{1. Partially occluded leaves:} Leaves at frame edges or behind branches receive high detection confidence (ESPDet-Pico successfully localizes partial leaf regions) but yield misclassifications due to incomplete symptom visibility. The baseline assigns full weight to these predictions, propagating classification errors to frame-level diagnosis.
-
-\textbf{2. Background false positives:} Spurious detections on grape clusters, wooden trellises, or soil exhibit moderate detection confidence (0.25--0.40) and contribute to frame-level aggregation. Since MobileNetV2 was not trained on non-leaf images, these false positives generate near-uniform probability distributions (high entropy), yet the baseline treats them equally to confident leaf predictions.
-
-\subsubsection{Entropy-Aware Strategy Improvements}
-
-The entropy-aware strategy improves accuracy to 96.7\% (+2.5 percentage points), successfully addressing the background false positive issue. Analysis of misclassified frames reveals:
-
-\textbf{Uncertainty-based downweighting:} False positive detections on non-leaf regions exhibit high classification entropy ($H > 0.8$), as the model's probability distributions approach uniform due to out-of-distribution inputs. The entropy term $(1 - H/H_{\max})$ reduces their weight to <0.2, preventing them from dominating frame-level aggregation. In contrast, confident leaf predictions ($H < 0.3$) retain near-full weight.
-
-\textbf{Boundary case handling:} For frames containing both Black Rot and Esca leaves (visually similar diseases, see Section~\ref{sec:mobilenetv2}), individual leaf classifications near the decision boundary exhibit high entropy ($H \approx 0.65$--$0.75$). The entropy-aware strategy appropriately reduces their influence, allowing high-confidence leaves to determine frame-level diagnosis.
-
-However, the entropy-aware strategy does not fully resolve the partial occlusion problem: occluded leaves may still generate low-entropy (confident) misclassifications if visible symptoms are misleading.
-
-\subsubsection{Hybrid Strategy Superiority}
-
-The hybrid strategy achieves the highest accuracy at 97.4\% (+3.2 percentage points over baseline), combining entropy-based uncertainty weighting with spatial quality metrics. Ablation analysis (detailed below) reveals that spatial quality contributes an additional +0.7 percentage points beyond entropy weighting alone.
-
-\textbf{Occlusion mitigation via centrality:} Edge-positioned leaves (centrality score <0.4) receive reduced weight, as they are more likely to be partially visible or distorted by wide-angle lens effects. This mechanism successfully downweights 18 of 22 partially-occluded misclassifications in the test set.
-
-\textbf{Size-based false positive suppression:} Bounding boxes smaller than 0.5\% of frame area (typically noise or small grape clusters) or larger than 50\% (likely detection failures merging multiple leaves) receive quality scores $q < 0.3$. Combined with entropy weighting, this eliminates 12 false positive contributions that passed the entropy filter alone.
-
-\textbf{Aspect ratio filtering:} Extremely elongated bounding boxes (aspect ratio $> 3.0$, likely trellis wires or stems) receive reduced weight, preventing 5 additional misclassifications from non-leaf detections with spuriously low entropy.
-
-\subsection{Ablation Study and Component Analysis}
-
-To quantify the contribution of each weighting component, Table~\ref{tab:aggregation_ablation} presents ablation study results, progressively adding components to the baseline.
-
-\begin{table}[htbp]
-\centering
-\caption{Ablation study: incremental contribution of aggregation components}
-\label{tab:aggregation_ablation}
-\begin{tabular}{lccc}
-\toprule
-\textbf{Strategy Configuration} & \textbf{Accuracy (\%)} & \textbf{Delta (\%)} & \textbf{Latency (ms)} \\
-\midrule
-Baseline (detection confidence only)         & 94.2                   & ---                 & 1.8               \\
-+ Entropy weighting                          & 96.7                   & +2.5                & 2.0               \\
-+ Size quality                               & 97.1                   & +0.4                & 2.1               \\
-+ Aspect quality                             & 97.3                   & +0.2                & 2.1               \\
-+ Centrality quality (Hybrid full)           & 97.4                   & +0.1                & 2.2               \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\textbf{Entropy weighting} provides the largest single improvement (+2.5pp), confirming that classification uncertainty is the primary indicator of unreliable predictions. The remaining spatial quality components provide incremental gains (+0.7pp combined), with size quality (+0.4pp) contributing more than aspect ratio (+0.2pp) or centrality (+0.1pp). This suggests that bounding box size is the most informative geometric feature for identifying false positives and partial occlusions.
-
-\textbf{Diminishing returns:} The marginal accuracy gain per added component decreases (2.5 → 0.4 → 0.2 → 0.1 percentage points), indicating that the test set contains few remaining failure cases addressable by geometric filtering. Further improvements would likely require more sophisticated attention mechanisms~\cite{ilse2018attention} or learned quality estimators, at the cost of increased computational complexity incompatible with ESP32-S3 constraints.
-
-\subsection{Deployment Considerations}
-
-Based on the evaluation results, the hybrid aggregation strategy is selected for production deployment (firmware version v17). The 3.2 percentage point accuracy improvement over the baseline translates to 3--4 fewer misclassified frames per 100 captures, reducing false positives that would trigger unnecessary vineyard interventions. The minimal computational overhead (+0.4~ms, +22\% relative) is negligible compared to classification latency (3,710~ms for 7 leaves), making the accuracy-complexity trade-off highly favorable.
-
-The hybrid strategy's robustness to partial occlusions and false positive detections aligns well with real-world deployment constraints, where camera positioning, wind-induced leaf motion, and lighting variability introduce systematic challenges. Field validation over 200+ captures (Section~\ref{sec:on_device_performance}) confirms stable performance across diverse vineyard conditions, validating the aggregation strategy's suitability for long-term autonomous monitoring.
-
-\section{LoRaWAN Packet Structure and Communication Protocol Design}
-\label{sec:lorawan_protocol}
-
-Large-scale vineyard monitoring requires low-power wireless communication capable of transmitting disease diagnosis data from distributed ESP32-S3 nodes to a central gateway infrastructure. LoRaWAN (Long Range Wide Area Network)~\cite{lorawan_specification,adelantado2017understanding} provides an ideal communication substrate, offering kilometer-scale range (2--15~km depending on terrain and spreading factor), ultra-low power consumption (tens of milliwatts during transmission), and cost-effective infrastructure deployment. However, LoRaWAN imposes strict payload size constraints: depending on spreading factor (SF7--SF12) and regional frequency regulations, uplink payloads are limited to 51--222 bytes per transmission~\cite{adelantado2017understanding}.
-
-This section presents the packet structure and communication protocol designed to encode frame-level disease diagnosis, detection metadata, and system telemetry within LoRaWAN payload constraints. The protocol prioritizes information density while maintaining human-readable diagnostic outputs for agronomist interpretation.
-
-\subsection{LoRaWAN Network Architecture}
-
-The deployed system adopts a Class A LoRaWAN network topology~\cite{lorawan_specification}, the most widely supported and energy-efficient operating mode for battery-powered end devices. The architecture comprises three layers:
-
-\subsubsection{End Devices (ESP32-S3 Nodes)}
-
-ESP32-S3 nodes equipped with SX1276/SX1278 LoRa transceivers execute edge inference and transmit diagnosis packets to the gateway. Each node operates in Class A mode, characterized by:
-\begin{itemize}
-    \item \textbf{Uplink-initiated communication:} Nodes transmit whenever inference completes (duty-cycled at 5-minute intervals).
-    \item \textbf{Downlink receive windows:} Two short receive windows (RX1 at 1~second, RX2 at 2~seconds post-transmission) enable gateway-to-node configuration updates.
-    \item \textbf{ALOHA-based channel access:} No synchronization required, minimizing power consumption compared to Class B/C modes.
-\end{itemize}
-
-\subsubsection{Gateway Infrastructure}
-
-Single or multi-channel LoRaWAN gateways (e.g., Semtech SX1301-based concentrators) receive uplink packets from all nodes within range. Gateways forward packets to the network server via IP backhaul (Ethernet, 4G/5G, or WiFi), performing minimal processing (demodulation, error correction, timestamp recording).
-
-\subsubsection{Network Server and Application Server}
-
-The network server manages device authentication (via Over-The-Air Activation, OTAA), encryption (AES-128 CTR mode for payload, AES-128 CMAC for integrity), and redundancy handling (deduplicating packets received by multiple gateways). Decrypted payloads are forwarded to the application server, which decodes the custom packet format, logs disease diagnoses, and triggers alerts when infection thresholds are exceeded.
-
-\subsection{Packet Structure Design}
-
-The custom packet format balances information density with extensibility, encoding disease diagnosis, detection statistics, and system telemetry in a fixed 16-byte payload. This size ensures compatibility with all LoRaWAN spreading factors (SF7--SF12) and regional regulations, maximizing network coverage while minimizing airtime and collision probability.
-
-\subsubsection{Byte-Level Packet Layout}
-
-Table~\ref{tab:lorawan_packet} presents the complete packet structure with field-by-field descriptions.
-
-\begin{table}[htbp]
-\centering
-\caption{LoRaWAN uplink packet structure for disease diagnosis (16 bytes total)}
-\label{tab:lorawan_packet}
-\small
-\begin{tabular}{clccp{5.5cm}}
-\toprule
-\textbf{Byte(s)} & \textbf{Field Name} & \textbf{Type} & \textbf{Range} & \textbf{Description} \\
-\midrule
-0--3    & Device ID           & uint32   & 0--$2^{32}$    & Unique node identifier (MAC address or assigned ID) \\
-4       & Timestamp (High)    & uint8    & 0--255         & Unix timestamp bits [31:24] (days since epoch) \\
-5       & Timestamp (Mid)     & uint8    & 0--255         & Unix timestamp bits [23:16] (hours/minutes) \\
-6       & Timestamp (Low)     & uint8    & 0--255         & Unix timestamp bits [15:8] (minutes/seconds) \\
-7       & Disease Class       & uint8    & 0--3           & Aggregated diagnosis: 0=Black Rot, 1=Esca, 2=Healthy, 3=Leaf Blight \\
-8       & Confidence Score    & uint8    & 0--100         & Frame-level confidence (percentage, 0--100) \\
-9       & Leaf Count          & uint8    & 0--15          & Number of detected leaves in frame \\
-10      & Detection mAP       & uint8    & 0--100         & ESPDet-Pico confidence (avg, percentage) \\
-11      & Aggregation Method  & uint8    & 0--2           & 0=Baseline, 1=Entropy, 2=Hybrid \\
-12      & Battery Voltage     & uint8    & 0--255         & LiPo voltage: $V = 2.5 + (\text{value} \times 0.01)$ volts \\
-13      & RSSI                & int8     & $-$120--0      & Received signal strength indicator (dBm) \\
-14      & System Flags        & uint8    & ---            & Bit flags: [7]=camera error, [6]=low battery, [5]=memory warning \\
-15      & Checksum            & uint8    & 0--255         & XOR checksum over bytes 0--14 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\subsubsection{Field Encoding Rationale}
-
-\textbf{Device ID (Bytes 0--3):} A 32-bit unique identifier enables deployment of up to 4.3 billion nodes. In practice, the last 4 bytes of the ESP32-S3's MAC address provide sufficient uniqueness for vineyard-scale deployments (100--1,000 nodes).
-
-\textbf{Timestamp (Bytes 4--6):} A 24-bit compressed timestamp encodes Unix time with 1-minute resolution, sufficient for vineyard monitoring where hourly trends are analyzed. The encoding supports a rolling 194-day window: $T_{\text{compressed}} = (T_{\text{unix}} \bmod 2^{24}) / 60$. Gateway-side timestamp reconstruction uses packet arrival time to disambiguate multi-year deployments.
-
-\textbf{Disease Class (Byte 7):} A 2-bit disease class index (0--3) identifies the aggregated diagnosis from the four-class taxonomy (Black Rot, Esca, Healthy, Leaf Blight). The remaining 6 bits are reserved for future expansion (e.g., multi-disease encoding, severity grading).
-
-\textbf{Confidence Score (Byte 8):} An 8-bit percentage (0--100) quantifies frame-level prediction confidence, computed from the hybrid aggregation strategy (Section~\ref{sec:aggregation_strategies}). Thresholding confidence scores (e.g., discarding diagnoses with confidence <70\%) reduces false positives in downstream alerting systems.
-
-\textbf{Leaf Count (Byte 9):} A 4-bit leaf count (0--15) provides context for diagnosis reliability: frames with 1--2 leaves may suffer from sampling bias, while frames with 10+ leaves offer robust multi-instance aggregation. Upper nibble reserved for future use.
-
-\textbf{Detection mAP (Byte 10):} Average detection confidence across all leaves (percentage, 0--100) indicates ESPDet-Pico localization quality. Low detection confidence (<50\%) suggests challenging imaging conditions (occlusion, lighting extremes, motion blur) warranting manual inspection.
-
-\textbf{Aggregation Method (Byte 11):} A 2-bit code identifies the aggregation strategy: 0=Baseline (detection-confidence), 1=Entropy-aware, 2=Hybrid (entropy+spatial). This enables post-deployment A/B testing and strategy comparison across firmware versions.
-
-\textbf{Battery Voltage (Byte 12):} An 8-bit encoded voltage (2.5--5.05~V range, 0.01~V resolution) monitors LiPo battery health. The encoding formula $V = 2.5 + (\text{value} \times 0.01)$ covers the full 1S LiPo discharge curve (4.2~V full → 3.0~V cutoff). Voltages below 3.3~V trigger low-battery warnings (system flag bit 6).
-
-\textbf{RSSI (Byte 13):} Signed 8-bit RSSI ($-$120 to 0~dBm) captured during the previous downlink reception enables link quality monitoring. RSSI values below $-$115~dBm indicate marginal link quality requiring gateway repositioning or node relocation.
-
-\textbf{System Flags (Byte 14):} Bit-packed status indicators:
-\begin{itemize}
-    \item Bit 7: Camera initialization error (OV3660 not responding)
-    \item Bit 6: Low battery warning (voltage <3.3~V)
-    \item Bit 5: Memory fragmentation warning (PSRAM fragmentation >10\%)
-    \item Bits 4--0: Reserved for future diagnostics
-\end{itemize}
-
-\textbf{Checksum (Byte 15):} XOR checksum over bytes 0--14 provides basic error detection. LoRaWAN's link-layer CRC (16-bit) provides stronger integrity guarantees, but application-layer checksums enable end-to-end validation when payloads traverse untrusted network servers.
-
-\subsection{Communication Protocol Workflow}
-
-Figure~\ref{fig:lorawan_protocol} (to be generated) would illustrate the end-to-end communication flow from inference completion to application server processing.
-
-\subsubsection{Uplink Transmission Sequence}
-
-\textbf{1. Inference Completion:} Upon completing the inference pipeline (Section~\ref{sec:on_device_performance}), the ESP32-S3 node encodes the 16-byte packet according to Table~\ref{tab:lorawan_packet}.
-
-\textbf{2. Packet Serialization:} The packet is serialized to a byte array with network byte order (big-endian) for cross-platform compatibility. The XOR checksum is computed and appended.
-
-\textbf{3. LoRaWAN Frame Construction:} The 16-byte payload is encrypted using AES-128 CTR mode with the application session key (AppSKey). The encrypted payload is wrapped in a LoRaWAN MAC frame (MHDR + FHDR + FPort + Payload + MIC), adding 13 bytes overhead for a total over-the-air frame size of 29 bytes.
-
-\textbf{4. Adaptive Data Rate Selection:} The node selects spreading factor and transmit power based on link quality (ADR algorithm, LoRaWAN 1.0.4 specification~\cite{lorawan_specification}). For stable links (RSSI >$-$100~dBm), SF7 (250~ms airtime) is preferred; marginal links ($-$110 to $-$100~dBm) use SF9 (1~second airtime); extreme ranges (<$-$110~dBm) escalate to SF12 (4~seconds airtime).
-
-\textbf{5. Transmission and Power Management:} The LoRa transceiver transmits the frame at +14~dBm (25~mW) output power, consuming 120~mA @ 3.3~V (400~mW) during the 250~ms--4~second transmission window. Post-transmission, the node enters sleep mode (8.2~$\mu$W) until the next duty-cycled capture (Section~\ref{sec:duty_cycle}).
-
-\subsubsection{Downlink Reception and Configuration Updates}
-
-\textbf{RX1 Window (1~second post-TX):} The node enables the receiver for 100~ms on the same frequency used for uplink, listening for gateway acknowledgments or configuration commands. Downlink payloads (1--51 bytes) encode:
-\begin{itemize}
-    \item \textbf{ADR commands:} Spreading factor and power adjustments
-    \item \textbf{Duty cycle updates:} Modify capture interval (1--60 minutes)
-    \item \textbf{Aggregation strategy selection:} Switch between baseline/entropy/hybrid modes
-    \item \textbf{Firmware over-the-air (FOTA) triggers:} Initiate firmware update sequence
-\end{itemize}
-
-\textbf{RX2 Window (2~seconds post-TX):} If RX1 yields no downlink, RX2 opens on a secondary frequency (typically 869.525~MHz in EU868 band) for 100~ms, providing redundancy for congested networks.
-
-\subsubsection{Gateway and Network Server Processing}
-
-\textbf{Gateway forwarding:} Upon receiving the uplink frame, the gateway extracts metadata (timestamp, RSSI, SNR, spreading factor) and forwards the complete frame plus metadata to the network server via IP backhaul (UDP, MQTT, or HTTP).
-
-\textbf{Network server decryption:} The network server validates the message integrity code (MIC) using the network session key (NwkSKey), increments the frame counter, and decrypts the payload using AppSKey. Duplicate frames (received by multiple gateways) are deduplicated based on DevAddr + frame counter.
-
-\textbf{Application server decoding:} The decrypted 16-byte payload is parsed according to Table~\ref{tab:lorawan_packet}. The checksum is verified, and fields are extracted for database logging, visualization dashboards, and alerting logic.
-
-\subsection{Payload Efficiency and Bandwidth Analysis}
-
-\subsubsection{Information Density}
-
-The 16-byte packet encodes 10 distinct fields with high information density:
-\begin{itemize}
-    \item \textbf{Disease diagnosis:} 2 bits (4 classes)
-    \item \textbf{Confidence metrics:} 2 bytes (16 bits)
-    \item \textbf{System telemetry:} 3 bytes (24 bits)
-    \item \textbf{Metadata:} 9 bytes (72 bits)
-\end{itemize}
-
-This yields 14 bits per byte (excluding checksum), approaching the theoretical limit for structured binary encoding. Alternative approaches (JSON over LoRaWAN) would require 80--120 bytes for equivalent information, exceeding SF12 payload limits (51 bytes) and quintupling airtime.
-
-\subsubsection{Network Capacity Estimation}
-
-For a 100-node vineyard deployment with 5-minute duty cycles:
-\begin{itemize}
-    \item \textbf{Uplinks per day per node:} 288 (24 hours $\times$ 60 minutes / 5 minutes)
-    \item \textbf{Total network uplinks/day:} 28,800 (100 nodes $\times$ 288)
-    \item \textbf{Average airtime per packet (SF7):} 250~ms (29-byte frame)
-    \item \textbf{Total airtime per day:} 2.0 hours (28,800 $\times$ 0.25~seconds)
-\end{itemize}
-
-LoRaWAN's 1\% duty cycle limit (European regulations) permits 864 seconds per node per day (86,400 seconds $\times$ 0.01). With 250~ms per transmission, each node can transmit up to 3,456 frames/day, providing 12× margin over the required 288 transmissions. This headroom accommodates retransmissions due to collisions or poor link quality.
-
-\subsubsection{Comparison with Alternative Protocols}
-
-Table~\ref{tab:lpwan_comparison} compares LoRaWAN against alternative LPWAN technologies for vineyard monitoring.
-
-\begin{table}[htbp]
-\centering
-\caption{LPWAN protocol comparison for vineyard monitoring application}
-\label{tab:lpwan_comparison}
-\small
-\begin{tabular}{lccccc}
-\toprule
-\textbf{Protocol} & \textbf{Range (km)} & \textbf{Bandwidth} & \textbf{Power (TX)} & \textbf{Payload} & \textbf{Deployment Cost} \\
-\midrule
-LoRaWAN (SF7)  & 2--5             & 5.5 kbps     & 25~mW      & 222 bytes   & Low (self-hosted)       \\
-LoRaWAN (SF12) & 10--15           & 250 bps      & 25~mW      & 51 bytes    & Low (self-hosted)       \\
-NB-IoT         & 1--10            & 200 kbps     & 200~mW     & 1,600 bytes & High (carrier fees)     \\
-Sigfox         & 10--40           & 100 bps      & 25~mW      & 12 bytes    & Medium (subscription)   \\
-WiFi (outdoor) & 0.1--0.3         & 54--600 Mbps & 500~mW     & 1,500 bytes & Medium (AP required)    \\
-\bottomrule
-\multicolumn{6}{l}{\footnotesize Sources: \cite{mekki2019comparative,sinha2017survey,adelantado2017understanding}}
-\end{tabular}
-\end{table}
-
-\textbf{LoRaWAN advantages:} Self-hosted infrastructure (no recurring carrier fees), excellent range-power trade-off, and payload size sufficient for structured telemetry. The 16-byte packet fits comfortably within even the most constrained SF12 limit (51 bytes).
-
-\textbf{NB-IoT disadvantages:} Despite higher bandwidth, NB-IoT requires cellular carrier subscriptions (\$1--5 per device per month), prohibitive for 100+ node deployments (\$1,200--6,000 annual recurring cost). Additionally, 200~mW TX power reduces battery life by 8× compared to LoRaWAN.
-
-\textbf{Sigfox limitations:} The 12-byte payload constraint necessitates aggressive compression, eliminating telemetry fields (battery voltage, RSSI, system flags). Furthermore, Sigfox's 140 messages per day limit (vs LoRaWAN's 288) prevents 5-minute duty cycling.
-
-\subsection{Security and Authentication}
-
-LoRaWAN provides end-to-end encryption via AES-128, ensuring confidentiality and integrity of disease diagnosis data. The protocol employs two layers of security:
-
-\subsubsection{Network-Level Security (NwkSKey)}
-
-The network session key authenticates devices to the network server and protects frame counters from replay attacks. The 32-bit frame counter (FCnt) increments with each uplink, preventing adversaries from replaying captured packets. Network servers reject frames with out-of-order counters.
-
-\subsubsection{Application-Level Security (AppSKey)}
-
-The application session key encrypts payloads end-to-end, preventing even network operators from inspecting disease diagnosis data. AES-128 CTR mode (counter mode) provides semantic security: identical diagnoses transmitted at different times produce ciphertext with no observable correlation.
-
-\subsubsection{Over-The-Air Activation (OTAA)}
-
-Devices perform OTAA during initial deployment, deriving session keys via Diffie-Hellman key exchange with the network server. This eliminates hard-coded keys, reducing the attack surface for large-scale deployments. Root keys (AppKey, NwkKey) are provisioned during manufacturing and never transmitted over the air.
-
-\section{Duty-Cycled Edge AI Operations for Energy Efficiency}
-\label{sec:duty_cycle}
-
-Battery-powered autonomous deployment in vineyard environments imposes strict energy constraints that prohibit continuous operation of the ESP32-S3 inference pipeline. The 4.2-second active inference duration (Section~\ref{sec:on_device_performance}) consuming 245~mW would exhaust a typical 2000~mAh lithium-polymer battery within 27 hours under continuous operation, rendering long-term deployment infeasible without frequent battery replacement. Duty-cycled operation---alternating between brief active inference periods and prolonged deep sleep states---reduces average power consumption by two orders of magnitude while maintaining sufficient temporal resolution for disease progression monitoring (5-minute capture intervals).
-
-This section presents comprehensive energy characterization of the deployed system, analyzing power consumption across operational states, solar energy harvesting capabilities, and battery sizing for multi-week autonomous operation. The evaluation demonstrates that duty-cycled operation reduces average power to 3.4~mW, enabling 14+ days of autonomous operation with a 6~W solar panel and 2000~mAh battery, even under worst-case winter conditions.
-
-\subsection{Duty Cycle Configuration and Timing Analysis}
-
-The deployed system operates on a fixed 5-minute duty cycle, chosen to balance temporal resolution (sufficient for detecting hourly disease progression trends) with energy efficiency. Figure~\ref{fig:duty_cycle_timeline} (to be generated) would illustrate the complete duty cycle timeline from sleep to active inference and return to sleep.
-
-\subsubsection{Operational State Timeline}
-
-A complete 300-second duty cycle comprises four distinct operational phases:
-
-\textbf{1. Deep Sleep (295.8~seconds, 98.6\% of cycle):} The ESP32-S3 enters deep sleep mode via \texttt{esp\_deep\_sleep\_start()}, powering down the CPU cores, WiFi/BT radios, and peripheral buses. Only the ultra-low-power (ULP) coprocessor and RTC remain active, consuming 2.5~$\mu$A @ 3.3~V = 8.2~$\mu$W. The OV3660 camera module is powered off via GPIO control (MOSFET-switched power rail), eliminating its 15~mW standby consumption.
-
-\textbf{2. Wake-Up and Initialization (280~ms, 0.09\% of cycle):} The ULP RTC timer triggers wake-up after 300 seconds. The system executes bootloader initialization, FreeRTOS scheduler startup, and peripheral re-initialization (camera I2C configuration, PSRAM test, LoRa transceiver wake). During this phase, power consumption ramps from 8.2~$\mu$W to 180~mW (average 90~mW) as the dual-core Xtensa processors boot and execute initialization code.
-
-\textbf{3. Active Inference Pipeline (4,170~ms, 1.39\% of cycle):} The complete dual-model inference pipeline (Table~\ref{tab:deployment_latency}, Section~\ref{sec:on_device_performance}) executes with the following power breakdown:
-\begin{itemize}
-    \item \textbf{Camera capture + JPEG decode (110~ms):} 210~mW (70~mA @ 3.3~V camera, 200~mA CPU)
-    \item \textbf{Detection inference (285~ms):} 240~mW (720~mA @ 3.3~V peak PSRAM access)
-    \item \textbf{Classification inference (3,710~ms):} 250~mW (1.02~A @ 3.3~V peak during depthwise convolutions)
-    \item \textbf{Aggregation + logging (65~ms):} 180~mW (CPU-bound, no PSRAM thrashing)
-\end{itemize}
-Average inference power: 245~mW over 4,170~ms.
-
-\textbf{4. LoRaWAN Transmission (250--4,000~ms, 0.08--1.33\% depending on SF):} Post-inference, the SX1276 LoRa transceiver transmits the 29-byte diagnostic packet (Section~\ref{sec:lorawan_protocol}). Transmission power varies by spreading factor:
-\begin{itemize}
-    \item \textbf{SF7 (250~ms airtime):} 400~mW (120~mA @ 3.3~V LoRa TX, 60~mA ESP32-S3 overhead)
-    \item \textbf{SF9 (1,000~ms airtime):} 400~mW (same current, longer duration)
-    \item \textbf{SF12 (4,000~ms airtime):} 400~mW (same current, maximum range)
-\end{itemize}
-Following transmission, the system re-enters deep sleep without waiting for RX2 downlink windows to minimize active time.
-
-\subsubsection{Duty Cycle Percentage Calculation}
-
-For the baseline configuration (SF7, 7 leaves detected), the duty cycle percentage is:
-\begin{align}
-T_{\text{active}} &= 280~\text{ms (boot)} + 4,170~\text{ms (inference)} + 250~\text{ms (LoRa TX)} = 4,700~\text{ms} \\
-T_{\text{cycle}} &= 300,000~\text{ms (5 minutes)} \\
-\text{Duty cycle} &= \frac{T_{\text{active}}}{T_{\text{cycle}}} = \frac{4,700}{300,000} = 1.57\%
-\end{align}
-
-Worst-case duty cycle (15 leaves detected, SF12 transmission):
-\begin{align}
-T_{\text{active, worst}} &= 280 + 7,950 + 4,000 = 12,230~\text{ms} \\
-\text{Duty cycle}_{\text{worst}} &= \frac{12,230}{300,000} = 4.08\%
-\end{align}
-
-The median duty cycle (7 leaves, SF7) of 1.57\% ensures that the system spends 98.43\% of time in ultra-low-power sleep, achieving energy efficiency comparable to passive wireless sensor nodes~\cite{raghunathan2005design}.
-
-\subsection{Energy Budget Analysis}
-\label{sec:energy_budget}
-
-Energy consumption per duty cycle is computed by integrating power consumption over each operational phase. Table~\ref{tab:energy_budget} presents the detailed energy breakdown for median (7 leaves, SF7) and worst-case (15 leaves, SF12) scenarios.
-
-\begin{table}[htbp]
-\centering
-\caption{Energy consumption breakdown for duty-cycled operation (per 5-minute cycle)}
-\label{tab:energy_budget}
-\small
-\begin{tabular}{lcccc}
-\toprule
-\textbf{Operational Phase} & \textbf{Power (mW)} & \textbf{Duration (s)} & \textbf{Energy (mJ)} & \textbf{Percentage} \\
-\midrule
-\multicolumn{5}{c}{\textit{Median Case: 7 leaves, SF7 transmission}} \\
-\midrule
-Deep Sleep              & 0.0082              & 295.3                 & 2.4                  & 1.0\%               \\
-Wake-Up \& Init         & 90                  & 0.28                  & 25.2                 & 10.3\%              \\
-Detection Inference     & 240                 & 0.285                 & 68.4                 & 28.0\%              \\
-Classification (7×)     & 250                 & 3.71                  & 927.5                & 37.9\%              \\
-Preprocessing + Misc    & 200                 & 0.145                 & 29.0                 & 11.9\%              \\
-LoRa TX (SF7)           & 400                 & 0.25                  & 100.0                & 40.9\%              \\
-\midrule
-\textbf{Total (Median)} & \textbf{---}        & \textbf{300.0}        & \textbf{244.5}       & \textbf{100\%}      \\
-\textbf{Avg Power}      & \multicolumn{4}{c}{\textbf{0.815 mW (247 $\mu$A @ 3.3V)}}                                \\
-\midrule
-\multicolumn{5}{c}{\textit{Worst Case: 15 leaves, SF12 transmission}} \\
-\midrule
-Deep Sleep              & 0.0082              & 287.77                & 2.4                  & 0.4\%               \\
-Wake-Up \& Init         & 90                  & 0.28                  & 25.2                 & 4.2\%               \\
-Detection Inference     & 240                 & 0.285                 & 68.4                 & 11.4\%              \\
-Classification (15×)    & 250                 & 7.95                  & 1,987.5              & 33.1\%              \\
-Preprocessing + Misc    & 200                 & 0.145                 & 29.0                 & 4.8\%               \\
-LoRa TX (SF12)          & 400                 & 4.0                   & 1,600.0              & 26.6\%              \\
-\midrule
-\textbf{Total (Worst)}  & \textbf{---}        & \textbf{300.0}        & \textbf{599.5}       & \textbf{100\%}      \\
-\textbf{Avg Power}      & \multicolumn{4}{c}{\textbf{2.0 mW (606 $\mu$A @ 3.3V)}}                                  \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\subsubsection{Key Energy Insights}
-
-\textbf{Classification dominates energy budget.} In the median case, MobileNetV2 classification consumes 927.5~mJ (37.9\% of total cycle energy), the largest single contributor. This mirrors the latency dominance observed in Section~\ref{sec:on_device_performance}, confirming that classification is the primary bottleneck for both throughput and energy efficiency.
-
-\textbf{LoRaWAN transmission is energy-significant.} Despite lasting only 250~ms (SF7), LoRa transmission consumes 100~mJ (40.9\% of cycle energy) due to the high 400~mW TX power. For SF12 worst-case scenarios, transmission energy escalates to 1,600~mJ (26.6\%), approaching classification energy. This trade-off between communication range and energy cost is inherent to LPWAN protocols~\cite{sinha2017survey}.
-
-\textbf{Deep sleep energy is negligible.} Over the 295.3-second sleep period, the system consumes only 2.4~mJ (1.0\%), validating the effectiveness of ESP32-S3's deep sleep mode. The 8.2~$\mu$W sleep power is comparable to passive RFID tags, enabling multi-month battery life with appropriately sized energy storage.
-
-\textbf{Wake-up overhead is non-trivial.} The 280~ms boot sequence consumes 25.2~mJ (10.3\%), equivalent to 100~seconds of deep sleep. This overhead amortizes well for 5-minute duty cycles (0.09\% time overhead → 10.3\% energy overhead due to higher active power), but would become prohibitive for sub-1-minute duty cycles.
-
-\subsubsection{Daily and Monthly Energy Requirements}
-
-Extrapolating from the median case (244.5~mJ per cycle):
-\begin{align}
-E_{\text{daily}} &= \frac{24 \times 60}{5} \times 244.5~\text{mJ} = 288 \times 244.5~\text{mJ} = 70.4~\text{Wh/day} = 0.811~\text{Wh/day} \\
-E_{\text{monthly}} &= 30 \times 0.811~\text{Wh/day} = 24.3~\text{Wh/month}
-\end{align}
-
-Average power consumption over 24 hours:
-\begin{equation}
-P_{\text{avg}} = \frac{70.4~\text{J/day}}{86,400~\text{s/day}} = 0.815~\text{mW} \approx 0.82~\text{mW}
-\end{equation}
-
-This sub-milliwatt average power consumption enables battery-only operation for extended durations even without solar harvesting (calculated in Section~\ref{sec:battery_lifetime}).
-
-\subsection{Solar Energy Harvesting and Battery Sizing}
-\label{sec:battery_lifetime}
-
-Solar energy harvesting enables indefinite autonomous operation by recharging the lithium-polymer battery during daylight hours. The system employs a 6~W monocrystalline photovoltaic panel (dimensions: 200~mm $\times$ 130~mm, efficiency $\approx$22\%) coupled with an MPPT (Maximum Power Point Tracking) charge controller, feeding a single-cell 2000~mAh (7.4~Wh @ 3.7~V nominal) LiPo battery.
-
-\subsubsection{Solar Energy Availability}
-
-Solar irradiance varies significantly by season and geographic location. The vineyard deployment site (latitude $\approx$45°N, temperate climate) exhibits the following typical daily irradiance:
-\begin{itemize}
-    \item \textbf{Summer (June--August):} 5.5--6.5 peak sun hours (PSH) per day
-    \item \textbf{Spring/Autumn (March--May, September--November):} 3.5--4.5 PSH per day
-    \item \textbf{Winter (December--February):} 1.5--2.5 PSH per day
-\end{itemize}
-
-Peak sun hours represent the equivalent number of hours at 1000~W/m² irradiance. Daily energy harvested from the 6~W panel:
-\begin{align}
-E_{\text{harvested, summer}} &= 6~\text{W} \times 6.0~\text{PSH} \times \eta_{\text{MPPT}} = 6 \times 6.0 \times 0.85 = 30.6~\text{Wh/day} \\
-E_{\text{harvested, winter}} &= 6~\text{W} \times 2.0~\text{PSH} \times 0.85 = 10.2~\text{Wh/day}
-\end{align}
-where $\eta_{\text{MPPT}} = 0.85$ accounts for MPPT efficiency and panel-to-battery conversion losses.
-
-\subsubsection{Energy Balance Analysis}
-
-Comparing daily consumption (0.811~Wh/day, median case) to harvested energy:
-
-\textbf{Summer surplus:}
-\begin{equation}
-\Delta E_{\text{summer}} = 30.6~\text{Wh/day} - 0.811~\text{Wh/day} = 29.8~\text{Wh/day surplus (37× overcapacity)}
-\end{equation}
-
-\textbf{Winter surplus:}
-\begin{equation}
-\Delta E_{\text{winter}} = 10.2~\text{Wh/day} - 0.811~\text{Wh/day} = 9.4~\text{Wh/day surplus (13× overcapacity)}
-\end{equation}
-
-Even under worst-case winter conditions, solar harvesting provides 13× more energy than required, ensuring battery remains fully charged throughout deployment. The massive energy surplus (9.4~Wh/day excess) accommodates:
-\begin{itemize}
-    \item \textbf{Cloudy weather:} Up to 5 consecutive overcast days (zero harvesting) before battery depletion
-    \item \textbf{Worst-case inference:} 15-leaf frames with SF12 transmission (2.0~mW average)
-    \item \textbf{Panel degradation:} 30\% reduction in panel efficiency over 10-year deployment lifespan
-\end{itemize}
-
-\subsubsection{Battery Capacity Requirements and Autonomy}
-
-The 2000~mAh (7.4~Wh @ 3.7~V) LiPo battery provides substantial energy storage for multi-day autonomy during prolonged periods without sunlight. Battery discharge time under median operation:
-\begin{equation}
-T_{\text{autonomy}} = \frac{E_{\text{battery}}}{P_{\text{avg}}} = \frac{7.4~\text{Wh}}{0.815~\text{mW}} = \frac{7.4 \times 3600~\text{Ws}}{0.815~\text{W}} = 32,660~\text{seconds} = 9.1~\text{days}
-\end{equation}
-
-Accounting for battery depth-of-discharge (DoD) limits to prolong cycle life:
-\begin{itemize}
-    \item \textbf{80\% DoD (recommended max):} $9.1 \times 0.8 = 7.3$ days autonomy
-    \item \textbf{50\% DoD (conservative, maximizes lifespan):} $9.1 \times 0.5 = 4.5$ days autonomy
-\end{itemize}
-
-For worst-case winter scenario (5 consecutive overcast days, zero solar harvesting):
-\begin{equation}
-E_{\text{consumed, 5 days}} = 5 \times 0.811~\text{Wh/day} = 4.06~\text{Wh} < 5.92~\text{Wh (80\% DoD capacity)}
-\end{equation}
-
-The system survives 5-day sunless periods with 32\% battery capacity remaining, demonstrating robust multi-week autonomous deployment capability. In typical operating conditions with daily solar recharge, the battery never discharges below 90\% state-of-charge (SoC), maximizing cycle life to 500+ charge/discharge cycles~\cite{sudevalayam2011energy}.
-
-\subsubsection{Comparison with Alternative Battery Capacities}
-
-Table~\ref{tab:battery_comparison} compares deployment autonomy across battery capacities commonly used in IoT applications.
-
-\begin{table}[htbp]
-\centering
-\caption{Battery capacity vs. autonomy for duty-cycled operation (median case: 0.815 mW)}
-\label{tab:battery_comparison}
-\small
-\begin{tabular}{lccccc}
-\toprule
-\textbf{Battery Capacity} & \textbf{Energy (Wh)} & \textbf{Autonomy (days)} & \textbf{5-Day Winter?} & \textbf{Weight (g)} & \textbf{Cost (USD)} \\
-\midrule
-500 mAh (1S LiPo)    & 1.85                 & 2.3                      & \textcolor{red}{No}    & 12                  & \$3--5              \\
-1000 mAh (1S LiPo)   & 3.7                  & 4.5                      & \textcolor{orange}{Marginal} & 22            & \$5--7              \\
-2000 mAh (1S LiPo)   & 7.4                  & 9.1                      & \textcolor{green}{Yes} & 38                  & \$8--12             \\
-5000 mAh (1S LiPo)   & 18.5                 & 22.7                     & \textcolor{green}{Yes} & 95                  & \$15--20            \\
-10,000 mAh (1S LiPo) & 37.0                 & 45.4                     & \textcolor{green}{Yes} & 185                 & \$25--35            \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-The 2000~mAh capacity strikes an optimal balance between autonomy (9.1 days, sufficient for worst-case winter), weight (38~g, suitable for weatherproof enclosure mounting), and cost (\$8--12, enabling scalable 100-node deployments at \$800--1,200 battery cost). Upgrading to 5000~mAh would provide excessive autonomy (22.7 days) at 2.5× weight and 1.7× cost, offering diminishing returns for solar-augmented deployments.
-
-\subsection{Long-Term Deployment Sustainability}
-
-Field deployment over 6+ months validates the energy sustainability of the duty-cycled solar-powered system. Continuous telemetry logging (battery voltage transmitted in every LoRa packet, Section~\ref{sec:lorawan_protocol}) enables retrospective energy analysis across seasonal variations.
-
-\subsubsection{Seasonal Energy Performance}
-
-Figure~\ref{fig:battery_soc_seasonal} (to be generated) would illustrate battery state-of-charge (SoC) trends over a 6-month deployment period spanning autumn (October--November) through winter (December--February) and into early spring (March). Key observations from telemetry data:
-
-\textbf{Summer operation (June--August):} Battery SoC remains clamped at 100\% throughout the day. By 8:00 AM, solar harvesting fully recharges any overnight discharge (<5\%). The MPPT charge controller enters float mode by 10:00 AM, preventing overcharging. Peak panel voltage: 5.1~V (open-circuit), regulated to 4.2~V for LiPo charging.
-
-\textbf{Winter operation (December--February):} Battery SoC exhibits shallow daily cycles: discharge to 92--95\% overnight, recharge to 100\% by 2:00 PM on sunny days. During 3--5 day overcast periods (8 occurrences over 90 days), SoC drops to 78--85\% before recovering with next sunny day. Minimum recorded SoC: 76\% (5-day overcast period in late January), confirming the 9.1-day autonomy calculation with 24\% margin.
-
-\textbf{Transitional seasons (Spring/Autumn):} Battery behavior mirrors summer operation, with 100\% SoC maintained except during rare extended storms (>3 days). SoC never drops below 88\% during these periods.
-
-\subsubsection{System Uptime and Reliability}
-
-Over 6 months of continuous deployment (October 2025--March 2026), the system achieved:
-\begin{itemize}
-    \item \textbf{Uptime:} 99.4\% (54,432 successful inference cycles out of 54,720 expected)
-    \item \textbf{Downtime events:} 2 occurrences (72 hours total), both due to enclosure condensation causing camera I2C errors (not energy-related)
-    \item \textbf{Battery cutoff events:} 0 (battery voltage never dropped below 3.3~V low-battery threshold)
-    \item \textbf{Solar panel degradation:} <2\% reduction in peak output voltage over 6 months (negligible)
-\end{itemize}
-
-The zero battery cutoff events validate the energy budget calculations (Section~\ref{sec:energy_budget}) and solar sizing methodology, confirming that the system sustains autonomous operation across all seasonal conditions without manual intervention.
-
-\subsubsection{Multi-Year Deployment Projections}
-
-Extrapolating from 6-month field data, projected multi-year sustainability:
-
-\textbf{Battery cycle life:} With 90--100\% SoC maintenance (shallow discharge cycling), the 2000~mAh LiPo battery is expected to sustain 500+ full-equivalent cycles before capacity degrades to 80\%. At 365 cycles per year (one shallow cycle per day), this translates to 1.4+ years before capacity degradation impacts autonomy. Battery replacement every 18--24 months ensures reliable operation over multi-year deployments.
-
-\textbf{Solar panel degradation:} Monocrystalline silicon panels degrade at $\approx$0.5\% per year~\cite{pham2019solar}. Over 10 years, panel output reduces to 95\% of initial capacity (30.6 → 29.1 Wh/day in summer). This 5\% reduction remains negligible compared to the 37× summer overcapacity, with no impact on system operation.
-
-\textbf{Electronic component reliability:} ESP32-S3 (commercial-grade silicon) and SX1276 LoRa transceiver exhibit mean time between failures (MTBF) exceeding 10 years under thermal cycling (-20°C to +60°C vineyard environment). Weatherproof IP65-rated enclosures prevent moisture ingress, the primary failure mode for outdoor electronics.
-
-Overall, the system is projected to achieve 5+ years of autonomous operation with battery replacement at 18-month intervals and minimal component failures.
-
-\subsection{Comparison with Continuous Operation}
-
-To quantify the energy savings achieved by duty-cycled operation, Table~\ref{tab:duty_cycle_comparison} compares the deployed system against hypothetical continuous-operation and alternative duty-cycle configurations.
-
-\begin{table}[htbp]
-\centering
-\caption{Energy consumption and battery lifetime comparison across operational modes}
-\label{tab:duty_cycle_comparison}
-\small
-\begin{tabular}{lcccc}
-\toprule
-\textbf{Operational Mode} & \textbf{Avg Power (mW)} & \textbf{Daily Energy (Wh)} & \textbf{Battery Life} & \textbf{Solar Surplus} \\
-\midrule
-Continuous Operation        & 245.0                   & 5.88                       & 30 hours              & 5.2× (summer)          \\
-1-Minute Duty Cycle         & 20.4                    & 0.49                       & 15.1 days             & 62× (summer)           \\
-5-Minute Duty Cycle (deployed) & 0.815               & 0.020                      & 9.1 days              & 1,530× (summer)        \\
-10-Minute Duty Cycle        & 0.408                   & 0.0098                     & 18.2 days             & 3,061× (summer)        \\
-30-Minute Duty Cycle        & 0.136                   & 0.0033                     & 54.5 days             & 9,182× (summer)        \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\subsubsection{Continuous Operation Infeasibility}
-
-Continuous inference at 0.24 FPS (Section~\ref{sec:on_device_performance}) would consume 245~mW average power, requiring 5.88~Wh/day. The 2000~mAh battery provides only 30 hours of autonomy, necessitating daily recharging. While the 6~W solar panel delivers sufficient energy (30.6~Wh/day summer, 5.2× surplus), winter harvesting (10.2~Wh/day) provides only 1.7× margin, vulnerable to multi-day overcast periods. Continuous operation is therefore infeasible for reliable multi-month deployment.
-
-\subsubsection{1-Minute Duty Cycle Over-Engineering}
-
-Reducing duty cycle to 1 minute (60× more frequent captures than deployed configuration) increases average power to 20.4~mW (25× higher than 5-minute cycle), consuming 0.49~Wh/day. Battery autonomy drops to 15.1 days, and winter solar surplus reduces to 21× (still ample). However, 1-minute temporal resolution provides negligible benefits for disease monitoring: fungal disease progression occurs over hours to days, not minutes. The 5-minute interval (288 captures per day) already provides oversampled temporal data compared to the 1--6 hour time scale of symptom development.
-
-\subsubsection{10-Minute and 30-Minute Trade-offs}
-
-Extending duty cycle to 10 minutes (144 captures/day) halves average power to 0.408~mW, doubling battery autonomy to 18.2 days. However, temporal resolution decreases to 144 samples/day, still sufficient for hourly trend analysis. Further extending to 30 minutes (48 captures/day) quadruples battery life to 54.5 days but reduces temporal resolution below the Nyquist threshold for detecting rapid disease outbreaks (2--3 hour emergence).
-
-The deployed 5-minute configuration (288 captures/day) represents an optimal balance: sufficient temporal resolution for hourly trend analysis, 9.1-day battery autonomy exceeding worst-case winter scenarios, and sub-milliwatt average power enabling indefinite solar-powered operation.
-
-\subsection{Power Optimization Strategies}
-
-Beyond duty-cycle configuration, several additional optimization strategies were evaluated to further reduce energy consumption, trading off latency, accuracy, or hardware cost.
-
-\subsubsection{Dynamic Voltage and Frequency Scaling (DVFS)}
-
-The ESP32-S3 supports CPU frequency scaling from 80~MHz to 240~MHz via \texttt{esp\_pm\_configure()}. Reducing frequency decreases dynamic power consumption but extends inference latency. Experimental profiling at 160~MHz (vs 240~MHz baseline):
-\begin{itemize}
-    \item \textbf{Classification latency:} 530~ms → 720~ms per leaf (+36\% latency)
-    \item \textbf{Active power:} 250~mW → 180~mW (-28\% power)
-    \item \textbf{Energy per classification:} $250 \times 0.53 = 132.5$~mJ → $180 \times 0.72 = 129.6$~mJ (-2.2\% energy)
-\end{itemize}
-
-DVFS provides minimal energy savings (-2.2\%) due to the latency-power trade-off: lower frequency reduces dynamic power but extends execution time proportionally, resulting in near-constant energy consumption. The 36\% latency penalty worsens worst-case inference time (7-leaf frame: 4.2~s → 5.7~s), reducing duty cycle efficiency. DVFS is therefore not deployed in production firmware.
-
-\subsubsection{Adaptive Duty Cycle Based on Disease Detection}
-
-An alternative energy optimization strategy modulates duty cycle frequency based on detected disease severity: healthy frames trigger 10-minute intervals (reduced monitoring), while diseased frames trigger 2-minute intervals (intensive monitoring). Simulation over 6-month telemetry data:
-\begin{itemize}
-    \item \textbf{Healthy frames:} 78\% of captures → 10-minute intervals
-    \item \textbf{Diseased frames:} 22\% of captures → 2-minute intervals
-    \item \textbf{Effective average duty cycle:} $0.78 \times 0.4~\text{mW} + 0.22 \times 4.1~\text{mW} = 1.2~\text{mW}$
-\end{itemize}
-
-Adaptive duty cycling increases average power by 47\% compared to fixed 5-minute intervals, while adding firmware complexity (state machine for interval switching, hysteresis to prevent oscillation). The trade-off is unfavorable given that the baseline 5-minute cycle already provides 13× winter energy surplus, rendering further optimization unnecessary. Adaptive strategies may become relevant for more power-constrained platforms (e.g., coin-cell battery systems with <500~mAh capacity).
-
-\subsubsection{Model Compression and Pruning}
-
-Reducing MobileNetV2 parameter count via structured pruning (removing channels with low L1-norm) could decrease classification latency and energy. Preliminary experiments with 25\% channel pruning:
-\begin{itemize}
-    \item \textbf{Classification latency:} 530~ms → 410~ms per leaf (-23\%)
-    \item \textbf{Active power:} 250~mW (unchanged, memory-bandwidth bound)
-    \item \textbf{Energy per classification:} $250 \times 0.41 = 102.5$~mJ (-23\% energy)
-    \item \textbf{Accuracy degradation:} 99.75\% → 98.9\% (-0.85 percentage points)
-\end{itemize}
-
-Model pruning offers substantial energy savings (23\%) at the cost of marginal accuracy degradation. However, retraining pruned models requires complete dataset re-augmentation and 20+ epoch fine-tuning, adding significant engineering overhead. Given that the baseline system already achieves 13× winter energy surplus, model pruning is deferred to future work targeting more energy-constrained deployments.
-
-\subsection{Summary and Energy Efficiency Conclusions}
-
-Duty-cycled operation with 5-minute intervals reduces average power consumption to 0.815~mW, enabling 9.1 days of battery-only autonomy with a 2000~mAh LiPo. Coupled with 6~W solar harvesting (30.6~Wh/day summer, 10.2~Wh/day winter), the system achieves indefinite autonomous operation with 13× energy margin under worst-case winter conditions. Six months of field deployment validate zero battery cutoff events and 99.4\% uptime, confirming the sustainability of the energy management strategy.
-
-Key energy efficiency metrics:
-\begin{itemize}
-    \item \textbf{Average power:} 0.815~mW (300× reduction vs continuous 245~mW operation)
-    \item \textbf{Duty cycle:} 1.57\% (median), 4.08\% (worst-case)
-    \item \textbf{Energy per inference:} 244.5~mJ (median), enabling 30,270 inference cycles per 2000~mAh battery charge
-    \item \textbf{Solar overcapacity:} 37× (summer), 13× (winter), providing resilience to panel degradation and multi-day overcast periods
-    \item \textbf{Battery autonomy:} 9.1 days (full discharge), 7.3 days (80\% DoD, recommended max)
-\end{itemize}
-
-The duty-cycled solar-powered architecture demonstrates that edge AI inference with dual-model pipelines (detection + classification) is feasible on ultra-low-power microcontrollers for agricultural monitoring applications, achieving multi-month autonomous operation without grid power or frequent battery replacement.
-
-
-
-
-
-
-
-
-
-
+Having described the complete deployment pipeline and the practical challenges encountered, the next chapter evaluates the system's performance in terms of inference latency, classification accuracy, memory utilization, power consumption, and comparison with alternative edge computing platforms.

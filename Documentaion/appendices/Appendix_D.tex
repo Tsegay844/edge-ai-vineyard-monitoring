@@ -1,221 +1,221 @@
-\chapter{Additional Experimental Results}
+% \chapter{Additional Experimental Results}
 
-\section{Extended Performance Metrics}
+% \section{Extended Performance Metrics}
 
-% TODO: Add additional tables and figures that didn't fit in main chapters
+% % TODO: Add additional tables and figures that didn't fit in main chapters
 
-\subsection{Per-Class Classification Metrics}
+% \subsection{Per-Class Classification Metrics}
 
-\begin{table}[H]
-\centering
-\caption{Detailed per-class performance metrics}
-\begin{tabular}{@{}lcccc@{}}
-\toprule
-\textbf{Class} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} & \textbf{Support} \\
-\midrule
-Black Rot & XX.X\% & XX.X\% & XX.XX & XXX \\
-Esca & XX.X\% & XX.X\% & XX.XX & XXX \\
-Healthy & XX.X\% & XX.X\% & XX.XX & XXX \\
-Leaf Blight & XX.X\% & XX.X\% & XX.XX & XXX \\
-\midrule
-\textbf{Macro Avg} & XX.X\% & XX.X\% & XX.XX & XXX \\
-\textbf{Weighted Avg} & XX.X\% & XX.X\% & XX.XX & XXX \\
-\bottomrule
-\end{tabular}
-\end{table}
+% \begin{table}[H]
+% \centering
+% \caption{Detailed per-class performance metrics}
+% \begin{tabular}{@{}lcccc@{}}
+% \toprule
+% \textbf{Class} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} & \textbf{Support} \\
+% \midrule
+% Black Rot & XX.X\% & XX.X\% & XX.XX & XXX \\
+% Esca & XX.X\% & XX.X\% & XX.XX & XXX \\
+% Healthy & XX.X\% & XX.X\% & XX.XX & XXX \\
+% Leaf Blight & XX.X\% & XX.X\% & XX.XX & XXX \\
+% \midrule
+% \textbf{Macro Avg} & XX.X\% & XX.X\% & XX.XX & XXX \\
+% \textbf{Weighted Avg} & XX.X\% & XX.X\% & XX.XX & XXX \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
 
-\section{Memory Utilization Over Time}
+% \section{Memory Utilization Over Time}
 
-\begin{table}[H]
-\centering
-\caption{PSRAM usage at different pipeline stages}
-\begin{tabular}{@{}lcc@{}}
-\toprule
-\textbf{Stage} & \textbf{Used (MB)} & \textbf{Free (MB)} \\
-\midrule
-Initialization & 3.2 & 4.8 \\
-After Model Loading & 3.2 & 4.8 \\
-Camera Capture & 3.3 & 4.7 \\
-Detection Inference & 4.1 & 3.9 \\
-Classification Inference & 4.1 & 3.9 \\
-After Aggregation & 3.2 & 4.8 \\
-\bottomrule
-\end{tabular}
-\end{table}
+% \begin{table}[H]
+% \centering
+% \caption{PSRAM usage at different pipeline stages}
+% \begin{tabular}{@{}lcc@{}}
+% \toprule
+% \textbf{Stage} & \textbf{Used (MB)} & \textbf{Free (MB)} \\
+% \midrule
+% Initialization & 3.2 & 4.8 \\
+% After Model Loading & 3.2 & 4.8 \\
+% Camera Capture & 3.3 & 4.7 \\
+% Detection Inference & 4.1 & 3.9 \\
+% Classification Inference & 4.1 & 3.9 \\
+% After Aggregation & 3.2 & 4.8 \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
 
-\section{Power Consumption Breakdown}
+% \section{Power Consumption Breakdown}
 
-\begin{table}[H]
-\centering
-\caption{Power consumption by component}
-\begin{tabular}{@{}lcc@{}}
-\toprule
-\textbf{Component} & \textbf{Current (mA)} & \textbf{\% of Total} \\
-\midrule
-ESP32-S3 CPU & 150 & 62.5\% \\
-PSRAM & 45 & 18.8\% \\
-Camera (OV3660) & 30 & 12.5\% \\
-Other peripherals & 15 & 6.2\% \\
-\midrule
-\textbf{Total Active} & 240 & 100\% \\
-\bottomrule
-\end{tabular}
-\end{table}
+% \begin{table}[H]
+% \centering
+% \caption{Power consumption by component}
+% \begin{tabular}{@{}lcc@{}}
+% \toprule
+% \textbf{Component} & \textbf{Current (mA)} & \textbf{\% of Total} \\
+% \midrule
+% ESP32-S3 CPU & 150 & 62.5\% \\
+% PSRAM & 45 & 18.8\% \\
+% Camera (OV3660) & 30 & 12.5\% \\
+% Other peripherals & 15 & 6.2\% \\
+% \midrule
+% \textbf{Total Active} & 240 & 100\% \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
 
-\section{Aggregation Strategy Comparison}
+% \section{Aggregation Strategy Comparison}
 
-\begin{table}[H]
-\centering
-\caption{Detailed comparison of aggregation methods}
-\begin{tabular}{@{}lcccc@{}}
-\toprule
-\textbf{Method} & \textbf{Accuracy} & \textbf{FP Rate} & \textbf{Time (ms)} & \textbf{Memory (KB)} \\
-\midrule
-Single Leaf (Best) & 95.3\% & 8.2\% & 0 & 0 \\
-Average Probability & 96.8\% & 6.1\% & <1 & 0.5 \\
-Max Confidence & 97.2\% & 4.9\% & <1 & 0.5 \\
-Weighted by Confidence & 97.8\% & 3.5\% & <1 & 1.0 \\
-Entropy-based & 97.5\% & 3.8\% & <1 & 1.2 \\
-\textbf{Hybrid (Ours)} & \textbf{98.7\%} & \textbf{2.1\%} & <1 & 1.5 \\
-\bottomrule
-\end{tabular}
-\end{table}
+% \begin{table}[H]
+% \centering
+% \caption{Detailed comparison of aggregation methods}
+% \begin{tabular}{@{}lcccc@{}}
+% \toprule
+% \textbf{Method} & \textbf{Accuracy} & \textbf{FP Rate} & \textbf{Time (ms)} & \textbf{Memory (KB)} \\
+% \midrule
+% Single Leaf (Best) & 95.3\% & 8.2\% & 0 & 0 \\
+% Average Probability & 96.8\% & 6.1\% & <1 & 0.5 \\
+% Max Confidence & 97.2\% & 4.9\% & <1 & 0.5 \\
+% Weighted by Confidence & 97.8\% & 3.5\% & <1 & 1.0 \\
+% Entropy-based & 97.5\% & 3.8\% & <1 & 1.2 \\
+% \textbf{Hybrid (Ours)} & \textbf{98.7\%} & \textbf{2.1\%} & <1 & 1.5 \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
 
-\section{Inference Latency Distribution}
+% \section{Inference Latency Distribution}
 
-\begin{table}[H]
-\centering
-\caption{Detection latency statistics (1000 runs)}
-\begin{tabular}{@{}lc@{}}
-\toprule
-\textbf{Statistic} & \textbf{Time (ms)} \\
-\midrule
-Mean & 366 \\
-Median & 365 \\
-Std Dev & 12.3 \\
-Min & 342 \\
-Max & 398 \\
-95th Percentile & 385 \\
-99th Percentile & 392 \\
-\bottomrule
-\end{tabular}
-\end{table}
+% \begin{table}[H]
+% \centering
+% \caption{Detection latency statistics (1000 runs)}
+% \begin{tabular}{@{}lc@{}}
+% \toprule
+% \textbf{Statistic} & \textbf{Time (ms)} \\
+% \midrule
+% Mean & 366 \\
+% Median & 365 \\
+% Std Dev & 12.3 \\
+% Min & 342 \\
+% Max & 398 \\
+% 95th Percentile & 385 \\
+% 99th Percentile & 392 \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
 
-\begin{table}[H]
-\centering
-\caption{Classification latency statistics per leaf (1000 runs)}
-\begin{tabular}{@{}lc@{}}
-\toprule
-\textbf{Statistic} & \textbf{Time (ms)} \\
-\midrule
-Mean & 578 \\
-Median & 576 \\
-Std Dev & 8.7 \\
-Min & 558 \\
-Max & 612 \\
-95th Percentile & 592 \\
-99th Percentile & 605 \\
-\bottomrule
-\end{tabular}
-\end{table}
+% \begin{table}[H]
+% \centering
+% \caption{Classification latency statistics per leaf (1000 runs)}
+% \begin{tabular}{@{}lc@{}}
+% \toprule
+% \textbf{Statistic} & \textbf{Time (ms)} \\
+% \midrule
+% Mean & 578 \\
+% Median & 576 \\
+% Std Dev & 8.7 \\
+% Min & 558 \\
+% Max & 612 \\
+% 95th Percentile & 592 \\
+% 99th Percentile & 605 \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
 
-\section{Model Size Comparison}
+% \section{Model Size Comparison}
 
-\begin{table}[H]
-\centering
-\caption{Model size comparison with other edge AI solutions}
-\begin{tabular}{@{}lccc@{}}
-\toprule
-\textbf{Model} & \textbf{FP32 (MB)} & \textbf{INT8 (KB)} & \textbf{Compression} \\
-\midrule
-ESPDet-Pico & 1.91 & 478 & 4.0× \\
-MobileNetV2 (ours) & 10.92 & 2,730 & 4.0× \\
-ResNet18 & 44.7 & 11,175 & 4.0× \\
-EfficientNet-B0 & 20.3 & 5,075 & 4.0× \\
-\bottomrule
-\end{tabular}
-\end{table}
+% \begin{table}[H]
+% \centering
+% \caption{Model size comparison with other edge AI solutions}
+% \begin{tabular}{@{}lccc@{}}
+% \toprule
+% \textbf{Model} & \textbf{FP32 (MB)} & \textbf{INT8 (KB)} & \textbf{Compression} \\
+% \midrule
+% ESPDet-Pico & 1.91 & 478 & 4.0× \\
+% MobileNetV2 (ours) & 10.92 & 2,730 & 4.0× \\
+% ResNet18 & 44.7 & 11,175 & 4.0× \\
+% EfficientNet-B0 & 20.3 & 5,075 & 4.0× \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
 
-\section{Battery Life Under Different Scenarios}
+% \section{Battery Life Under Different Scenarios}
 
-\begin{table}[H]
-\centering
-\caption{Estimated battery life (3000 mAh battery)}
-\begin{tabular}{@{}lcc@{}}
-\toprule
-\textbf{Capture Interval} & \textbf{Avg Current (mA)} & \textbf{Battery Life} \\
-\midrule
-1 minute & 7.8 & 16 days \\
-5 minutes & 2.3 & 54 days \\
-10 minutes & 1.2 & 104 days \\
-30 minutes & 0.4 & 312 days \\
-\bottomrule
-\end{tabular}
-\end{table}
+% \begin{table}[H]
+% \centering
+% \caption{Estimated battery life (3000 mAh battery)}
+% \begin{tabular}{@{}lcc@{}}
+% \toprule
+% \textbf{Capture Interval} & \textbf{Avg Current (mA)} & \textbf{Battery Life} \\
+% \midrule
+% 1 minute & 7.8 & 16 days \\
+% 5 minutes & 2.3 & 54 days \\
+% 10 minutes & 1.2 & 104 days \\
+% 30 minutes & 0.4 & 312 days \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
 
-\section{LoRaWAN Packet Structure Details}
+% \section{LoRaWAN Packet Structure Details}
 
-\subsection{Uplink Packet Format}
+% \subsection{Uplink Packet Format}
 
-\begin{table}[H]
-\centering
-\caption{LoRaWAN uplink packet structure}
-\begin{tabular}{@{}llcc@{}}
-\toprule
-\textbf{Field} & \textbf{Type} & \textbf{Size (bytes)} & \textbf{Description} \\
-\midrule
-Device ID & uint32 & 4 & Unique device identifier \\
-Timestamp & uint32 & 4 & Unix timestamp \\
-Battery Level & uint8 & 1 & Percentage (0-100) \\
-Num Leaves & uint8 & 1 & Number of detected leaves \\
-Disease Code & uint8 & 1 & 0=Healthy, 1=Black Rot, etc. \\
-Confidence & uint8 & 1 & Percentage (0-100) \\
-Entropy & uint8 & 1 & Scaled to 0-255 \\
-Reserved & - & 3 & Future use \\
-\midrule
-\textbf{Total} & & \textbf{16} & \\
-\bottomrule
-\end{tabular}
-\end{table}
+% \begin{table}[H]
+% \centering
+% \caption{LoRaWAN uplink packet structure}
+% \begin{tabular}{@{}llcc@{}}
+% \toprule
+% \textbf{Field} & \textbf{Type} & \textbf{Size (bytes)} & \textbf{Description} \\
+% \midrule
+% Device ID & uint32 & 4 & Unique device identifier \\
+% Timestamp & uint32 & 4 & Unix timestamp \\
+% Battery Level & uint8 & 1 & Percentage (0-100) \\
+% Num Leaves & uint8 & 1 & Number of detected leaves \\
+% Disease Code & uint8 & 1 & 0=Healthy, 1=Black Rot, etc. \\
+% Confidence & uint8 & 1 & Percentage (0-100) \\
+% Entropy & uint8 & 1 & Scaled to 0-255 \\
+% Reserved & - & 3 & Future use \\
+% \midrule
+% \textbf{Total} & & \textbf{16} & \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
 
-\section{Comparison with State-of-the-Art}
+% \section{Comparison with State-of-the-Art}
 
-\begin{table}[H]
-\centering
-\caption{Comparison with related work on edge AI plant disease detection}
-\begin{tabular}{@{}lcccc@{}}
-\toprule
-\textbf{System} & \textbf{Platform} & \textbf{Accuracy} & \textbf{Latency} & \textbf{Power} \\
-\midrule
-Wang et al. [X] & Raspberry Pi 4 & 94.2\% & 250ms & 2.5W \\
-Li et al. [X] & Jetson Nano & 96.8\% & 120ms & 5W \\
-Chen et al. [X] & STM32H7 & 91.5\% & 800ms & 0.3W \\
-\textbf{Ours} & \textbf{ESP32-S3} & \textbf{98.7\%} & \textbf{6.3s} & \textbf{0.8W} \\
-\bottomrule
-\end{tabular}
-\end{table}
+% \begin{table}[H]
+% \centering
+% \caption{Comparison with related work on edge AI plant disease detection}
+% \begin{tabular}{@{}lcccc@{}}
+% \toprule
+% \textbf{System} & \textbf{Platform} & \textbf{Accuracy} & \textbf{Latency} & \textbf{Power} \\
+% \midrule
+% Wang et al. [X] & Raspberry Pi 4 & 94.2\% & 250ms & 2.5W \\
+% Li et al. [X] & Jetson Nano & 96.8\% & 120ms & 5W \\
+% Chen et al. [X] & STM32H7 & 91.5\% & 800ms & 0.3W \\
+% \textbf{Ours} & \textbf{ESP32-S3} & \textbf{98.7\%} & \textbf{6.3s} & \textbf{0.8W} \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
 
-\section{Error Analysis}
+% \section{Error Analysis}
 
-\subsection{Common Misclassification Patterns}
+% \subsection{Common Misclassification Patterns}
 
-\begin{table}[H]
-\centering
-\caption{Most common misclassifications}
-\begin{tabular}{@{}lcc@{}}
-\toprule
-\textbf{True Class} & \textbf{Predicted Class} & \textbf{Count} \\
-\midrule
-Esca & Leaf Blight & 12 \\
-Leaf Blight & Esca & 8 \\
-Black Rot & Esca & 5 \\
-Healthy & Black Rot & 3 \\
-\bottomrule
-\end{tabular}
-\end{table}
+% \begin{table}[H]
+% \centering
+% \caption{Most common misclassifications}
+% \begin{tabular}{@{}lcc@{}}
+% \toprule
+% \textbf{True Class} & \textbf{Predicted Class} & \textbf{Count} \\
+% \midrule
+% Esca & Leaf Blight & 12 \\
+% Leaf Blight & Esca & 8 \\
+% Black Rot & Esca & 5 \\
+% Healthy & Black Rot & 3 \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
 
-% TODO: Add more experimental data as available
-% - Training curves
-% - Additional ablation studies
-% - Field test results (if conducted)
-% - Environmental condition effects
+% % TODO: Add more experimental data as available
+% % - Training curves
+% % - Additional ablation studies
+% % - Field test results (if conducted)
+% % - Environmental condition effects

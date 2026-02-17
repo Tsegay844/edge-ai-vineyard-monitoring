@@ -1,0 +1,6 @@
+Class,Precision,Recall,F1-score,Support
+Black_rot,1.0000,1.0000,1.0000,236
+Esca,1.0000,1.0000,1.0000,277
+Healthy,1.0000,1.0000,1.0000,85
+Leaf_blight,1.0000,1.0000,1.0000,216
+Macro Average,1.0000,1.0000,1.0000,814

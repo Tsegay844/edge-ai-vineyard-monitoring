@@ -10,58 +10,63 @@ A level-1 auxiliary file: chapters/Chapter_2.aux
 A level-1 auxiliary file: chapters/Chapter_3.aux
 A level-1 auxiliary file: chapters/Chapter_4.aux
 A level-1 auxiliary file: chapters/Chapter_5.aux
+A level-1 auxiliary file: chapters/Chapter_6.aux
 The style file: unsrt.bst
 A level-1 auxiliary file: appendices/Appendix_A.aux
 A level-1 auxiliary file: appendices/Appendix_B.aux
 A level-1 auxiliary file: appendices/Appendix_C.aux
 A level-1 auxiliary file: appendices/Appendix_D.aux
 Database file #1: Bibliography.bib
+Warning--entry type for "esp_dl_mobilenetv2_tutorial" isn't style-file defined
+--line 798 of file Bibliography.bib
+Warning--entry type for "yolo11_ultralytics" isn't style-file defined
+--line 956 of file Bibliography.bib
+Warning--entry type for "esp32s3_datasheet" isn't style-file defined
+--line 1036 of file Bibliography.bib
 Warning--entry type for "esp_dl" isn't style-file defined
---line 1013 of file Bibliography.bib
+--line 1047 of file Bibliography.bib
 Warning--entry type for "freenove2024esp32s3" isn't style-file defined
---line 1029 of file Bibliography.bib
+--line 1063 of file Bibliography.bib
 Warning--can't use both volume and number fields in shetty2025grape
-Warning--empty booktitle in howard2017mobilenets
-Warning--can't use both volume and number fields in he2015spatial
-You've used 107 entries,
+You've used 82 entries,
             1791 wiz_defined-function locations,
-            1011 strings with 26175 characters,
-and the built_in function-call counts, 29057 in all, are:
-= -- 2549
-> -- 1465
-< -- 38
-+ -- 529
-- -- 422
-* -- 1971
-:= -- 4443
-add.period$ -- 341
-call.type$ -- 107
-change.case$ -- 106
+            880 strings with 21295 characters,
+and the built_in function-call counts, 22079 in all, are:
+= -- 1923
+> -- 1126
+< -- 31
++ -- 407
+- -- 325
+* -- 1466
+:= -- 3370
+add.period$ -- 262
+call.type$ -- 82
+change.case$ -- 82
 chr.to.int$ -- 0
-cite$ -- 110
-duplicate$ -- 1316
-empty$ -- 2721
-format.name$ -- 422
-if$ -- 6598
+cite$ -- 83
+duplicate$ -- 1002
+empty$ -- 2079
+format.name$ -- 325
+if$ -- 5040
 int.to.chr$ -- 0
-int.to.str$ -- 107
-missing$ -- 97
-newline$ -- 544
-num.names$ -- 107
-pop$ -- 348
+int.to.str$ -- 82
+missing$ -- 71
+newline$ -- 415
+num.names$ -- 82
+pop$ -- 291
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 0
-skip$ -- 745
+skip$ -- 580
 stack$ -- 0
-substring$ -- 1912
-swap$ -- 449
-text.length$ -- 38
+substring$ -- 1380
+swap$ -- 351
+text.length$ -- 31
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 0
-warning$ -- 3
-while$ -- 271
-width$ -- 110
-write$ -- 1187
-(There were 5 warnings)
+warning$ -- 1
+while$ -- 200
+width$ -- 84
+write$ -- 907
+(There were 6 warnings)
