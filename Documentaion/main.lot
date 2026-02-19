@@ -11,11 +11,11 @@
 \contentsline {table}{\numberline {3.5}{\ignorespaces Comparative analysis of MobileNetV2 and ResNet18\relax }}{29}{table.caption.27}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {5.1}{\ignorespaces Per-stage latency breakdown for the inference pipeline (10 detected leaves)\relax }}{45}{table.caption.28}%
-\contentsline {table}{\numberline {5.2}{\ignorespaces End-to-end latency and throughput versus number of detected leaves\relax }}{46}{table.caption.29}%
-\contentsline {table}{\numberline {5.3}{\ignorespaces ESPDet-Pico detection accuracy: FP32 vs INT8 quantized\relax }}{47}{table.caption.30}%
-\contentsline {table}{\numberline {5.4}{\ignorespaces MobileNetV2 classification accuracy: FP32 vs INT8 quantized\relax }}{48}{table.caption.31}%
-\contentsline {table}{\numberline {5.5}{\ignorespaces Sample aggregation output: hybrid spatial-quality weighting (10 leaves)\relax }}{48}{table.caption.32}%
-\contentsline {table}{\numberline {5.6}{\ignorespaces PSRAM allocation breakdown during system initialization\relax }}{49}{table.caption.33}%
-\contentsline {table}{\numberline {5.7}{\ignorespaces Comparison of edge AI platforms for vineyard disease detection deployment\relax }}{51}{table.caption.34}%
+\contentsline {table}{\numberline {5.1}{\ignorespaces Per-stage latency breakdown for the inference pipeline (10 detected leaves)\relax }}{45}{table.caption.32}%
+\contentsline {table}{\numberline {5.2}{\ignorespaces End-to-end latency and throughput versus number of detected leaves\relax }}{46}{table.caption.33}%
+\contentsline {table}{\numberline {5.3}{\ignorespaces ESPDet-Pico detection accuracy: FP32 vs INT8 quantized\relax }}{47}{table.caption.34}%
+\contentsline {table}{\numberline {5.4}{\ignorespaces MobileNetV2 classification accuracy: FP32 vs INT8 quantized\relax }}{48}{table.caption.35}%
+\contentsline {table}{\numberline {5.5}{\ignorespaces Sample aggregation output: hybrid spatial-quality weighting (10 leaves)\relax }}{48}{table.caption.36}%
+\contentsline {table}{\numberline {5.6}{\ignorespaces PSRAM allocation breakdown during system initialization\relax }}{49}{table.caption.37}%
+\contentsline {table}{\numberline {5.7}{\ignorespaces Comparison of edge AI platforms for vineyard disease detection deployment\relax }}{51}{table.caption.38}%
 \addvspace {10\p@ }

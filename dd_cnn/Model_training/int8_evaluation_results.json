@@ -1,0 +1,148 @@
+{
+  "int8": {
+    "accuracy": 99.63144963144963,
+    "num_samples": 814,
+    "num_correct": 811,
+    "num_errors": 3,
+    "per_class_metrics": {
+      "Black_rot": {
+        "precision": 1.0,
+        "recall": 0.9872881355932204,
+        "f1-score": 0.9936034115138592,
+        "support": 236.0
+      },
+      "Esca": {
+        "precision": 0.9892857142857143,
+        "recall": 1.0,
+        "f1-score": 0.9946140035906643,
+        "support": 277.0
+      },
+      "Healthy": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 85.0
+      },
+      "Leaf_blight": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 216.0
+      },
+      "accuracy": 0.9963144963144963,
+      "macro avg": {
+        "precision": 0.9973214285714286,
+        "recall": 0.9968220338983051,
+        "f1-score": 0.9970543537761309,
+        "support": 814.0
+      },
+      "weighted avg": {
+        "precision": 0.9963539838539839,
+        "recall": 0.9963144963144963,
+        "f1-score": 0.9963126340440845,
+        "support": 814.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        233,
+        3,
+        0,
+        0
+      ],
+      [
+        0,
+        277,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        85,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        216
+      ]
+    ]
+  },
+  "fp32": {
+    "accuracy": 99.75429975429975,
+    "num_samples": 814,
+    "num_correct": 812,
+    "num_errors": 2,
+    "per_class_metrics": {
+      "Black_rot": {
+        "precision": 1.0,
+        "recall": 0.9915254237288136,
+        "f1-score": 0.9957446808510638,
+        "support": 236.0
+      },
+      "Esca": {
+        "precision": 0.992831541218638,
+        "recall": 1.0,
+        "f1-score": 0.9964028776978417,
+        "support": 277.0
+      },
+      "Healthy": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 85.0
+      },
+      "Leaf_blight": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 216.0
+      },
+      "accuracy": 0.9975429975429976,
+      "macro avg": {
+        "precision": 0.9982078853046595,
+        "recall": 0.9978813559322034,
+        "f1-score": 0.9980368896372264,
+        "support": 814.0
+      },
+      "weighted avg": {
+        "precision": 0.9975606104638364,
+        "recall": 0.9975429975429976,
+        "f1-score": 0.9975421889473627,
+        "support": 814.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        234,
+        2,
+        0,
+        0
+      ],
+      [
+        0,
+        277,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        85,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        216
+      ]
+    ]
+  },
+  "degradation": {
+    "absolute_pp": 0.12285012285012442,
+    "relative_percent": 0.1231527093596075
+  }
+}

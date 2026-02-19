@@ -1,29 +1,29 @@
 \relax 
 \providecommand\hyper@newdestlabel[2]{}
-\@writefile{toc}{\contentsline {chapter}{\numberline {3}System Architecture and Model Design}{10}{chapter.3}\protected@file@percent }
+\citation{esp32s3_datasheet}
+\@writefile{toc}{\contentsline {chapter}{\numberline {3}System Architecture and Model Development}{10}{chapter.3}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{chap:system_architecture}{{3}{10}{System Architecture and Model Design}{chapter.3}{}}
+\newlabel{chap:system_architecture}{{3}{10}{System Architecture and Model Development}{chapter.3}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {3.1}System Overview and Methodology}{10}{section.3.1}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {3.1}{\ignorespaces System architecture of the proposed edge AI-based grape leaf disease detection integrated into Existing LoRaWAN-based vineyard monitoring.\relax }}{10}{figure.caption.16}\protected@file@percent }
-\newlabel{fig:lora_edge_ai_architecture}{{3.1}{10}{System architecture of the proposed edge AI-based grape leaf disease detection integrated into Existing LoRaWAN-based vineyard monitoring.\relax }{figure.caption.16}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.1}Why Two Distinct Neural Network Architectures?}{10}{subsection.3.1.1}\protected@file@percent }
-\citation{esp32s3_datasheet}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.2}Four-Stage Pipeline Architecture}{11}{subsection.3.1.2}\protected@file@percent }
-\newlabel{sec: four_stage_pipeline}{{3.1.2}{11}{Four-Stage Pipeline Architecture}{subsection.3.1.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.1}{\ignorespaces System architecture of the proposed edge AI-based grape leaf disease detection LoRaWAN-based vineyard monitoring.\relax }}{10}{figure.caption.16}\protected@file@percent }
+\newlabel{fig:lora_edge_ai_architecture}{{3.1}{10}{System architecture of the proposed edge AI-based grape leaf disease detection LoRaWAN-based vineyard monitoring.\relax }{figure.caption.16}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.1}Four-Stage Pipeline Architecture}{10}{subsection.3.1.1}\protected@file@percent }
+\newlabel{sec: four_stage_pipeline}{{3.1.1}{10}{Four-Stage Pipeline Architecture}{subsection.3.1.1}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {3.2}{\ignorespaces Four-stage edge AI pipeline for grape leaf disease detection.\relax }}{11}{figure.caption.17}\protected@file@percent }
 \newlabel{fig:system_architecture}{{3.2}{11}{Four-stage edge AI pipeline for grape leaf disease detection.\relax }{figure.caption.17}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {3.2}Dataset Preparation and Preprocessing}{11}{section.3.2}\protected@file@percent }
-\newlabel{sec:dataset}{{3.2}{11}{Dataset Preparation and Preprocessing}{section.3.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.2}Rationale for Two-Model Architecture}{11}{subsection.3.1.2}\protected@file@percent }
 \citation{plantvillage_dataset_2023}
+\@writefile{toc}{\contentsline {section}{\numberline {3.2}Dataset Preparation and Preprocessing}{12}{section.3.2}\protected@file@percent }
+\newlabel{sec:dataset}{{3.2}{12}{Dataset Preparation and Preprocessing}{section.3.2}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.2.1}The Grape-Leaf Disease Dataset}{12}{subsection.3.2.1}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {3.1}{\ignorespaces Grape leaf disease dataset distribution across training, validation, test splits\relax }}{12}{table.caption.18}\protected@file@percent }
 \newlabel{tab:classification_dataset_distribution}{{3.1}{12}{Grape leaf disease dataset distribution across training, validation, test splits\relax }{table.caption.18}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.3}{\ignorespaces Sample images from the grape leaf disease dataset, illustrating the four classes: Black Rot, Esca, Healthy, and Leaf Blight.\relax }}{12}{figure.caption.19}\protected@file@percent }
-\newlabel{fig:disease_classes}{{3.3}{12}{Sample images from the grape leaf disease dataset, illustrating the four classes: Black Rot, Esca, Healthy, and Leaf Blight.\relax }{figure.caption.19}{}}
 \citation{kaggle_grape_images_2023}
-\citation{roboflow_grape_leaf_2026}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.3}{\ignorespaces Sample images from the grape leaf disease dataset, illustrating the four classes: Black Rot, Esca, Healthy, and Leaf Blight.\relax }}{13}{figure.caption.19}\protected@file@percent }
+\newlabel{fig:disease_classes}{{3.3}{13}{Sample images from the grape leaf disease dataset, illustrating the four classes: Black Rot, Esca, Healthy, and Leaf Blight.\relax }{figure.caption.19}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.2.2}Grapevine Dataset for Leaf Localization}{13}{subsection.3.2.2}\protected@file@percent }
+\citation{roboflow_grape_leaf_2026}
 \@writefile{lof}{\contentsline {figure}{\numberline {3.4}{\ignorespaces Annotated image from the leaf localization dataset, bounding boxes around individual grape leaves\relax }}{14}{figure.caption.20}\protected@file@percent }
 \newlabel{fig:leaf_localization_sample}{{3.4}{14}{Annotated image from the leaf localization dataset, bounding boxes around individual grape leaves\relax }{figure.caption.20}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {3.2}{\ignorespaces Detection training augmentation configuration for ESPDet-Pico\relax }}{15}{table.caption.21}\protected@file@percent }
@@ -37,40 +37,34 @@
 \@writefile{toc}{\contentsline {section}{\numberline {3.3}Leaf Localization ESPDet-Pico Model (YOLO-based)}{16}{section.3.3}\protected@file@percent }
 \newlabel{sec:espdet_pico}{{3.3}{16}{Leaf Localization ESPDet-Pico Model (YOLO-based)}{section.3.3}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.3.1}Object Detection Framework Selection}{16}{subsection.3.3.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.2}YOLO11-Optimization for Resources Constrained Deployment}{16}{subsection.3.3.2}\protected@file@percent }
 \citation{howard2017mobilenets}
-\citation{he2015spatial}
-\citation{yolo11_ultralytics}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.2}YOLO11-Optimization for Resources Constrained Deployment}{17}{subsection.3.3.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {3.3.2.1}Backbone Architecture Modifications}{17}{subsubsection.3.3.2.1}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {3.3}{\ignorespaces ESPDet-Pico backbone architecture after compound scaling ($d{=}0.50$, $w{=}0.25$, $\text  {max\_ch}{=}512$)\relax }}{17}{table.caption.22}\protected@file@percent }
 \newlabel{tab:espdet_backbone}{{3.3}{17}{ESPDet-Pico backbone architecture after compound scaling ($d{=}0.50$, $w{=}0.25$, $\text {max\_ch}{=}512$)\relax }{table.caption.22}{}}
+\citation{he2015spatial}
+\citation{yolo11_ultralytics}
 \citation{lin2017feature}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {3.3.2.2}Detection Head Architecture}{18}{subsubsection.3.3.2.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Feature Pyramid Neck.}{18}{subsubsection.3.3.2.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Decoupled Prediction Heads.}{18}{Item.3}\protected@file@percent }
-\citation{li2020generalized}
-\@writefile{toc}{\contentsline {paragraph}{Simplified Box Regression (\texttt  {reg\_max}$=1$).}{19}{Item.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Decoupled Prediction Heads}{18}{Item.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Multi-Scale ONNX Export Format.}{19}{Item.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.3.2.3}Parameter and Memory Reduction}{19}{subsubsection.3.3.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.3.2.3}Parameter Reduction}{19}{subsubsection.3.3.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.3}ESPDet-Pico Model Training and Optimization}{19}{subsection.3.3.3}\protected@file@percent }
 \citation{loshchilov2017decoupled}
 \citation{loshchilov2016sgdr}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.3}ESPDet-Pico Model Training and Optimization}{20}{subsection.3.3.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.3.3.1}Input Resolution and Rectangular Training}{20}{subsubsection.3.3.3.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.3.3.2}Optimization Configuration}{20}{subsubsection.3.3.3.2}\protected@file@percent }
 \citation{zheng2020distance}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.3.3.1}Loss Function}{20}{subsubsection.3.3.3.1}\protected@file@percent }
 \citation{lin2014microsoft}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.3.3.3}Loss Function}{21}{subsubsection.3.3.3.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.3.3.4}Data Augmentation Strategy}{21}{subsubsection.3.3.3.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.3.3.5}Training Convergence}{21}{subsubsection.3.3.3.5}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {3.5}{\ignorespaces Training curves for ESPDet-Pico on the grapevine dataset~\ref  {sec:dataset}\relax }}{21}{figure.caption.23}\protected@file@percent }
 \newlabel{fig:espdet_training_curves}{{3.5}{21}{Training curves for ESPDet-Pico on the grapevine dataset~\ref {sec:dataset}\relax }{figure.caption.23}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.4}Detection Performance Evaluation}{21}{subsection.3.3.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.3.4.1}ESPDet-Pico Performance Metrics}{21}{subsubsection.3.3.4.1}\protected@file@percent }
 \citation{esp_ppq2023}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.4}Detection Performance Evaluation}{22}{subsection.3.3.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.3.4.1}ESPDet-Pico Performance Metrics}{22}{subsubsection.3.3.4.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3.6}{\ignorespaces ESPDet-Pico detection performance curves on the grape leaf test set.\relax }}{22}{figure.caption.24}\protected@file@percent }
+\newlabel{fig:espdet_performance_curves}{{3.6}{22}{ESPDet-Pico detection performance curves on the grape leaf test set.\relax }{figure.caption.24}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.3.5}Post-Training Quantization}{22}{subsection.3.3.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.6}Comparative Analysis: ESPDet-Pico vs YOLO11n}{22}{subsection.3.3.6}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {3.6}{\ignorespaces ESPDet-Pico detection performance curves on the grape leaf test set.\relax }}{23}{figure.caption.24}\protected@file@percent }
-\newlabel{fig:espdet_performance_curves}{{3.6}{23}{ESPDet-Pico detection performance curves on the grape leaf test set.\relax }{figure.caption.24}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.6}Comparative Analysis on ESPDet-Pico vs YOLO11n}{22}{subsection.3.3.6}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {3.4}{\ignorespaces Comparative evaluation of ESPDet-Pico and YOLO11n baseline on grape leaf detection\relax }}{23}{table.caption.25}\protected@file@percent }
 \newlabel{tab:espdet_vs_yolo11n}{{3.4}{23}{Comparative evaluation of ESPDet-Pico and YOLO11n baseline on grape leaf detection\relax }{table.caption.25}{}}
 \citation{sandler2018mobilenetv2}
@@ -90,23 +84,21 @@
 \citation{kingma2014adam}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.4.3}MobileNetV2 Training and Optimization Techniques}{27}{subsection.3.4.3}\protected@file@percent }
 \citation{henderson2018deep}
+\citation{jacob2018quantization}
 \@writefile{lof}{\contentsline {figure}{\numberline {3.7}{\ignorespaces Training and validation curves for the MobileNetV2 model.\relax }}{28}{figure.caption.26}\protected@file@percent }
 \newlabel{fig:mobilenet_training_curves}{{3.7}{28}{Training and validation curves for the MobileNetV2 model.\relax }{figure.caption.26}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.4.4}Model Evaluation and Performance Metrics}{28}{subsection.3.4.4}\protected@file@percent }
-\citation{jacob2018quantization}
 \citation{he2016deep}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.4.5}Post-Training Quantization}{29}{subsection.3.4.5}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.4.6}MobileNetV2 vs ResNet18 Comparative Analysis}{29}{subsection.3.4.6}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {3.5}{\ignorespaces Comparative analysis of MobileNetV2 and ResNet18\relax }}{29}{table.caption.27}\protected@file@percent }
 \newlabel{tab:mobilenet_resnet_comparison}{{3.5}{29}{Comparative analysis of MobileNetV2 and ResNet18\relax }{table.caption.27}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.4.6.1}Accuracy-Efficiency Trade-off Analysis}{29}{subsubsection.3.4.6.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.4.6.2}Statistical Significance of Accuracy Difference}{30}{subsubsection.3.4.6.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.4.6.3}Architectural Implications for Edge Deployment}{30}{subsubsection.3.4.6.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.4.6.4}Model Selection Rationale}{30}{subsubsection.3.4.6.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.4.6.1}Accuracy and Model Size Trade-off Analysis}{29}{subsubsection.3.4.6.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.4.6.2}Architectural Implications for Edge Deployment}{29}{subsubsection.3.4.6.2}\protected@file@percent }
 \@setckpt{chapters/Chapter_3}{
-\setcounter{page}{32}
+\setcounter{page}{31}
 \setcounter{equation}{4}
-\setcounter{enumi}{4}
+\setcounter{enumi}{2}
 \setcounter{enumii}{0}
 \setcounter{enumiii}{0}
 \setcounter{enumiv}{0}
@@ -116,12 +108,12 @@
 \setcounter{chapter}{3}
 \setcounter{section}{4}
 \setcounter{subsection}{6}
-\setcounter{subsubsection}{4}
+\setcounter{subsubsection}{2}
 \setcounter{paragraph}{0}
 \setcounter{subparagraph}{0}
 \setcounter{figure}{7}
 \setcounter{table}{5}
-\setcounter{Item}{9}
+\setcounter{Item}{5}
 \setcounter{Hfootnote}{0}
 \setcounter{bookmark@seq@number}{0}
 \setcounter{float@type}{8}

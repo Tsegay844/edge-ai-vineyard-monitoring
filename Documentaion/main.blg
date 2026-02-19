@@ -12,10 +12,6 @@ A level-1 auxiliary file: chapters/Chapter_4.aux
 A level-1 auxiliary file: chapters/Chapter_5.aux
 A level-1 auxiliary file: chapters/Chapter_6.aux
 The style file: unsrt.bst
-A level-1 auxiliary file: appendices/Appendix_A.aux
-A level-1 auxiliary file: appendices/Appendix_B.aux
-A level-1 auxiliary file: appendices/Appendix_C.aux
-A level-1 auxiliary file: appendices/Appendix_D.aux
 Database file #1: Bibliography.bib
 Warning--entry type for "esp_dl_mobilenetv2_tutorial" isn't style-file defined
 --line 798 of file Bibliography.bib
@@ -28,45 +24,45 @@ Warning--entry type for "esp_dl" isn't style-file defined
 Warning--entry type for "freenove2024esp32s3" isn't style-file defined
 --line 1063 of file Bibliography.bib
 Warning--can't use both volume and number fields in shetty2025grape
-You've used 82 entries,
+You've used 79 entries,
             1791 wiz_defined-function locations,
-            880 strings with 21295 characters,
-and the built_in function-call counts, 22079 in all, are:
-= -- 1923
-> -- 1126
-< -- 31
-+ -- 407
-- -- 325
-* -- 1466
-:= -- 3370
-add.period$ -- 262
-call.type$ -- 82
-change.case$ -- 82
+            864 strings with 20694 characters,
+and the built_in function-call counts, 21289 in all, are:
+= -- 1852
+> -- 1092
+< -- 29
++ -- 394
+- -- 315
+* -- 1425
+:= -- 3256
+add.period$ -- 252
+call.type$ -- 79
+change.case$ -- 79
 chr.to.int$ -- 0
-cite$ -- 83
-duplicate$ -- 1002
-empty$ -- 2079
-format.name$ -- 325
-if$ -- 5040
+cite$ -- 80
+duplicate$ -- 964
+empty$ -- 2003
+format.name$ -- 315
+if$ -- 4855
 int.to.chr$ -- 0
-int.to.str$ -- 82
-missing$ -- 71
-newline$ -- 415
-num.names$ -- 82
-pop$ -- 291
+int.to.str$ -- 79
+missing$ -- 69
+newline$ -- 399
+num.names$ -- 79
+pop$ -- 277
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 0
-skip$ -- 580
+skip$ -- 552
 stack$ -- 0
-substring$ -- 1380
-swap$ -- 351
-text.length$ -- 31
+substring$ -- 1332
+swap$ -- 333
+text.length$ -- 29
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 0
 warning$ -- 1
-while$ -- 200
-width$ -- 84
-write$ -- 907
+while$ -- 194
+width$ -- 81
+write$ -- 873
 (There were 6 warnings)

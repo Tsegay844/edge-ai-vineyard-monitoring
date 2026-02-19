@@ -7,13 +7,17 @@
 \contentsline {figure}{\numberline {2.1}{\ignorespaces Image feature extraction to train IKNN model to detect grape leaf disease~\cite {shantkumari2023machine}.\relax }}{5}{figure.caption.14}%
 \contentsline {figure}{\numberline {2.2}{\ignorespaces An Edge-boosted Crop Disease Detection System via TinyML and LoRa Communication~\cite {tao2025icrop+}.\relax }}{8}{figure.caption.15}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {3.1}{\ignorespaces System architecture of the proposed edge AI-based grape leaf disease detection integrated into Existing LoRaWAN-based vineyard monitoring.\relax }}{10}{figure.caption.16}%
+\contentsline {figure}{\numberline {3.1}{\ignorespaces System architecture of the proposed edge AI-based grape leaf disease detection LoRaWAN-based vineyard monitoring.\relax }}{10}{figure.caption.16}%
 \contentsline {figure}{\numberline {3.2}{\ignorespaces Four-stage edge AI pipeline for grape leaf disease detection.\relax }}{11}{figure.caption.17}%
-\contentsline {figure}{\numberline {3.3}{\ignorespaces Sample images from the grape leaf disease dataset, illustrating the four classes: Black Rot, Esca, Healthy, and Leaf Blight.\relax }}{12}{figure.caption.19}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Sample images from the grape leaf disease dataset, illustrating the four classes: Black Rot, Esca, Healthy, and Leaf Blight.\relax }}{13}{figure.caption.19}%
 \contentsline {figure}{\numberline {3.4}{\ignorespaces Annotated image from the leaf localization dataset, bounding boxes around individual grape leaves\relax }}{14}{figure.caption.20}%
 \contentsline {figure}{\numberline {3.5}{\ignorespaces Training curves for ESPDet-Pico on the grapevine dataset~\ref {sec:dataset}\relax }}{21}{figure.caption.23}%
-\contentsline {figure}{\numberline {3.6}{\ignorespaces ESPDet-Pico detection performance curves on the grape leaf test set.\relax }}{23}{figure.caption.24}%
+\contentsline {figure}{\numberline {3.6}{\ignorespaces ESPDet-Pico detection performance curves on the grape leaf test set.\relax }}{22}{figure.caption.24}%
 \contentsline {figure}{\numberline {3.7}{\ignorespaces Training and validation curves for the MobileNetV2 model.\relax }}{28}{figure.caption.26}%
 \addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces ESPDet-Pico quantization pipeline from dataset preparation to ESP32-S3 deployment-ready INT8 model.\relax }}{35}{figure.caption.28}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces MobileNetV2 quantization pipeline from dataset preparation to ESP32-S3 deployment-ready INT8 model\relax }}{36}{figure.caption.29}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces \small Model storage and loading strategy for ESP32-S3 deployment. Both ESPDet-Pico and MobileNetV2 models are embedded in flash memory and loaded into PSRAM at runtime for inference execution.\relax }}{37}{figure.caption.30}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Initialization sequence and PSRAM utilization for model loading and camera initialization.\relax }}{39}{figure.caption.31}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }

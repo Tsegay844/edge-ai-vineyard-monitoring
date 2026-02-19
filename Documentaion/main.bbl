@@ -345,7 +345,7 @@ Gulshat Amirkhanova, Syrym Ismailov, Alikhan Amirkhanov, Saltanat Adilzhanova,
 
 \bibitem{esp32s3_datasheet}
 Espressif Systems.
-\newblock Esp32-s3 datasheet, 2022.
+\newblock Esp32-s3 datasheet, 2025.
 
 \bibitem{plantvillage_dataset_2023}
 Abdallah Ali.
@@ -411,14 +411,6 @@ Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun.
   recognition.
 \newblock {\em IEEE Transactions on Pattern Analysis and Machine Intelligence},
   37(9):1904--1916, 2015.
-
-\bibitem{li2020generalized}
-Xiang Li, Wenhai Wang, Lijun Wu, Shuo Chen, Xiaolin Hu, Jun Li, Jinhui Tang,
-  and Jian Yang.
-\newblock Generalized focal loss: Learning qualified and distributed bounding
-  boxes for dense object detection.
-\newblock In {\em Advances in Neural Information Processing Systems (NeurIPS)},
-  volume~33, pages 21002--21012, 2020.
 
 \bibitem{loshchilov2017decoupled}
 Ilya Loshchilov and Frank Hutter.
@@ -506,24 +498,12 @@ Freenove.
 
 \bibitem{esp_dl}
 Espressif Systems.
-\newblock Esp-dl: Espressif deep learning library, 2024.
+\newblock Esp-dl: Espressif deep learning library, 2025.
 
 \bibitem{esp_dl_mobilenetv2_tutorial}
 {Espressif Systems}.
 \newblock How to deploy {MobileNetV2} on {ESP32} --- model quantization, 2024.
 \newblock ESP-DL Official Documentation.
-
-\bibitem{ppq2022}
-{OpenPPL}.
-\newblock Ppq: Pytorch post-training quantization.
-\newblock \url{https://github.com/openppl-public/ppq}, 2022.
-\newblock Accessed: February 2026.
-
-\bibitem{krishnamoorthi2018quantize}
-Raghuraman Krishnamoorthi.
-\newblock Quantizing deep convolutional networks for efficient inference: A
-  whitepaper.
-\newblock {\em arXiv preprint arXiv:1806.08342}, 2018.
 
 \bibitem{dietterich1997solving}
 Thomas~G. Dietterich, Richard~H. Lathrop, and Tom\'as Lozano-P\'erez.

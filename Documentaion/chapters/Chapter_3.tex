@@ -1,31 +1,23 @@
-\chapter{System Architecture and Model Design}
+\chapter{System Architecture and Model Development}
 \label{chap:system_architecture}
+This chapter presents architectural design of the proposed Edge-AI system for grape leaf disease detection. The system is integrated into the existing LoRaWAN-based vineyard monitoring infrastructure as shown in Figure~\ref{fig:lora_edge_ai_architecture}. The discussion covers the overall system design, including the four-stage inference pipeline, the reason behind the use of two distinct NN architectures for leaf localization and disease classification. In addition, the chapter includes dataset preparation, different preprocessing techniques, model training methodologies and performance optimization strategies. The detailed model architectures and training results are presented in Sections~\ref{sec:espdet_pico} and~\ref{sec:mobilenetv2}, while the hardware platform description and full deployment implementation are covered in Chapter~\ref{chap:deployment}. 
 
 \section{System Overview and Methodology}
+The proposed system extends the existing LoRaWAN-based vineyard monitoring architecture by integrating edge AI computing capabilities for direct visual-based disease detection. The system is designed to operate within the resource constraints of ESP32-S3 microcontrollers while providing real-time disease diagnosis from captured grapevine images. The overall architecture is illustrated in Figure~\ref{fig:lora_edge_ai_architecture}, showing how the edge AI components fit into the broader monitoring system.
 
-This chapter presents the design and training of the two neural network models at the core of the edge AI-based grape leaf disease detection system, integrated into the existing vineyard monitoring infrastructure as shown in Figure~\ref{fig:lora_edge_ai_architecture}. It starts with an overview of the system architecture, followed by detailed descriptions of the datasets in Section~\ref{sec:dataset}. Then, the design and training of the leaf localization model and the disease classification model are presented in Sections~\ref{sec:espdet_pico} and~\ref{sec:mobilenetv2} respectively. The hardware platform description and full deployment implementation are covered in Chapter~\ref{chap:deployment}.
 \begin{figure}[htbp]
-    
+    \centering
     \includegraphics[width=0.8\linewidth]{images/chapter3/lora_edge_ai.drawio.png}
 
-    \caption{System architecture of the proposed edge AI-based grape leaf disease detection integrated into Existing LoRaWAN-based vineyard monitoring.}
-    \label{fig:lora_edge_ai_architecture}
+    \caption{System architecture of the proposed edge AI-based grape leaf disease detection LoRaWAN-based vineyard monitoring.}
+    \label{fig:lora_edge_ai_architecture} 
 \end{figure}
-
-
-\subsection{Why Two Distinct Neural Network Architectures?}
-The main purpose of the proposed system is to diagnose grapevine diseases by analyzing their leaves. While the training dataset consists of single leaf images labeled with different disease classes. In real-world monitoring scenarios, the input images captured by camera contain multiple leaves in single frame. Therefore, training model with single leaf images to infer full frame is not effective. To address this, the system uses two distinct neural network architectures. One to localize and extract the target leaf regions from the image frame. The other to diagnose the disease symptoms on the extracted leaves. 
-    
-
-Additionally, the leaf localization and disease classification tasks have different characteristics requiring specific architectures and training strategies. By separating these tasks into two specialized models, each can be optimized for its specific task. The complete deployment pipeline of integrating these two domain specific models is explained in Section~\ref{sec: four_stage_pipeline}, with detailed model architectures in Sections~\ref{sec:espdet_pico} and~\ref{sec:mobilenetv2}.
-
-
 
 
 \subsection{Four-Stage Pipeline Architecture}
 \label{sec: four_stage_pipeline}
 
-The disease detection system is implemented in a four-stage pipeline deployed on ESP32-S3 microcontrollers, as illustrated in Figure~\ref{fig:system_architecture}.
+The disease detection system is designed and implemented to operate in a four-stage pipeline and deployed on ESP32-S3 microcontrollers, as illustrated in Figure~\ref{fig:system_architecture}.
 
 \begin{figure}[htbp]
     \centering
@@ -35,15 +27,22 @@ The disease detection system is implemented in a four-stage pipeline deployed on
     \label{fig:system_architecture}
 \end{figure}
 
-\textbf{Stage 1: Image Acquisition} - An OV3660 camera module capture grapevine images at VGA resolution (640$\times$480). This module is designed to receive parallel video data signals, and its bus supports an 8-bit ~ 16-bit DVP image sensor, with clock frequency of up to 40 MHz\cite{esp32s3_datasheet}.
+\textbf{Stage 1: Image Acquisition} - An OV3660 camera module capture grapevine images at VGA resolution (640$\times$480). This module is designed to receive parallel video data signals, and its bus supports an 8-bit ~ 16-bit DVP image sensor \cite{esp32s3_datasheet}.
 
 
 \textbf{Stage 2: Leaf Localization} - A YOLO-based detection model (ESPDet-Pico) localizes individual grape leaves within the captured frame. This stage identifies and crops leaf, the regions of interest. The ESP-optimized model architecture and its training procedure are detailed in Section~\ref{sec:espdet_pico}.
 
-\textbf{Stage 3: Disease Classification} - The detected leaves at stage 2 are resized and classified by a MobileNetV2 model trained on different classes of grape disease single leaf images. The details of this model training, quantization, and evaluation are presented in Section~\ref{sec:mobilenetv2}.
+\textbf{Stage 3: Disease Classification} - Detected leaves at stage 2 are resized and classified by a MobileNetV2 model trained on different classes of grape disease single leaf images. The details of this model training, quantization, and evaluation are presented in Section~\ref{sec:mobilenetv2}.
 
-\textbf{Stage 4: Result Aggregation} - Since a single frame contains multiple leaves, predictions should be aggregated using weighted combination of detection confidence, classification entropy, and spatial quality metrics. The aggregated result is encoded into LoRaWAN payload. The aggregation strategy and its design rationale are detailed in Section~\ref{subsec:aggregation_strategies}.
+\textbf{Stage 4: Result Aggregation} - Since a single frame contains multiple leaves, predictions should be aggregated using weighted combination of detection confidence, classification entropy, and spatial quality metrics. The aggregated result is encoded into LoRaWAN payload. This stage ensures that the final output is robust and informative for downstream decision-making while minimizing false positives and optimizing bandwidth usage in LoRaWAN transmission.
 
+
+
+\subsection{Rationale for Two-Model Architecture}
+The main purpose of the proposed system is grapevine disease diagnosis by analyzing their leaves. While the training dataset consists of single leaf images labeled with different disease classes. In real-world monitoring scenarios, the input images captured by camera contain multiple leaves in single frame. Therefore, training model with single leaf images to infer full frame is not effective. To address this, the system uses two distinct neural network architectures. One to localize and extract the target leaf regions from the image frame. The other to diagnose the disease symptoms on the extracted leaves. 
+    
+
+Additionally, the leaf localization and disease classification tasks varies in nature and have different characteristics requiring specific architectures and training strategies. By separating these tasks into two specialized models, where each can be optimized for its specific task. The leaf localization model can focus on learning spatial features and bounding box regression to accurately identify leaf regions. Disease classification model can also concentrate on learning fine-grained visual features relevant to disease symptoms without being distracted by background noise. This modular design also allows for independent updates and improvements to each model as needed. For example, if a new disease class is added in the future, only the classification model needs to be retrained while the localization model can remain unchanged. This separation of concerns enhances the system's flexibility and maintainability while ensuring robust performance under real-world field conditions.
 
 
 \section{Dataset Preparation and Preprocessing}
@@ -163,9 +162,9 @@ Advanced           & Mosaic             & $p = 0.5$       \\
 
 Photometric augmentations operate in the HSV color space. Hue variation is intentionally minimal ($\pm$0.015) to preserve the characteristic green coloration that distinguishes foliage from background, while moderate saturation and brightness perturbations ($\pm$0.4) account for natural lighting variability in vineyard environments.
 
-Geometric augmentations simulate realistic camera positioning scenarios: rotation and shear approximate mounting angle deviations, translation models slight positional shifts, and scale variation covers camera-to-plant distance changes. Both vertical and horizontal flips are applied with 50\% probability. Perspective distortion is kept negligible (0.0001) to avoid unrealistic warping.
+Geometric augmentations simulate realistic camera positioning scenarios: rotation and shear approximate mounting angle deviations, translation models slight positional shifts, and scale variations. Both vertical and horizontal flips are applied with 50\% probability. Perspective distortion is kept negligible (0.0001) to avoid unrealistic warping.
 
-The advanced compositing techniques are YOLO-specific augmentations designed for multi-scale robustness. Mosaic augmentation combines four training images into a single grid, improving small-leaf detection and multi-scale feature learning. MixUp probability is intentionally reduced to 5\% (versus a typical 15\%) because excessive pixel-wise blending degrades bounding box localization precision. CopyPaste augments effective dataset size by transferring leaf instances between images, improving occlusion handling. Mosaic is disabled after epoch 50 (\texttt{close\_mosaic=50}) out of 1000 total epochs, allowing the remaining 950 epochs to fine-tune on unmodified images that more closely approximate real inference conditions.
+The advanced compositing techniques are YOLO specific augmentations designed for multi-scale robustness. Mosaic augmentation combines four training images into a single grid, improving small-leaf detection and multi-scale feature learning. MixUp probability is intentionally reduced to 5\% (versus a typical 15\%) because excessive pixel-wise blending degrades bounding box localization precision. CopyPaste augments effective dataset size by transferring leaf instances between images, improving occlusion handling. Mosaic is disabled after epoch 50 (\texttt{close\_mosaic=50}) out of 1000 total epochs, allowing the remaining 950 epochs to fine-tune on unmodified images that more closely approximate real inference conditions.
 
 Validation and test sets receive no augmentation, undergoing only letterboxing and normalization to ensure that performance metrics reflect true model capability on canonical inputs.
 
@@ -187,7 +186,7 @@ The first stage of the inference pipeline requires accurate localization and ext
 
 \subsection{Object Detection Framework Selection}
 
-Modern object detection architectures can be broadly categorized into two paradigms: anchor-based two-stage detectors (e.g., Faster R-CNN~\cite{ren2015faster}) and single-stage detectors (e.g., YOLO~\cite{redmon2016you}, SSD~\cite{liu2016ssd}). Two-stage detectors achieve high accuracy through region proposal networks followed by refinement stages, but incur substantial computational overhead unsuitable for embedded deployment. Single-stage detectors directly predict class probabilities and bounding box coordinates in a single forward pass, offering superior inference speed at moderate accuracy cost—an advantageous trade-off for edge AI applications.
+Modern object detection architectures can be broadly categorized into two paradigms: anchor-based two-stage detectors (e.g., Faster R-CNN~\cite{ren2015faster}) and single-stage detectors (e.g., YOLO~\cite{redmon2016you}, SSD~\cite{liu2016ssd}). Two-stage detectors achieve high accuracy through region proposal networks followed by refinement stages, but it experienced with substantial computational overhead unsuitable for embedded deployment. Single-stage detectors directly predict class probabilities and bounding box coordinates in a single forward pass, offering superior inference speed at moderate accuracy. This is an advantageous trade-off for edge AI applications.
 
 The YOLO (You Only Look Once) family~\cite{yolo11_ultralytics} represents the state of the art in efficient single-stage detection. YOLO11n, the nano-scale variant developed by Ultralytics~\cite{yolo11_ultralytics}, serves as the baseline model for this work. YOLO11n employs an anchor-free detection paradigm, eliminating the need for predefined anchor boxes and simplifying post-processing. The architecture comprises a feature extraction backbone with cross-stage partial connections, a feature pyramid network (FPN)~\cite{lin2017feature} for multi-scale fusion, and detection heads operating at three spatial resolutions to capture objects across varying scales.
 
@@ -195,11 +194,11 @@ YOLO11n achieves strong detection performance with 2.59 million parameters and a
 
 \subsection{YOLO11-Optimization for Resources Constrained Deployment}
 
-To enable ESP32-S3 deployment, we adopt ESPDet-Pico, an ESP-optimized object detector derived from the YOLO11 architecture. ESPDet-Pico applies systematic architectural pruning, replacing computationally expensive operations with hardware-friendly alternatives while maintaining the core detection pipeline.
+To enable ESP32-S3 deployment, I used ESPDet-Pico, an ESP-optimized object detector derived from the YOLO11 architecture. ESPDet-Pico applies systematic architectural pruning, replacing computationally expensive operations with edge-deployable alternatives while maintaining the detection pipeline performance.
 
 \subsubsection{Backbone Architecture Modifications}
 
-The feature extraction backbone comprises 11 layers organized into four downsampling stages, achieving spatial resolutions of P3/8, P4/16, and P5/32 relative to the input image. Table~\ref{tab:espdet_backbone} details the complete backbone architecture after applying the compound scaling factors ($d=0.50$, $w=0.25$).
+The feature extraction backbone contains 11 layers organized into four downsampling stages, achieving spatial resolutions of P3/8, P4/16, and P5/32 relative to the input image. Table~\ref{tab:espdet_backbone} details the complete backbone architecture after applying the compound scaling factors ($d=0.50$, $w=0.25$).
 
 \begin{table}[htbp]
 \centering
@@ -223,11 +222,8 @@ The feature extraction backbone comprises 11 layers organized into four downsamp
 10             & DSConv$^\dagger$     & 128                       & 1               & P5/32                \\
 \bottomrule
 \end{tabular}
-\par\smallskip
-{\footnotesize $^\dagger$Uses $7 \times 7$ kernel (padding 3); all other DSConv layers use $3 \times 3$ kernels.}
 \end{table}
 
-Key architectural modifications include:
 
 \textbf{Depthwise Separable Convolutions (DSConv):} Standard convolutions are replaced with depthwise separable convolutions~\cite{howard2017mobilenets}, factorizing spatial and channel-wise operations into a depthwise $k \times k$ filter followed by a pointwise $1 \times 1$ projection. This reduces computational complexity from $O(C_{in} \times C_{out} \times k^2)$ to $O(C_{in} \times k^2 + C_{in} \times C_{out})$, where $k$ denotes kernel size. For typical layer configurations, this achieves $8$--$9\times$ FLOPs reduction with minimal accuracy degradation.
 
@@ -238,8 +234,7 @@ Key architectural modifications include:
 \textbf{Spatial Pyramid Pooling Fast (SPPF):} The SPPF module, derived from the spatial pyramid pooling concept~\cite{he2015spatial} and optimized in the Ultralytics framework~\cite{yolo11_ultralytics}, applies sequential $5 \times 5$ max pooling operations to capture multi-scale features efficiently. Compared to parallel pooling branches in the original SPP design, SPPF reduces memory allocation overhead by reusing intermediate pooled features.
 
 \subsubsection{Detection Head Architecture}
-
-The detection head comprises two functional components: a \textit{neck} that fuses multi-scale backbone features, and a \textit{prediction module} that produces per-scale bounding box and classification outputs.
+The detection head contains functional components including a \textit{neck} for fusing multi-scale backbone features. \textit{prediction module} that generates per-scale bounding box and classification outputs.
 
 \paragraph{Feature Pyramid Neck.}
 The neck follows a bidirectional Feature Pyramid Network (FPN) design~\cite{lin2017feature}, fusing features from backbone stages P3 (1/8 scale), P4 (1/16 scale), and P5 (1/32 scale) to enable multi-scale detection. Feature fusion proceeds through three pathways:
@@ -252,45 +247,34 @@ The neck follows a bidirectional Feature Pyramid Network (FPN) design~\cite{lin2
 
 This bidirectional design ensures that each detection scale benefits from both fine-grained spatial detail (via top-down flow from higher-resolution stages) and strong semantic context (via bottom-up flow from deeper stages).
 
-\paragraph{Decoupled Prediction Heads.}
+\paragraph{Decoupled Prediction Heads}
 At each of the three detection scales, two parallel prediction branches produce separate outputs for bounding box regression and object classification. This decoupled head design, inherited from YOLO11, separates localization and classification into independent sub-networks, avoiding the task conflict that arises when a single shared branch must simultaneously optimize for both objectives.
 
-The \textit{box regression branch} (denoted \texttt{cv2}) at each scale consists of two consecutive DSConv layers followed by a $1 \times 1$ convolution that outputs 4 channels. Each channel corresponds to one edge distance $(l, t, r, b)$, representing the distances from the grid cell center to the left, top, right, and bottom edges of the predicted bounding box, respectively. This distance-based parameterization differs from the conventional center-size encoding $(x, y, w, h)$ used in earlier YOLO versions and eliminates the need for anchor box priors, as bounding boxes are directly regressed from each spatial grid position in an anchor-free manner.
+The \textit{box regression branch:} at each scale consists of two consecutive DSConv layers followed by a $1 \times 1$ convolution that outputs 4 channels. Each channel corresponds to one edge distance $(l, t, r, b)$, representing the distances from the grid cell center to the left, top, right, and bottom edges of the predicted bounding box, respectively. This distance-based parameterization differs from the conventional center-size encoding $(x, y, w, h)$ used in earlier YOLO versions and eliminates the need for anchor box priors, as bounding boxes are directly regressed from each spatial grid position in an anchor-free manner.
 
-The \textit{classification branch} (denoted \texttt{cv3}) at each scale comprises two sequential blocks of depthwise convolution (DWConv) followed by a $1 \times 1$ pointwise convolution, terminated by a $1 \times 1$ convolution that outputs $n_c$ channels (where $n_c = 1$ for the single leaf class). The output represents the class logit score for each grid cell.
+The \textit{classification branch:} at each scale comprises two sequential blocks of depthwise convolution (DWConv) followed by a $1 \times 1$ pointwise convolution, terminated by a $1 \times 1$ convolution that outputs $n_c$ channels (where $n_c = 1$ for the single leaf class). The output represents the class logit score for each grid cell.
 
-\paragraph{Simplified Box Regression (\texttt{reg\_max}$=1$).}
-A key distinction from standard YOLO11 lies in the box regression formulation. In the standard YOLO11 detection head, each edge distance is predicted as a discrete probability distribution over 16 bins (\texttt{reg\_max}$=16$), followed by a Distribution Focal Loss (DFL)~\cite{li2020generalized} layer that computes the expected value via softmax-weighted summation. This distribution-based regression enables the model to express localization uncertainty and improves accuracy on objects with ambiguous boundaries.
-
-ESPDetect reduces \texttt{reg\_max} from 16 to 1, replacing the 16-bin distributional regression with direct scalar prediction for each edge distance. This modification has three consequences:
-\begin{itemize}
-    \item \textbf{Output reduction:} The box regression branch outputs 4 channels per spatial location instead of $4 \times 16 = 64$, reducing the prediction tensor size by $16\times$.
-    \item \textbf{DFL elimination:} Since \texttt{reg\_max}$=1$, the DFL layer degenerates to an identity operation and is bypassed entirely, removing the softmax computation from the inference path.
-    \item \textbf{Per-anchor output:} The total output per grid cell is $n_c + 4 \times \texttt{reg\_max} = 1 + 4 = 5$ values, compared to $1 + 64 = 65$ in standard YOLO11.
-\end{itemize}
-
-This simplification substantially reduces the computational and memory cost of the detection head, which is critical for ESP32-S3 deployment where integer multiply-accumulate operations dominate inference latency.
 
 \paragraph{Multi-Scale ONNX Export Format.}
 For deployment on the ESP-DL inference runtime, the model is exported to ONNX format using a custom export path (\texttt{export\_onnx\_forward}) that produces six separate output tensors rather than the single concatenated tensor used in standard YOLO inference. Specifically, the exported model returns:
 \begin{equation}
 \text{Output} = \{(\mathbf{B}_s, \mathbf{S}_s)\}_{s \in \{P3, P4, P5\}}
 \end{equation}
-where $\mathbf{B}_s \in \mathbb{R}^{1 \times 4 \times H_s \times W_s}$ contains raw box regression values and $\mathbf{S}_s \in \mathbb{R}^{1 \times 1 \times H_s \times W_s}$ contains raw class logits at scale $s$. Post-processing---including sigmoid activation, distance-to-box coordinate conversion, and non-maximum suppression---is deferred to the ESP-DL runtime on the microcontroller, avoiding the need for complex tensor reshaping and concatenation operations within the exported model graph.
+where $\mathbf{B}_s \in \mathbb{R}^{1 \times 4 \times H_s \times W_s}$ contains raw box regression values and $\mathbf{S}_s \in \mathbb{R}^{1 \times 1 \times H_s \times W_s}$ contains raw class logits at scale $s$. Post-processing including sigmoid activation, distance-to-box coordinate conversion, and non-maximum suppression is deferred to the ESP-DL runtime on the microcontroller, avoiding the need for complex tensor reshaping and concatenation operations within the exported model graph.
 
-\subsubsection{Parameter and Memory Reduction}
+\subsubsection{Parameter Reduction}
 
-Through systematic architecture pruning, ESPDet-Pico reduces the parameter count from 2.59 million (YOLO11n) to approximately 360,000—an 86\% reduction. Model size decreases from 5.23~MB to 1.06~MB in FP32 precision (79.8\% reduction), enabling the model to fit entirely within ESP32-S3 PSRAM alongside activation buffers. Width scaling factor $w=0.25$ reduces channel dimensions (e.g., base 512 channels become 128), while depth scaling factor $d=0.50$ reduces internal block repetitions (e.g., base 2$\times$ DSC3k2 becomes 1$\times$), jointly preserving the hierarchical feature extraction structure at reduced computational cost.
+Through this systematic architectural pruning, ESPDet-Pico reduces the parameter count from 2.59 million (YOLO11n) to approximately 360,000 which is 86\% reduction. Model size decreases from 5.23~MB to 1.06~MB in FP32 precision (79.8\% reduction), enabling the model to fit entirely within ESP32-S3 PSRAM alongside activation buffers. Width scaling factor $w=0.25$ reduces channel dimensions (e.g., base 512 channels become 128), while depth scaling factor $d=0.50$ reduces internal block repetitions (e.g., base 2$\times$ DSC3k2 becomes 1$\times$). This parameter reduction is achieved while maintaining YOLO11n architectural features that enable multi-scale feature learning and detection performance, as validated by the training results presented in the following section.
 
 \subsection{ESPDet-Pico Model Training and Optimization}
 
 With the compressed architecture established, training focuses on optimizing detection accuracy under the reduced model capacity constraint. ESPDet-Pico was trained on the grapevine leaf localization dataset described in Section~\ref{sec:dataset}, comprising 328 training images, 82 validation images, and 103 test images. All images contain annotated bounding boxes for individual grape leaf instances in unconstrained vineyard scenes.
 
-\subsubsection{Input Resolution and Rectangular Training}
+\subsubsection*{Input Resolution and Rectangular Training}
 
-The model accepts input images at $416 \times 320$ pixel resolution (width $\times$ height). Rectangular training (\texttt{rect=True}) is employed, where images within each batch are resized to maintain their original aspect ratio through letterboxing with black padding. This strategy reduces computational waste on padding pixels compared to square resizing and better preserves object proportions, particularly beneficial for elongated leaves in vineyard imagery.
+The model accepts input images at $416 \times 320$ pixel resolution (width $\times$ height). Rectangular training is employed, where images within each batch are resized to maintain their original aspect ratio through letterboxing with black padding. This strategy reduces computational waste on padding pixels compared to square resizing and better preserves object proportions, particularly beneficial for elongated leaves in vineyard imagery.
 
-\subsubsection{Optimization Configuration}
+\subsubsection*{Optimization Configuration}
 
 Training employed the AdamW optimizer~\cite{loshchilov2017decoupled} with weight decay regularization to prevent overfitting on the moderate-sized dataset. Key hyperparameters include:
 
@@ -314,13 +298,13 @@ where $\mathcal{L}_{\text{box}}$ denotes the Complete IoU (CIoU) loss~\cite{zhen
 
 To prioritize localization accuracy over classification confidence in this single-class detection task (leaf versus background), the loss components are reweighted: $\lambda_{\text{box}} = 7.5$ (elevated for precise bounding box regression), $\lambda_{\text{cls}} = 0.5$ (reduced, as the model only distinguishes leaves from background), and $\lambda_{\text{dfl}} = 1.5$ (standard weight for anchor-free detection). The elevated box loss weight emphasizes precise localization accuracy, critical for subsequent cropping operations in the inference pipeline.
 
-\subsubsection{Data Augmentation Strategy}
+\subsubsection*{Data Augmentation Strategy}
 
 The data augmentation pipeline for detection training is designed to enhance model robustness to the variability of real vineyard conditions while preserving the integrity of bounding box annotations. Balanced combination of geometric and mild photometric augmentations is applied stochastically during training, as summarized in Table~\ref{tab:detection_augmentation}, at section~\ref{sec:espdet_pico}.
 
 
 
-\subsubsection{Training Convergence}
+\subsubsection*{Training Convergence}
 
 Training converged after 949 logged epochs, with the best validation mAP@50 achieved at epoch 711. Figure~\ref{fig:espdet_training_curves} illustrates the training dynamics. The validation loss decreased smoothly without oscillations, indicating stable optimization. The cosine learning rate schedule is evident from the gradual decay curve. Early training (epochs 1--30) exhibits rapid performance improvement during the warmup phase, while subsequent training (epochs 30--700) demonstrates steady convergence as the model refines feature representations. After the best checkpoint at epoch 711, validation metrics plateau, triggering early stopping to prevent overfitting. The extended training duration (711 epochs) compared to YOLO11n's faster convergence (327 epochs) reflects the reduced model capacity of ESPDet-Pico, requiring additional training iterations to reach optimal performance.
 
@@ -379,9 +363,22 @@ The precision-recall balance favors precision over recall, aligning with the two
 \subsection{Post-Training Quantization}
 To enable deployment on the ESP32-S3, ESPDet-Pico undergoes post-training quantization to INT8 precision using the ESP-PPQ framework~\cite{esp_ppq2023}, following the same quantization pipeline described for MobileNetV2 in Section~\ref{subsec:esp_ppq}. The quantized model size reduces from 1.06~MB (FP32) to 478~KB (INT8), a 55\% reduction. The complete quantization procedure, including calibration strategy and ONNX export, is detailed in Chapter~\ref{chap:deployment}.
 
-\subsection{Comparative Analysis: ESPDet-Pico vs YOLO11n}
+\subsection{Comparative Analysis on ESPDet-Pico vs YOLO11n}
+This section compares the standard YOLO11n and the ESP-optimized YOLO11 architec-
+ture (ESPDet-Pico). Both models trained with identical configurations and datasets to understand the impact of using the ESPDet-Pico architecture over the pure YOLO11n.Table~\ref{tab:espdet_vs_yolo11n} presents the performance comparison.
 
-To quantify the accuracy-efficiency trade-off, ESPDet-Pico is compared against the YOLO11n baseline trained on identical data with identical hyperparameters. Table~\ref{tab:espdet_vs_yolo11n} presents the performance comparison.
+
+\subsection*{Experimental setup for both architectures }
+
+for a comparison, both models trained on the same configuration:
+\begin{itemize}
+    \item \textbf{YOLO-format dataset}: (train/val/test splits)
+    \item \textbf{Image size}: 320$\times$416 pixels 
+    \item \textbf{Batch size}: 32
+    \item \textbf{Optimizer}: AdamW (lr=0.002, weight decay=0.0005)
+\end{itemize}
+
+\subsection*{Model detection performance and size comparison}
 
 \begin{table}[htbp]
 \centering
@@ -405,7 +402,10 @@ Best Epoch                  & 327              & 711                  & $+384$  
 
 YOLO11n outperforms ESPDet-Pico across all accuracy metrics, as expected given its substantially higher model capacity. However, the performance gap remains moderate: ESPDet-Pico retains 91.4\% of YOLO11n's mAP@50 while reducing model size by 79.8\%. The mAP@50-95 gap is larger (25.9\% relative drop), indicating that ESPDet-Pico struggles with tight localization at high IoU thresholds, but maintains acceptable coarse localization (IoU $>$ 0.5) sufficient for leaf cropping.
 
-The extended training duration for ESPDet-Pico (711 epochs vs 327 for YOLO11n) reflects the reduced representational capacity: the compressed model requires more training iterations to converge to comparable performance. This suggests that ESPDet-Pico operates near the lower bound of model capacity for this task—further pruning would likely yield diminishing returns or unacceptable accuracy degradation.
+The extended training duration for ESPDet-Pico (711 epochs vs 327 for YOLO11n) reflects the reduced representational capacity. The compressed model requires more training iterations to converge to comparable performance. This suggests that ESPDet-Pico operates near the lower bound of model capacity for this task—further pruning would likely yield diminishing returns or unacceptable accuracy degradation.
+
+Overall, This comparison shows a trade-off between detection accuracy and model size, which is crucial for the resource-constrained devices. Therefore,
+the 5.33\% accuracy reduction in ESPDet-Pico represents an \textbf{acceptable trade-off} for enabling edge deployment on ESP32-S3 device with significant model size reduction.
 
 \subsection{Deployment Feasibility and Trade-off Justification}
 
@@ -413,7 +413,7 @@ The 79.8\% model size reduction enables full in-memory deployment on ESP32-S3 wi
 
 The 5.33 percentage point mAP@50 reduction represents an acceptable trade-off for real-time edge deployment. At 56.42\% mAP@50, ESPDet-Pico successfully localizes the majority of visible leaves, providing sufficient region proposals for downstream classification. Missed detections (false negatives) are partially mitigated by temporal redundancy in video stream processing: leaves undetected in one frame may be detected in subsequent frames as camera position or leaf orientation changes. False positives are controlled through precision-weighted aggregation in the multi-leaf inference stage (Chapter~\ref{chap:performance_evaluation}).
 
-Furthermore, the leaf localization task exhibits less stringent accuracy requirements compared to the subsequent disease classification stage. Imperfect localization (e.g., bounding boxes that slightly truncate leaf edges or include small background regions) does not critically impair classification performance, as MobileNetV2 demonstrates robustness to such perturbations during training on real vineyard crops. The primary objective—isolating leaves from complex backgrounds—is achieved reliably by ESPDet-Pico despite its compressed architecture.
+Furthermore, leaf localization task exhibits less strict accuracy requirements compared to the subsequent disease classification stage. Imperfect localization (e.g., bounding boxes that slightly truncate leaf edges or include small background regions) does not highly affect classification performance, as MobileNetV2. The primary objective—isolating leaves from complex backgrounds—is achieved reliably by ESPDet-Pico despite its compressed architecture.
 
 
 %%========================================================
@@ -513,12 +513,10 @@ To assess model stability and generalization consistency, training is repeated w
 \end{figure}
 
 
-Figure~\ref{fig:mobilenet_training_curves} illustrates representative training dynamics from one experimental run (seed 789). The training and validation losses converge smoothly, indicating stable optimization without oscillations or gradient instability. Validation accuracy plateaus after approximately 35 epochs in Stage 2, triggering early stopping. The learning rate decay from Stage 1 to Stage 2 is evident from the reduced slope of the loss curve in the second training phase.
-
-
+Figure~\ref{fig:mobilenet_training_curves} illustrates the training dynamics on of the experimental runs(seed 789), showing robust convergence across both stages. In (Fine-tuning) further refines the model, reducing validation loss to approximately 0.36 and reaching the accuracy of 99.88\%. Throughout training,  validation loss remains lower than training loss, indicating  effective regularization via data augmentation and dropout, preventing overfitting to the training set.
 \subsection{Model Evaluation and Performance Metrics}
 
-The fine-tuned MobileNetV2 model achieves exceptional classification accuracy on the held-out test set (814 images), demonstrating strong generalization despite the moderate training set size. Aggregated results across four independent training runs yield:
+The fine-tuned MobileNetV2 model achieves high classification accuracy on the unseen test set (814 images), demonstrating strong generalization despite the moderate training set size. Aggregated results across four independent training runs yield the following performance metrics:
 
 \begin{itemize}
     \item \textbf{Test Accuracy:} $99.80\% \pm 0.065\%$ (mean $\pm$ standard deviation)
@@ -527,54 +525,15 @@ The fine-tuned MobileNetV2 model achieves exceptional classification accuracy on
     \item \textbf{Macro Recall:} $0.9979 \pm 0.0006$
 \end{itemize}
 
-The low standard deviation ($\sigma = 0.065\%$) across random seeds indicates robust training stability, with minimal sensitivity to weight initialization. All four runs converge to near-identical performance (individual accuracies: 99.75\%, 99.75\%, 99.88\%, 99.88\%), validating the reliability of the training protocol and the effectiveness of the transfer learning strategy.
-
-% \subsubsection{Per-Class Performance Analysis}
-
-% Table~\ref{tab:mobilenet_classification_metrics} presents detailed per-class classification metrics from a representative experimental run. All four disease categories achieve precision and recall exceeding 99.15\%, indicating balanced performance without class-specific weaknesses.
-
-% \begin{table}[htbp]
-% \centering
-% \caption{Per-class classification performance of MobileNetV2 on grape disease test set}
-% \label{tab:mobilenet_classification_metrics}
-% \begin{tabular}{lcccc}
-% \toprule
-% \textbf{Disease Class} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} & \textbf{Support} \\
-% \midrule
-% Black Rot              & 1.0000             & 0.9915          & 0.9957            & 236              \\
-% Esca (Black Measles)   & 0.9928             & 1.0000          & 0.9964            & 277              \\
-% Healthy                & 1.0000             & 1.0000          & 1.0000            & 85               \\
-% Leaf Blight            & 1.0000             & 1.0000          & 1.0000            & 216              \\
-% \midrule
-% \textbf{Macro Average} & \textbf{0.9982}    & \textbf{0.9979} & \textbf{0.9980}   & \textbf{814}     \\
-% \textbf{Weighted Average} & \textbf{0.9976} & \textbf{0.9975} & \textbf{0.9975}   & \textbf{814}     \\
-% \bottomrule
-% \end{tabular}
-% \end{table}
-
-% \textbf{Black Rot:} Achieves perfect precision (1.0000) but exhibits two misclassifications among 236 samples (recall 0.9915), both confused with Esca. The model produces no false positives for this class.
-
-% \textbf{Esca (Black Measles):} Achieves perfect recall (1.0000), capturing all true Esca cases, but includes one false positive (precision 0.9928) from a misclassified Black Rot sample. The visual similarity between Esca's complex multi-pathogen symptoms and Black Rot's necrotic patterns contributes to this confusion.
-
-% \textbf{Healthy:} Achieves perfect performance (1.0000 precision, recall, F1-score). The distinct visual characteristics of disease-free leaves—uniform green coloration and absence of lesions—enable unambiguous classification.
-
-% \textbf{Leaf Blight:} Achieves perfect performance (1.0000 precision, recall, F1-score). Isariopsis Leaf Spot manifests as characteristic reddish-brown angular lesions with yellow halos, clearly distinguishable from other disease symptoms.
-
-% \subsubsection{Confusion Matrix Interpretation}
-
-% The confusion matrix (Figure~\ref{fig:confusion_matrix}) reveals that classification errors are limited to the Black Rot--Esca boundary, with 2 samples misclassified between these categories and zero errors for Healthy and Leaf Blight classes. This error pattern aligns with botanical knowledge: both Black Rot and Esca produce necrotic leaf spots and discoloration, whereas Healthy leaves and Leaf Blight exhibit diagnostically distinct appearances.
-
-% The near-zero off-diagonal elements (813 of 814 samples correctly classified) demonstrate the model's strong discriminative capability across the four disease categories. The 99.75\% test accuracy exceeds typical performance requirements for agricultural disease monitoring systems~\cite{ferentinos2018deep}, validating the model's suitability for field deployment.
-
-
+The low standard deviation ($\sigma = 0.065\%$) across random seeds indicates robust training stability, with minimal sensitivity to weight initialization. All four runs converge to nearly the same performances (99.75\%, 99.75\%, 99.88\%, 99.88\%), validating the reliability of the training protocol and the effectiveness of the fine-tuning strategy.
 
 \subsection{Post-Training Quantization}
 
-To enable deployment on the ESP32-S3 microcontroller, the trained FP32 MobileNetV2 model must undergo post-training quantization (PTQ) to convert floating-point weights and activations to 8-bit integers. PTQ reduces model size from 8.48~MB (FP32) to 2.27~MB (INT8), a 73.2\% compression (3.74$\times$), while maintaining test accuracy above 99.5\% with less than 0.3 percentage point degradation from the FP32 baseline. This robustness is attributable to MobileNetV2's batch normalization layers and inherently quantization-friendly inverted residual architecture~\cite{jacob2018quantization}. The detailed quantization pipeline, including calibration procedures, equalization strategies, and the ESP-PPQ framework configuration, is presented in Section~\ref{sec:quantization_pipeline} of Chapter~\ref{chap:deployment}.
+To enable deployment on the ESP32-S3 microcontroller, the trained MobileNetV2 model must undergo post-training quantization (PTQ) to convert floating point weights and activations to 8-bit integers (INT8). PTQ reduces model size from 8.48~MB to 2.27~MB (INT8), a 73.2\% compression, while maintaining test accuracy 99.63\%. This robustness is attributable to MobileNetV2's batch normalization layers and inherently quantization friendly inverted residual architecture~\cite{jacob2018quantization}. The detailed quantization pipeline, including calibration procedures, equalization strategies, and the ESP-PPQ framework configuration, is presented in Section~\ref{sec:quantization_pipeline} of Chapter~\ref{chap:deployment}.
 
 \subsection{MobileNetV2 vs ResNet18 Comparative Analysis}
 
-To validate the architectural choice for microcontroller deployment, a comparative evaluation was conducted between MobileNetV2 and ResNet18~\cite{he2016deep}, both configured identically with $128 \times 128$ input resolution and trained under the same two-stage fine-tuning protocol (Stage~1: 10 epochs at $\eta_1 = 10^{-3}$, Stage~2: 40 epochs at $\eta_2 = 10^{-4}$, AdamW optimizer, batch size 64, weight decay $\lambda = 10^{-4}$). The ResNet18 classifier employs a dropout rate of 0.7 (versus 0.5 for MobileNetV2) to compensate for the higher model capacity. Table~\ref{tab:mobilenet_resnet_comparison} summarizes the comparative results across multiple dimensions relevant to edge deployment.
+A comparative evaluation was conducted between MobileNetV2 and ResNet18~\cite{he2016deep}, both configured identically with $128 \times 128$ input resolution and trained under the same two stage fine-tuning protocol (Stage~1: 10 epochs at $\eta_1 = 10^{-3}$, Stage~2: 40 epochs at $\eta_2 = 10^{-4}$, AdamW optimizer, batch size 64, weight decay $\lambda = 10^{-4}$). Table~\ref{tab:mobilenet_resnet_comparison} summarizes the comparative results in terms of model size and classification performance on the test set.
 
 \begin{table}[htbp]
 \centering
@@ -597,38 +556,16 @@ To validate the architectural choice for microcontroller deployment, a comparati
 \end{tabular}
 \end{table}
 
-\subsubsection{Accuracy-Efficiency Trade-off Analysis}
+\subsubsection{Accuracy and Model Size Trade-off Analysis}
 
-ResNet18 achieves perfect test accuracy (100.00\%, 814/814 correct), while MobileNetV2 misclassifies one Black~Rot sample as Esca (99.88\% accuracy). Despite this marginal accuracy difference ($\Delta = 0.12$ percentage points), MobileNetV2 demonstrates a fundamentally superior accuracy-efficiency trade-off for resource-constrained deployment:
+Although ResNet18 achieves slightly higher accuracy, Both models perform well on the test set. The 0.08\% accuracy gap is negligible in practice. However, the model size difference is significant, which has critical implications in deployment on memory-constrained microcontroller platforms. ResNet18 is approximately 5.3$\times$ larger than MobileNetV2 in ONNX format and 3.5$\times$ larger in PyTorch checkpoint format.
 
-\begin{itemize}
-    \item \textbf{Computational efficiency:} MobileNetV2 requires 6$\times$ fewer FLOPs (300M vs 1.8B) due to depthwise separable convolutions, which factorize standard convolutions into depthwise and pointwise operations. This reduction directly translates to lower inference latency on the ESP32-S3's 240~MHz Xtensa LX7 cores.
-    \item \textbf{Memory efficiency:} MobileNetV2's 8.48~MB FP32 model compresses to 2.27~MB INT8 (Section~\ref{sec:quantization_pipeline}), fitting comfortably within the 8~MB PSRAM alongside the ESPDet-Pico detection model (478~KB INT8) and activation buffers ($\sim$3~MB). ResNet18's 44.7~MB FP32 model would exceed the available memory budget even after quantization (estimated 11.2~MB INT8), precluding dual-model deployment.
-    \item \textbf{Quantization robustness:} MobileNetV2's batch normalization and inverted residual structure exhibit inherent robustness to INT8 quantization, maintaining $>99.5\%$ accuracy post-quantization (Section~\ref{subsec:quantization_accuracy}). ResNet18's deeper standard convolutions typically show greater quantization sensitivity, particularly in the initial and final layers.
-\end{itemize}
-
-\subsubsection{Statistical Significance of Accuracy Difference}
-
-The 0.12 percentage point accuracy difference (1 additional error in 814 samples) is not statistically significant for agricultural disease monitoring applications. A binomial proportion test comparing $p_{\text{MobileNet}} = 0.9988$ versus $p_{\text{ResNet}} = 1.0000$ yields $p > 0.3$, indicating insufficient evidence to conclude that ResNet18 generalizes better than MobileNetV2 on unseen data. The single MobileNetV2 misclassification involves the visually ambiguous Black~Rot--Esca boundary, where both diseases manifest necrotic lesions and leaf discoloration. In operational vineyard monitoring, such edge-case errors (0.12\% frequency) have negligible impact compared to environmental confounds (lighting variation, occlusion, motion blur) that affect both models equally.
 
 \subsubsection{Architectural Implications for Edge Deployment}
+The architectural differences between MobileNetV2 and ResNet18 have profound implications in resource constrained environments. MobileNetV2 is designed for mobile and embedded applications, utilizing depthwise separable and residual blocks to minimize parameter count. In contrast, ResNet18 is a general-purpose architecture optimized for high accuracy on large-scale datasets. Therefore, the architectural design of MobileNetV2inherently suitable for microcontroller-class hardware like the ESP32-S3. 
 
-The fundamental architectural distinction—depthwise separable convolutions versus standard convolutions—determines deployability on microcontroller-class hardware. Standard $3\times3$ convolutions in ResNet18 apply $C_{\text{in}} \times C_{\text{out}} \times 9$ multiply-accumulate operations per spatial location, while MobileNetV2's depthwise separable convolutions reduce this to $(C_{\text{in}} \times 9) + (C_{\text{in}} \times C_{\text{out}} \times 1)$ operations via factorization. For typical layer dimensions ($C_{\text{in}} = C_{\text{out}} = 128$), this yields an 8--9$\times$ reduction in computation per layer.
-
-This efficiency gain compounds across the 17 inverted residual blocks, enabling real-time inference ($\sim$6.4~seconds for 10 leaves, Chapter~\ref{chap:performance_evaluation}) on the ESP32-S3 without specialized accelerators. ResNet18's 6$\times$ higher FLOP count would proportionally increase latency to $\sim$38~seconds per frame, violating the responsiveness requirements for interactive vineyard monitoring.
-
-\subsubsection{Model Selection Rationale}
-
-MobileNetV2 is selected as the disease classification backbone for the following reasons:
-
-\begin{enumerate}
-    \item \textbf{Memory constraint compliance:} The quantized model (2.27~MB) fits within the available PSRAM budget, enabling concurrent deployment with ESPDet-Pico for the complete two-stage pipeline.
-    \item \textbf{Negligible accuracy cost:} The 0.12\% accuracy reduction relative to ResNet18 is statistically insignificant and operationally irrelevant for the target application.
-    \item \textbf{Inference efficiency:} 6$\times$ lower computational cost reduces per-frame latency and power consumption, critical for battery-operated sensor nodes.
-    \item \textbf{Quantization-friendly architecture:} Batch normalization and inverted residuals maintain high accuracy under aggressive INT8 quantization, whereas ResNet18's quantization robustness remains unverified.
-\end{enumerate}
-
-These results validate the hypothesis that MobileNetV2's mobile-optimized design provides the optimal balance between classification accuracy and deployment feasibility for ESP32-S3 microcontroller platforms, achieving task-sufficient accuracy (99.88\%) within stringent hardware constraints that preclude larger alternatives.
+To summarize, MobileNetV2 was chosen as the disease classification model for the following reasons. Primarily, its architectural design, it can quantize into small size (2.27~MB) and fit to the PSRAM budget. This allowed the concurrent deployment with ESPDet-Pico detector for the complete two-stage pipeline. Secondly, its quantization-friendly architecture, with batch normalization and inverted residuals, maintains high accuracy under aggressive INT8 quantization. Finally, its lower computational cost is crucial for battery powered sensor nodes.
+ 
 
 
 

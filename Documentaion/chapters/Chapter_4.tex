@@ -1,85 +1,121 @@
-\chapter{Edge AI Deployment on ESP32-S3 Microcontrollers}
+\chapter{Edge AI System Implementation}
 \label{chap:deployment}
 
-This chapter presents the complete deployment pipeline for the two-stage vineyard disease detection system on the ESP32-S3 microcontroller platform. Following the model design and training described in Chapter~\ref{chap:system_architecture}, this chapter addresses the engineering challenges of translating trained neural network models into a functional embedded system. It begins with a description of the target hardware platform and the associated software frameworks in Section~\ref{sec:hw_platform}. Section~\ref{sec:quantization_pipeline} details the post-training quantization pipeline that converts both models from floating-point to 8-bit integer representations compatible with the ESP-DL inference engine. Section~\ref{sec:firmware_memory} discusses the firmware architecture and memory management strategies developed through iterative prototyping to resolve PSRAM fragmentation and allocation challenges. Section~\ref{sec:inference_pipeline} describes the complete inference pipeline implementation, from camera acquisition through multi-leaf aggregation. Finally, Section~\ref{sec:implementation_constraints} documents the key implementation constraints and design trade-offs encountered during deployment.
+In this chapter, the complete embedded implementation of the Edge AI grape leaf disease detection system on ESP32-S3 microcontroller is presented. Following the chosen models design and development described in Chapter~\ref{chap:system_architecture}, this chapter addresses the critical steps of deploying two neural network models on a resource-constrained microcontroller particularly ESP32-S3.
 
-\section{Target Hardware Platform and Development Framework}
+
+This chapter begins with a description of the chosen hardware and its development framework, including the ESP-IDF development framework,
+and the ESP-DL inference engine presented in Section~\ref{sec:hw_platform}. Section~\ref{sec:quantization_pipeline} details the procedures of post-training quantization pipeline that converts both models from floating point to INT8 integer representations compatible with the ESP-DL inference engine. Section~\ref{sec:firmware_memory}  discusses firmware architecture and memory management strategies, including challenges related to model storage, initialization sequence, and buffer allocation. Section~\ref{sec:inference_pipeline} demonstrates complete inference pipeline implementation, from image capturing through inference results aggregation. Finally, Section~\ref{sec:implementation_constraints} documents the key implementation constraints and design trade-offs.
+
+\section{Hardware and Development Framework}
 \label{sec:hw_platform}
 
-\subsection{ESP32-S3-WROOM-1 Microcontroller Architecture}
+\subsection{ESP32-S3 Microcontroller Architecture}
 \label{subsec:esp32s3_architecture}
-
-The deployment target is the ESP32-S3-WROOM-1 system-on-chip (SoC) module manufactured by Espressif Systems~\cite{esp32s3_datasheet}. The ESP32-S3 integrates a dual-core Xtensa LX7 processor operating at 240~MHz, providing the computational foundation for neural network inference. The Xtensa LX7 cores support single-instruction multiple-data (SIMD) operations through the PIE (Processor Interface Extension) instruction set, enabling vectorized INT8 multiply-accumulate operations that directly accelerate quantized neural network computations.
-
-The memory subsystem comprises a three-tier hierarchy critical for embedded deep learning deployment:
+The deployment target is ESP32-S3 system-on-chip (SoC) module manufactured by Espressif Systems~\cite{esp32s3_datasheet}. The ESP32-S3 integrates a dual-core Xtensa LX7 processor operating at 240~MHz, providing computational capabilities suitable for embedded deep learning inference while maintaining low power consumption. The Xtensa LX7 cores support single-instruction multiple-data (SIMD) operations through the PIE (Processor Interface Extension) instruction set, enabling efficient execution of vectorized operations common in neural network inference. The ESP-DL inference engine leverages these SIMD capabilities. The SoC includes a 512~KB internal SRAM, 8~MB external PSRAM, and 16~MB external flash memory. The memory architecture is critical for model storage and inference execution:
 
 \begin{itemize}
     \item \textbf{Internal SRAM (512~KB):} High-speed on-chip memory with single-cycle access latency, partitioned between instruction RAM (IRAM), data RAM (DRAM), and DMA-accessible regions. The ESP-DL runtime uses SRAM for frequently accessed weight tiles via a least-recently-used (LRU) caching policy, storing up to 64~KB of active parameters.
-    \item \textbf{External PSRAM (8~MB):} Octal SPI PSRAM (AP Memory, 3.3V variant) operating at 80~MHz with Hybrid Wrap burst mode and 32-byte burst length. PSRAM provides the primary storage for model activation buffers, camera framebuffers, and inference intermediate tensors. Access latency is approximately 10 read cycles at fixed latency, with 32~KB reserved for DMA and internal allocations by the ESP-IDF heap allocator.
-    \item \textbf{External Flash (16~MB):} QIO-mode flash storage at 80~MHz clock speed, used for firmware binary storage including model weights embedded in the \texttt{.rodata} section. The flash partition table allocates a 5~MB factory application partition (offset \texttt{0x10000}) to accommodate the dual-model firmware binary, alongside NVS (24~KB) and PHY initialization (4~KB) partitions.
+    \item \textbf{External PSRAM (8~MB):} Octal SPI PSRAM operating at 80~MHz with Hybrid Wrap burst mode and 32-byte burst length. PSRAM provides the primary storage for model, weights and activations buffer, camera frame buffers, and inference intermediate tensors. The ESP-DL runtime manages PSRAM allocations through the ESP-IDF heap allocator, with explicit control over memory regions via capability flags.
+    \item \textbf{External Flash (16~MB):} QIO-mode (Quad Input/Output) flash storage at 80~MHz clock speed, used for firmware binary storage including model weights embedded in the \texttt{.rodata} section. The flash partition table allocates a 4~MB factory application partition. The ESP-DL runtime accesses model weights directly from flash via memory-mapped I/O, caching active tiles in SRAM to mitigate flash access latency.
 \end{itemize}
-
-The development board (Freenove ESP32-S3-WROOM~\cite{freenove2024esp32s3}) integrates an OV3660 camera sensor connected via 8-bit parallel DVP interface. The OV3660 captures at VGA resolution (640$\times$480) with on-chip JPEG compression, supporting clock frequencies up to 40~MHz~\cite{esp32s3_datasheet}. Camera data is transferred to PSRAM through DMA channels, enabling capture-while-processing operation.
-
+In this deployment, I used Freenove ESP32-S3-WROOM~1 development board~\cite{freenove2024esp32s3} with OV3660 camera sensor connected via 8-bit parallel DVP interface. The OV3660 captures at VGA resolution (640$\times$480) with on-chip JPEG compression, supporting clock frequencies up to 40~MHz~\cite{esp32s3_datasheet}. Camera data is transferred to PSRAM through DMA channels. The ESP32-S3's integrated Wi-Fi and Bluetooth capabilities are not utilized in this deployment.
 \subsection{ESP-IDF Development Framework}
 \label{subsec:esp_idf}
 
-The firmware is developed using the Espressif IoT Development Framework (ESP-IDF) version 5.3.3, Espressif's official C/C++ development platform for ESP32-series microcontrollers. ESP-IDF provides a FreeRTOS-based real-time operating system with hardware abstraction layers for peripheral management, memory allocation, and power management. The build system uses CMake with Ninja, compiling the application into a single monolithic binary that includes the bootloader, partition table, and application code.
-
-Key ESP-IDF subsystems utilized in the deployment include:
-
+The firmware developed using Espressif IoT Development Framework (ESP-IDF version 5.3.3), Espressif's official C/C++ development platform for ESP32-series microcontrollers. ESP-IDF provides a FreeRTOS-based real-time operating system with hardware abstraction layers for peripheral management, memory allocation, and power management. The build system uses CMake with Ninja, compiling the application into a single monolithic binary that includes the bootloader, partition table, and application code. The ESP-IDF framework offers the following features relevant to this deployment:
 \begin{itemize}
     \item \textbf{Heap allocator:} Manages both internal SRAM and external PSRAM through a unified \texttt{heap\_caps} API. Memory allocations can be directed to specific memory regions via capability flags (e.g., \texttt{MALLOC\_CAP\_SPIRAM} for PSRAM allocation, \texttt{MALLOC\_CAP\_DMA} for DMA-accessible SRAM).
     \item \textbf{Camera driver:} Configures the DVP camera interface, manages DMA transfers, and provides double-buffered frame capture. The driver supports multiple pixel formats including JPEG, RGB565, and YUV422.
-    \item \textbf{SPI flash driver:} Provides memory-mapped access to flash contents, enabling direct pointer-based reads of model weights stored in the \texttt{.rodata} section without explicit partition reads.
-    \item \textbf{Power management:} Supports deep sleep modes with configurable wakeup sources for duty-cycled operation, reducing power consumption to microampere levels between inference cycles.
+    \item \textbf{SPI flash driver:} provides low-level access to external flash memory, including support for memory-mapped I/O. The \texttt{esp\_partition} API allows defining custom flash partitions for model storage, while the \texttt{esp\_spi\_flash} API enables direct reads from flash with optional caching.
+    \item \textbf{Power management:} ESP-IDF's power management API allows configuring sleep modes and dynamic frequency scaling to optimize energy consumption during idle periods. This enables the duty-cycled operation of inference pipeline, to extend battery life.
 \end{itemize}
 
 \subsection{ESP-DL Inference Engine}
 \label{subsec:esp_dl}
 
-ESP-DL~\cite{esp_dl} is Espressif's neural network inference library optimized for ESP32-series microcontrollers. The library provides a C++ inference runtime that executes quantized INT8 models directly on the Xtensa LX7 cores, leveraging SIMD instructions for vectorized computation.
-
-The ESP-DL runtime provides the following capabilities relevant to this deployment:
+ESP-DL~\cite{esp_dl} is Espressif's neural network inference library optimized for ESP32-series microcontrollers. The library provides a C++ inference runtime that executes quantized INT8 models directly on the Xtensa LX7 cores, leveraging SIMD instructions for vectorized computation. ESP-DL supports a range of layer types commonly used in convolutional neural networks, including convolution, depthwise convolution, fully connected, activation functions, pooling, and softmax. The library includes optimized kernels for the ESP32-S3's architecture, with specific attention to memory access patterns and cache utilization. The ESP-DL runtime manages model loading, memory allocation for weights and activations, and execution scheduling. Key features relevant to this deployment include:
 
 \begin{itemize}
-    \item \textbf{Model loading:} The \texttt{dl::Model} class loads quantized models from flash RODATA, with an optional \texttt{minimize()} method that deletes unused variables to reduce memory footprint at the cost of debug capability.
-    \item \textbf{Image preprocessing:} The \texttt{dl::image::ImagePreprocessor} handles color space conversion, resizing, and normalization. On ESP32-S3, input images use \texttt{DL\_IMAGE\_CAP\_RGB565\_BIG\_ENDIAN} format for hardware-compatible pixel ordering.
-    \item \textbf{Detection post-processing:} The \texttt{dl::detect::ESPDetPostProcessor} implements non-maximum suppression (NMS), confidence thresholding, and coordinate transformation for object detection models, handling INT8 dequantization internally.
-    \item \textbf{Memory management:} A static memory allocation planner computes buffer sizes offline during quantization, enabling deterministic memory usage without runtime allocation calls during inference.
-    \item \textbf{Software JPEG decoder:} The \texttt{dl::image::sw\_decode\_jpeg()} function decodes JPEG-compressed camera frames to RGB888 format, as the ESP32-S3 lacks a dedicated hardware JPEG decoder.
+    \item \textbf{Model loading:} (\texttt{dl::Model}) class that loads quantized models from flash RODATA, with an optional \texttt{minimize()} method that deletes unused variables to reduce memory footprint at the cost of debug capability.
+    \item \textbf{Image preprocessing:}  (\texttt{dl::image::ImagePreprocessor}) class that handles input image transformations required by the models, including resizing, normalization, and color space conversion. The preprocessor supports various pixel formats; for this deployment, input images are processed in RGB888 format for hardware compatibility model input requirements.
+    \item \textbf{Detection post-processing:} (\texttt{dl::detect::ESPDetPostProcessor}) class that uses the raw output tensors from the detection model to produce final bounding box predictions. The post-processor implements non-maximum suppression (NMS), confidence thresholding, and coordinate transformation for object detection models, handling INT8 dequantization internally.
+    \item \textbf{Memory management:} The runtime allocates activation buffers in PSRAM and manages an LRU cache of weight tiles in SRAM to optimize inference performance while respecting memory constraints. The library provides APIs for explicit control over memory allocation and deallocation, enabling the zero-copy buffer reuse strategy described in Section~\ref{subsec:buffer_allocation}.
+    \item \textbf{Software JPEG decoder:} (\texttt{dl::image::sw\_decode\_jpeg()}) function that decodes JPEG-compressed camera frames to RGB888 format, as the ESP32-S3 lacks a dedicated hardware JPEG decoder.
+
 \end{itemize}
 
 
 \section{Model Quantization and Format Conversion}
 \label{sec:quantization_pipeline}
 
-Deploying neural network models on microcontrollers requires converting trained floating-point models to integer representations compatible with the target inference engine. This section describes the quantization pipeline that transforms both ESPDet-Pico and MobileNetV2 from PyTorch FP32 to the ESPDL INT8 format. The pipeline follows the model quantization methodology documented in Espressif's official ESP-DL deployment tutorial~\cite{esp_dl_mobilenetv2_tutorial}, adapted to the specific requirements of each model architecture.
+Deploying neural network models on microcontroller devices requires converting floating-point to INT8 representations compatible with target inference engine. This section describes the quantization pipeline that conversion of both models ESPDet-Pico and MobileNetV2 from PyTorch FP32 to the ESPDL INT8 format. The conversion pipeline follows the model quantization techniques in Espressif's official ESP-DL deployment documentation ~\cite{esp_dl_mobilenetv2_tutorial}, adapted to the specific requirements of each model architecture. 
 
 \subsection{The ESP-PPQ Quantization Framework}
 \label{subsec:esp_ppq}
 
-Both models are quantized using ESP-PPQ~\cite{esp_ppq2023}, Espressif's fork of the PPQ (Post-Processing Quantization) framework~\cite{ppq2022}. ESP-PPQ extends the open-source PPQ library with hardware-specific quantization configurations targeting the ESP-DL inference runtime. The framework applies per-tensor symmetric quantization with power-of-2 scaling factors, where floating-point values are linearly mapped to the 8-bit integer range $[-128, 127]$:
+Both models quantized using ESP-PPQ~\cite{esp_ppq2023}, Espressif's Post-Processing Quantization framework. ESP-PPQ is extended over the open-source PPQ library with hardware-specific quantization configurations targeting ESP-DL inference runtime. The framework applies per-tensor symmetric quantization with ($s = 2^e$) factors, where floating point values mapped to the 8-bit integer range $[-128, 127]$:
 
 \begin{equation}
-x_{\text{int8}} = \text{clamp}\left(\text{round}\left(\frac{x_{\text{float}}}{2^e}\right), -128, 127\right)
+x_{\text{int8}} = \text{clamp}\left(\text{round}\left(\frac{x_{\text{float}}}{s}\right), -128, 127\right)
 \label{eq:quantization}
 \end{equation}
 
-where $e$ denotes the quantization exponent, computed to minimize quantization error over the calibration dataset. The power-of-2 constraint on the scale factor ($s = 2^e$) enables efficient dequantization via bit-shift operations on the Xtensa LX7 processor, avoiding costly floating-point division during inference.
+where $x_{\text{float}}$ is the original floating point value, $s$ is the scale factor, and $\text{clamp}$ to ensure the quantized value fits within the 8-bit signed integer range. The quantization exponent $e$ computed during calibration to minimize the quantization error over its representative dataset. The power-of-2 constraint on the scale factor enables efficient dequantization via bit-shift operation on the Xtensa LX7 processor, avoiding costly floating-point operation during inference.
 
-The quantization settings are configured via \texttt{QuantizationSettingFactory.espdl\_setting()} with the \texttt{ESPDL\_INT8} target platform. A key optimization is \textbf{layerwise equalization}~\cite{krishnamoorthi2018quantize}, which redistributes weight magnitudes across consecutive layers to reduce the dynamic range that must be represented within the 8-bit precision. Equalization is configured with 4 iterations, a value threshold of 0.4, and optimization level 2. This technique addresses the challenge of MobileNetV2's depthwise separable convolutions, where weight magnitude distributions vary significantly across channels, leading to high quantization error under uniform per-tensor scaling.
+The ESP specific quantization setting \texttt{QuantizationSettingFactory.espdl\_setting} with the \texttt{ESPDL\_INT8} target applies a layerwise equalization to distribute weights and activations across consecutive layers, reducing the dynamic range that must be with in 8-bit precision. This strategy particularly important for convolutional layers with highly skewed weight distributions. Thus, this addresses the challenge of MobileNetV2's depthwise separable convolutions, where weight distribution varies significantly across channels.
 
-Weights are quantized to 8-bit integers, biases to 20-bit integers (range $[-524288, 524287]$) for accumulation precision, and activations to 8-bit integers. All quantization is per-tensor (not per-channel), symmetric, and uses power-of-2 scale factors. The output format is the \texttt{.espdl} binary, directly loadable by the ESP-DL runtime.
+The ESP-PPQ framework performs quantization first, it collects activation statistics from the calibration dataset to determine optimal scale factors $s$ for each layer. Then, it applies the quantization conversion weights and activations, converting the model to INT8 format. Finally, the quantized model exported in a \texttt{.espdl} binary format compatible with the ESP-DL runtime. 
 
-\subsection{ESPDet-Pico Export and Quantization Pipeline}
+
+
+
+\subsection{The ESPDet-Pico Model Quantization Pipeline}
 \label{subsec:espdet_quantization}
+After training the ESPDet-Pico leaf localization model in section~\ref{sec:espdet_pico}, its PyTorch weights were exported into ONNX (Open Neural Network Exchange) format to obtain a standardized intermediate representation. The export used a fixed input shape of [1, 3, 320, 416] (NCHW) and opset 13 to ensure compatibility with the ESP-DL pipeline. The ONNX model was simplified using \texttt{onnxsim} to eliminate redundant operations and fuse batch normalization layers, resulting in a more efficient graph for quantization. Then the ESP-PPQ quantization was applied to the simplified ONNX model with 32 batches of calibration data and equalization enabled. This achieved 73\% reduction in model size. Finally, the quantized model was converted to \texttt{.espdl} format for deployment on the ESP32-S3, enabling real-time leaf localization. In Figure~\ref{fig:espdet_quantization_pipeline} illustrated the complete quantization pipeline.
 
-The ESPDet-Pico quantization pipeline comprises two stages: ONNX export and INT8 quantization.
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    node distance=0.5cm,
+    box/.style={
+        rectangle, rounded corners=2mm,
+        draw=NavyBlue, fill=lightblue,
+        text width=13.5cm, align=left,
+        minimum height=1.25cm,
+        drop shadow
+    },
+    arrow/.style={-{Stealth[length=3mm]}, thick, NavyBlue}
+]
 
-\subsubsection{ONNX Export}
+\node[box] (data) {\textbf{1. Dataset Preparation (Roboflow)}\\
+\hspace{0.5cm}513 images (328 train + 82  val + 103 test) | YOLOv11 format \\ \hspace{0.5cm} | Single class: `leaf'};
 
-The trained PyTorch model is exported to ONNX format (opset version 13) using a custom export path that produces six separate output tensors rather than the single concatenated tensor used in standard YOLO inference. A custom \texttt{ESP\_YOLO} wrapper class replaces the standard detection head's forward method with \texttt{export\_onnx\_forward}, which outputs separate box regression and classification score tensors for each of the three detection scales:
+\node[box, below=of data] (train) {\textbf{2. Model Training (ESPDet-Pico)}\\
+\hspace{0.5cm}677 epochs | AdamW optimizer | Precision: 64.8\%, mAP50: 56.4\%};
+
+\node[box, below=of train] (onnx) {\textbf{3. Convert model inot ONNX Format}\\
+\hspace{0.5cm}PyTorch $\rightarrow$ ONNX (FP32, 1.06 MB) | ESP-specific modifications};
+
+\node[box, below=of onnx] (quant) {\textbf{4. INT8 Quantization (ESP-PPQ)}\\
+\hspace{0.5cm}32 calibration batches | Equalization enabled};
+
+\node[box, below=of quant] (deploy) {\textbf{5. Prepare ESP-DL Compatible Model (.espdl)}\\
+\hspace{0.5cm}478 KB | INT8 | ESP32-S3 ready | Inference: $\approx$360 ms/frame};
+
+\draw[arrow] (data) -- (train);
+\draw[arrow] (train) -- (onnx);
+\draw[arrow] (onnx) -- (quant);
+\draw[arrow] (quant) -- (deploy);
+
+\end{tikzpicture}
+\caption{ESPDet-Pico quantization pipeline from dataset preparation to ESP32-S3 deployment-ready INT8 model.}
+\label{fig:espdet_quantization_pipeline}
+\end{figure}
+
+\subsubsection*{The Simplified ONNX Format}
+
+Pretrained PyTorch ESPDet-Pico model converted to ONNX format using a custom export path that produces six separate output tensors rather than single concatenated tensor used in standard YOLO inference. A custom \texttt{ESP\_YOLO} wrapper class replaces the standard detection head's forward method with \texttt{export\_onnx\_forward}, which outputs separate box regression and classification score tensors for each of the three detection scales:
 
 \begin{equation}
 \text{Output} = \{(\mathbf{B}_s, \mathbf{S}_s)\}_{s \in \{P3, P4, P5\}}
@@ -87,52 +123,62 @@ The trained PyTorch model is exported to ONNX format (opset version 13) using a 
 
 where $\mathbf{B}_s \in \mathbb{R}^{1 \times 4 \times H_s \times W_s}$ contains raw box edge distances and $\mathbf{S}_s \in \mathbb{R}^{1 \times 1 \times H_s \times W_s}$ contains class logits at scale $s$. This six-tensor format avoids complex tensor concatenation and reshaping operations that are computationally expensive on the ESP32-S3 and allows the ESP-DL post-processor to handle each scale independently.
 
-An \texttt{ESP\_Attention} module replaces the standard attention mechanism's forward pass for ONNX compatibility, as certain attention operations are not supported by the ONNX opset. After export, the ONNX graph is simplified using \texttt{onnxsim} to eliminate redundant operations, constant-fold static computations, and fuse batch normalization layers into preceding convolutions. The choice of simplification tool is critical, as alternative ONNX simplifiers were observed to incorrectly reshape NCHW-ordered tensors in YOLO-derived architectures, corrupting the spatial dimensions of detection head outputs.
 
-\subsubsection{INT8 Quantization}
+\subsubsection*{INT8 Quantization}
 
-The simplified ONNX model is quantized using \texttt{espdl\_quantize\_onnx()} from the \texttt{esp\_ppq.api} module, following the procedure documented in the ESP-DL model quantization guide~\cite{esp_dl_mobilenetv2_tutorial}. A custom \texttt{CaliDataset} class loads calibration images from the training set, applying \texttt{torchvision.transforms.ToTensor()} (which scales pixel values from $[0, 255]$ to $[0, 1]$), resize to the target input dimensions $(320 \times 416)$, and identity normalization (mean$=[0,0,0]$, std$=[1,1,1]$). A collate function transfers each batch to the target device for calibration.
+The simplified ONNX model is quantized following the procedures of ESP-DL model quantization guide~\cite{esp_dl_mobilenetv2_tutorial}. It needs a calibration dataset to collect activation statistics to determine quantization parameters. The crital constraint for the ESPDet-Pico model was its rectangular input shape ($320 \times 416$), which requires a custom calibration pipeline. And the the batch size must be set to 1 during calibration and proceeds for 32 steps with equalization enabled. 
 
-A critical constraint for rectangular input shapes is that the \textbf{batch size must be set to 1} during calibration. Unlike square-input models where batch dimensions are interchangeable, rectangular models with asymmetric spatial dimensions $(H \neq W)$ require individual sample processing to preserve correct spatial ordering during calibration statistics collection. Calibration proceeds for 32 steps with equalization enabled using the same parameters described in Section~\ref{subsec:esp_ppq}.
+The qunatization and format conversion can be performed by calling a single function from the ESP-PPQ module, which internally performs INT8 calibration and exports the result directly to the \texttt{.espdl} binary format. Then detection model's INT8 weights become total 478~KB, a 55\% reduction from the 1.06~MB FP32 model.
 
-The \texttt{espdl\_quantize\_onnx()} function performs quantization and format conversion in a single call, producing three output files: the \texttt{.espdl} binary directly loadable by the ESP-DL runtime, a \texttt{.json} metadata file containing per-layer quantization parameters (bit widths, scale factors, zero points), and a \texttt{.info} file providing detailed per-layer quantization error analysis. The error report (\texttt{error\_report=True}) generates a layer-by-layer quantization noise analysis that enables identifying layers with excessive quantization error for potential mixed-precision treatment. The detection model's INT8 weights total 478~KB, a 55\% reduction from the 1.06~MB FP32 model.
-
-\subsection{MobileNetV2 Export and Quantization Pipeline}
+\subsection{The MobileNetV2 Model Quantization Pipeline}
 \label{subsec:mobilenet_quantization}
+To deploy the MobileNetV2 disease classification model on the ESP32-S3, the trained network converted into ONNX format and then quantized to \textbf{INT8} using \textbf{ESP-PPQ}. I used similar quantization configuration as the ESPDet-Pico model, ensuring ESP-DL compatibility. The same steps as ESPDet-Pico, with adjustments for the model's input shape ($128 \times 128$) and architecture. The complete quantization pipeline is illustrated in Figure~\ref{fig:mobilenet_quantization_pipeline}.
 
-The MobileNetV2 quantization pipeline follows the methodology documented in Espressif's official ESP-DL deployment tutorial for MobileNetV2~\cite{esp_dl_mobilenetv2_tutorial}, adapted to the grape disease classification model with domain-specific calibration parameters.
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    node distance=0.5cm,
+    box/.style={
+        rectangle, rounded corners=2mm,
+        draw=NavyBlue, fill=lightblue,
+        text width=13.5cm, align=left,
+        minimum height=1.25cm,
+        drop shadow
+    },
+    arrow/.style={-{Stealth[length=3mm]}, thick, NavyBlue}
+]
 
-\subsubsection{ONNX Export and Simplification}
+\node[box] (data) {\textbf{1. Dataset Preparation }\\
+\hspace{0.5cm}4062 images (2,761 train + 487  val + 814 test) | Labeled Images \\ \hspace{0.5cm} | four classes: `Black Rot', `Esca', `Leaf Blight', `Healthy'};
 
-The fine-tuned PyTorch model (loaded from \texttt{finetuned\_mobilenet\_128.pth}) is first exported to ONNX format using \texttt{torch.onnx.export()} with opset version 13, constant folding enabled, and explicitly named input/output tensors (\texttt{input} and \texttt{output}). Any prefix inconsistencies in the state dictionary keys (e.g., \texttt{mobilenet.} prefix from the wrapper training class) are resolved prior to export. Unlike ESPDet-Pico's multi-tensor export, MobileNetV2 produces a single output tensor of shape $[1, 4]$ containing class logits. The ONNX model is verified using \texttt{onnx.checker.check\_model()} to ensure graph validity.
+\node[box, below=of data] (train) {\textbf{2. MobileNetV2 Fine-tune }\\
+\hspace{0.5cm} 50 epochs | AdamW optimizer | Precision: 99.8\%};
 
-Following export, the ONNX graph undergoes simplification using \texttt{onnxsim.simplify()}, which performs constant folding, eliminates redundant operations, and fuses batch normalization layers into preceding convolutions. The simplified model passes through \texttt{onnx.shape\_inference.infer\_shapes()} to annotate all intermediate tensor dimensions, which is required by the ESP-PPQ quantizer for memory planning. The exported FP32 ONNX model occupies 8.48~MB.
+\node[box, below=of train] (onnx) {\textbf{3. Convert model into ONNX Format}\\
+\hspace{0.5cm}PyTorch $\rightarrow$ ONNX (FP32, 8.48 MB) | ESP-specific modifications};
 
-\subsubsection{Calibration Dataset Preparation}
+\node[box, below=of onnx] (quant) {\textbf{4. INT8 Quantization (ESP-PPQ)}\\
+\hspace{0.5cm}32 calibration batches | Equalization enabled};
 
-Calibration requires a representative subset of training data to collect activation statistics for determining optimal quantization scale factors. Following the ESP-DL documentation recommendation~\cite{esp_dl_mobilenetv2_tutorial}, 1,024 calibration samples are drawn from the grape disease training set, loaded via \texttt{torchvision.datasets.ImageFolder} to preserve the alphabetical class ordering (\texttt{Black\_rot}, \texttt{Esca}, \texttt{Healthy}, \texttt{Leaf\_blight} $\rightarrow$ indices 0--3). A \texttt{torch.utils.data.Subset} selects the first 1,024 samples, and a custom collate function strips class labels, returning only the image tensors for calibration.
+\node[box, below=of quant] (deploy) {\textbf{5. Prepare ESP-DL Compatible Model (.espdl)}\\
+\hspace{0.5cm}2.27 MB | INT8 | ESP32-S3 ready | Precision: 99.5\%};
 
-Calibration images undergo the same preprocessing applied during training: resize to 144 pixels on the shorter edge, center crop to $128 \times 128$, conversion to tensor, and ImageNet normalization ($\mu = [0.485, 0.456, 0.406]$, $\sigma = [0.229, 0.224, 0.225]$). Maintaining identical preprocessing between training and calibration is essential for accurate activation range estimation; mismatched normalization would shift activation distributions and degrade post-quantization accuracy.
+\draw[arrow] (data) -- (train);
+\draw[arrow] (train) -- (onnx);
+\draw[arrow] (onnx) -- (quant);
+\draw[arrow] (quant) -- (deploy);
 
-\subsubsection{Quantization and ESP-DL Format Conversion}
+\end{tikzpicture}
+\caption{MobileNetV2 quantization pipeline from dataset preparation to ESP32-S3 deployment-ready INT8 model}
+\label{fig:mobilenet_quantization_pipeline}
+\end{figure}
 
-Quantization and format conversion are performed in a single call to \texttt{espdl\_quantize\_onnx()} from the \texttt{esp\_ppq.api} module, which internally performs INT8 calibration and exports the result directly to the \texttt{.espdl} binary format. The quantization is configured with the following parameters:
 
-\begin{itemize}
-    \item \textbf{Target platform:} \texttt{esp32s3}, selecting Xtensa LX7-optimized INT8 kernels.
-    \item \textbf{Bit width:} 8 bits for weights and activations.
-    \item \textbf{Input shape:} $[1, 3, 128, 128]$ (batch, channels, height, width).
-    \item \textbf{Calibration steps:} 32 batches of 32 images (1,024 samples total).
-    \item \textbf{Equalization:} Enabled with 4 iterations, value threshold 0.4, and optimization level 2 (Section~\ref{subsec:esp_ppq}).
-    \item \textbf{Error reporting:} Enabled (\texttt{error\_report=True}) to generate per-layer quantization noise analysis.
-\end{itemize}
-
-The quantization process converts 100 operations and 277 variables to INT8 representations using the per-tensor symmetric scheme with power-of-2 scale factors (Equation~\ref{eq:quantization}). The resulting \texttt{.espdl} model is 2.27~MB, a 73.2\% reduction from the 8.48~MB FP32 ONNX model (3.74$\times$ compression). Unlike the ESPDet-Pico pipeline which requires batch size 1 for rectangular inputs, MobileNetV2's square $128 \times 128$ input allows batch calibration (batch size 32), reducing calibration time.
 
 \subsection{Quantization Accuracy Preservation}
 \label{subsec:quantization_accuracy}
 
-Post-training quantization introduces rounding errors that can degrade model accuracy. The layerwise equalization strategy is selected specifically to address this challenge. To contextualize the quantization--accuracy trade-off, Espressif's quantization documentation~\cite{esp_ppq2023} reports comparative results for three strategies applied to a standard MobileNetV2 model (ImageNet classification, 1000 classes):
+Post-training quantization introduces rounding errors that can degrade model accuracy. The layerwise equalization strategy is selected specifically to address this challenge. To contextualize the quantization accuracy trade-off, Espressif's quantization documentation~\cite{esp_dl_mobilenetv2_tutorial} reports comparative results for three strategies applied to a standard MobileNetV2 model (ImageNet classification, 1000 classes):
 
 \begin{itemize}
     \item \textbf{Default 8-bit quantization:} Produces 25.6\% last-layer error, reducing Top-1 accuracy from 71.9\% (float) to 60.5\%.
@@ -140,43 +186,177 @@ Post-training quantization introduces rounding errors that can degrade model acc
     \item \textbf{Layerwise equalization:} Achieves 9.0\% last-layer error with 69.8\% accuracy, matching mixed precision while maintaining uniform INT8 quantization.
 \end{itemize}
 
-The equalization approach is adopted for both models because it preserves uniform INT8 quantization (avoiding mixed-precision overhead on the ESP-DL runtime) while achieving accuracy comparable to more complex strategies. The grape disease MobileNetV2 model maintains test accuracy above 99.5\% after INT8 quantization, with less than 0.3 percentage point degradation from the FP32 baseline. This robustness reflects MobileNetV2's batch normalization layers and the inherently quantization-friendly nature of inverted residual blocks~\cite{jacob2018quantization}.
+The equalization approach is adopted for both models because it preserves uniform INT8 quantization while achieving accuracy comparable to more complex strategies. The grape disease MobileNetV2 model maintains test accuracy above 99.5\% after INT8 quantization, with less than 0.3 percentage point degradation from the FP32 baseline. This robustness reflects MobileNetV2's batch normalization layers and the inherently quantization-friendly nature of inverted residual blocks~\cite{jacob2018quantization}.
 
 
 \section{Firmware Architecture and Memory Management}
 \label{sec:firmware_memory}
 
-Deploying two concurrent neural network models on a microcontroller with 8~MB PSRAM and 512~KB SRAM imposes stringent memory management requirements. This section presents the firmware architecture decisions governing model storage, initialization sequencing, and buffer allocation strategies, each of which critically influences both deployment reliability and inference performance.
+Deploying two neural network models on a microcontroller with 8~MB PSRAM, 16~MB flash RAM, and 512~KB SRAM imposes careful memory management requirements. This section presents the firmware architecture decisions governing model storage, initialization sequencing, and buffer allocation strategies, each of which critically influences both deployment reliability and inference performance.
+\subsection{ Model Storage and Loading Strategy}
+A key design decision in the firmware architecture is the strategy for storing and loading model weights into the inference engine. Following training, INT8 quantization, conversion to \texttt{.espdl} format, the neural network binaries are stored in the flash memory of the ESP32-S3, which is non-volatile and has a capacity of 16~MB. The firmware is designed to load these models into PSRAM at runtime for inference execution as shown in Figure~\ref{fig:model_storage_strategy}.
 
-\subsection{Model Storage Strategy}
+
+\begin{figure}[htbp]
+\centering
+
+\begin{tikzpicture}[
+    scale=0.85,
+    transform shape,
+    box/.style={rectangle, draw, rounded corners=2mm, minimum width=3.2cm, minimum height=0.8cm, align=center, font=\small},
+    smallbox/.style={rectangle, draw, rounded corners=2mm, minimum width=3.2cm, minimum height=0.7cm, align=center, font=\small},
+    container/.style={rectangle, draw, rounded corners=3mm, thick, inner sep=8pt},
+    arrow/.style={->, >=stealth, thick}
+]
+
+% =========================
+% Flash container + models
+% =========================
+\node[box, fill=orange!20] (flash) {\textbf{Flash Memory}\\16 MB};
+
+\node[smallbox, fill=blue!20, below=0.6cm of flash] (det) {\textbf{ESPDet-Pico}\\478 KB};
+\node[smallbox, fill=blue!20, below=0.35cm of det] (cls) {\textbf{MobileNetV2 (INT8)}\\2.27 MB};
+
+\node[container, fit=(flash)(det)(cls)] (flashbox) {};
+
+% Flash label (aligned cleanly)
+\node[font=\scriptsize\bfseries, fill=white, inner sep=2pt, anchor=west]
+    at ($(flashbox.north west)+(0.1,0.25)$) {Non-volatile Storage};
+
+% =========================
+% PSRAM container + runtime buffers
+% =========================
+\node[box, fill=green!20, right=4.6cm of det] (psram) {\textbf{PSRAM}\\8 MB};
+
+\node[smallbox, fill=yellow!20, below=0.45cm of psram] (buffers)
+{\textbf{Runtime Buffers}\\Input / Output / Activations};
+
+\node[container, fit=(psram)(buffers)] (psrambox) {};
+
+% PSRAM label (aligned cleanly)
+\node[font=\scriptsize\bfseries, fill=white, inner sep=2pt, anchor=west]
+    at ($(psrambox.north west)+(0.1,0.25)$) {Volatile Runtime Memory};
+
+% =========================
+% Arrows (data movement)
+% =========================
+\draw[arrow] (det.east) -- node[above, font=\scriptsize] {load weights} (psram.west);
+\draw[arrow] (cls.east) -- node[below, font=\scriptsize] {load weights} (psram.west);
+\draw[arrow] (psram) -- (buffers);
+
+\end{tikzpicture}
+
+\vspace{0.25cm}
+
+\begin{itemize}\itemsep2pt
+    \item Both models packed into a single binary (\texttt{grape\_leaf\_detect.espdl}, 2.73~MB total) stored in flash memory
+    \item PSRAM reserved for runtime tensors, activation buffers, and camera framebuffers
+    \item Models accessed directly from flash via memory-mapped I/O with SRAM caching
+\end{itemize}
+
+\caption{\small Model storage and loading strategy for ESP32-S3 deployment. Both ESPDet-Pico and MobileNetV2 models are embedded in flash memory and loaded into PSRAM at runtime for inference execution.}
+\label{fig:model_storage_strategy}
+\end{figure}
+
+\subsection*{Model Storage Strategies}
 \label{subsec:model_storage}
 
-The strategy for loading model weights into the inference engine significantly affects initialization latency, runtime reliability, and PSRAM availability. Four distinct approaches were evaluated during firmware development:
+The strategy for loading model weights into the inference engine significantly affects initialization latency, runtime reliability, and PSRAM availability. Three distinct approaches were evaluated during firmware development:
 
-\textbf{1. Dedicated Flash Partition Loading:} Models stored in custom flash partitions (e.g., \texttt{espdet\_model} at offset \texttt{0x600000}) and loaded via \texttt{MODEL\_LOCATION\_IN\_FLASH\_PARTITION}. This approach introduces cache coherency issues and memory management unit (MMU) mapping conflicts when accessing partition data, resulting in non-deterministic model loading failures that preclude reliable autonomous deployment.
+\textbf{1. Dedicated Flash Partition Loading:} Models stored in custom flash partitions at a fixed offset and loaded via \texttt{MODEL\_LOCATION\_IN\_FLASH\_PARTITION}. This approach introduces cache coherency issues and memory management unit (MMU) mapping conflicts when accessing partition data, resulting in non-deterministic model loading failures that preclude reliable autonomous deployment.
 
-\textbf{2. Memory-Mapped Access:} Direct memory-mapped I/O with \texttt{param\_copy=false}, reading model parameters directly from flash without PSRAM copy. Although this approach minimizes memory footprint, it exhibits instability under high memory utilization: cache lines holding model parameters are evicted when the camera DMA controller claims buffer regions, causing sporadic inference failures.
+\textbf{2. Memory-Mapped Access:} Direct memory-mapped I/O with, reading model parameters directly from flash without copying into PSRAM. Although this approach minimizes memory footprint, it exhibits instability under high memory utilization and cache lines holding model parameters are thrown out when the camera DMA controller claims buffer regions, causing inference failures.
 
-\textbf{3. Chunked PSRAM Copy:} Incremental model loading to PSRAM in 16~KB chunks to avoid large contiguous allocations. This approach resolves allocation failures but introduces 15--20\% inference latency degradation due to the overhead of repeated partition reads (10--50~$\mu$s per operation) and the resulting fragmented PSRAM memory layout.
+\textbf{3. RODATA Embedding with Direct Flash Access (adopted):} Both models compiled into the firmware binary as constant arrays in the \texttt{.rodata} section. During the build process, the ESP-IDF build system uses the CMake function to convert the \texttt{.espdl} model files into object files linked directly into the final firmware image. The GCC linker automatically generates special symbols marking the memory addresses where each embedded binary begins and ends, following the naming convention \texttt{\_binary\_<filename>\_start} and \texttt{\_binary\_<filename>\_end}.  Models remain in flash and are accessed directly through the instruction cache without copying to PSRAM. The ESP-DL runtime internally caches frequently accessed weight tiles in SRAM via an LRU eviction policy (up to 64~KB), balancing flash access latency with memory capacity.
 
-\textbf{4. RODATA Embedding with Direct Flash Access (adopted):} Both models are compiled into the firmware binary as constant arrays in the \texttt{.rodata} section, accessed via GCC linker symbols (\texttt{\_binary\_*\_espdl\_start}/\texttt{\_binary\_*\_espdl\_end}). Models remain in flash and are accessed directly through the instruction cache without PSRAM copy. The ESP-DL runtime internally caches frequently accessed weight tiles in SRAM via an LRU eviction policy (up to 64~KB), balancing flash access latency with memory capacity.
 
-The RODATA approach reduces initialization time from 1,200~ms (chunked copy) to approximately 350--500~ms for both models combined, while conserving PSRAM exclusively for activation buffers and camera framebuffers. The trade-off is a larger firmware binary (4.4~MB for the production v29 build), which fits within the 5~MB factory partition.
 
-\subsection{Initialization Order and PSRAM Fragmentation Avoidance}
+The RODATA approach reduces initialization time for both models combined, while conserving PSRAM exclusively for activation buffers and camera framebuffers. Hence, this strategy was adopted for the production firmware, ensuring stable model loading and maximizing available PSRAM for runtime operations.
+
+
+
+\subsection{Initialization Order of Camera and Models}
 \label{subsec:init_order}
+One of the most challenging issues faced during firmware deployment was the initialization order between the camera module and the neural network models. The ESP32-S3's PSRAM is shared between the camera frame buffers and the model activation buffers, and its allocation strategy can lead to fragmentation that prevents successful model loading if not managed correctly. If the camera is initialized first, it allocates large contiguous buffers for frame capture, which can fragment the PSRAM heap and block subsequent allocations for model weights and activations. Conversely, if the models are initialized first, they can secure their required contiguous memory regions before the camera's DMA buffers are allocated, allowing the system to function correctly despite fragmentation caused by the camera. This critical dependency was identified through systematic testing of different initialization sequences and monitoring PSRAM usage at each step. The final adopted sequence is as follows, illustrated in  Figure~\ref{fig:initialization_sequence}:
 
-A critical constraint discovered during development is that \textbf{model initialization must precede camera initialization} to prevent PSRAM fragmentation. The ESP32 camera driver allocates DMA framebuffers at initialization --- two 61,440-byte buffers ($2 \times 61$~KB $\approx 122$~KB total) plus associated node buffers (16~KB each, 60 nodes) --- which fragment the PSRAM heap into non-contiguous regions. Subsequent attempts to allocate contiguous activation buffers (1--2~MB blocks) fail despite adequate total free memory.
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    node distance=0.8cm,
+    stage/.style={
+        rectangle, rounded corners=2mm,
+        draw=NavyBlue, fill=lightblue,
+        text width=5.5cm, align=left,
+        minimum height=1.8cm,
+        drop shadow,
+        font=\small
+    },
+    membar/.style={
+        rectangle,
+        draw=black,
+        minimum height=0.35cm,
+        anchor=west
+    },
+    arrow/.style={-{Stealth[length=2mm]}, thick, NavyBlue}
+]
 
-The enforced initialization sequence, validated through boot log memory profiling (Section~\ref{sec:memory_utilization}), is:
+% Timeline stages
+\node[stage] (stage1) at (0,0) {
+    \textbf{Step 1: Leaf Detection Model}\\
+    \textbf{Time:} 144~ms\\
+    \textbf{PSRAM used:} 1,095~KB\\
+    \textbf{PSRAM free:} 7,095~KB
+};
 
-\begin{enumerate}
-    \item \textbf{Detection model initialization (144~ms):} ESPDet-Pico loaded first from flash RODATA. The \texttt{dl::Model} constructor allocates activation buffers in a contiguous PSRAM region. The \texttt{minimize()} method is called to release auxiliary model metadata, reducing PSRAM consumption. After initialization, approximately 7,095~KB of the original 8,386~KB PSRAM remains free (1,291~KB consumed).
-    \item \textbf{Classification model initialization (348~ms):} MobileNetV2 loaded second, allocating activation buffers and a persistent $128 \times 128 \times 3$ RGB input buffer (49,152 bytes) in PSRAM via \texttt{heap\_caps\_malloc(MALLOC\_CAP\_SPIRAM)}. After initialization, approximately 4,207~KB PSRAM remains free (additional 2,888~KB consumed).
-    \item \textbf{Camera driver initialization:} The camera interface is initialized last, allocating DMA framebuffers in the remaining PSRAM. The camera driver allocates its buffers in non-contiguous regions without requiring large contiguous blocks, accommodating the fragmented post-model heap.
-\end{enumerate}
+\node[stage, below=of stage1] (stage2) {
+    \textbf{Step 2: Classification Model}\\
+    \textbf{Time:} 348~ms\\
+    \textbf{PSRAM used:} +2,888~KB\\
+    \textbf{PSRAM free:} 4,207~KB
+};
 
-Violating this order --- for example, initializing the camera before models --- results in allocation failure (\texttt{ESP\_ERR\_NO\_MEM}) during model loading, necessitating system reboot. This constraint is enforced through assertion checks in the production firmware.
+\node[stage, below=of stage2] (stage3) {
+    \textbf{Step 3: Camera Driver}\\
+    \textbf{Time:} --\\
+    \textbf{PSRAM used:} $\approx$180~KB\\
+    \textbf{Runtime free:} $\approx$3,910~KB
+};
+
+\draw[arrow] (stage1.south) -- (stage2.north);
+\draw[arrow] (stage2.south) -- (stage3.north);
+
+\def\memscale{0.0008}  % scale factor: 1 KB = 0.0008 cm
+
+\node[font=\scriptsize\bfseries, right=1.5cm of stage1.north east, anchor=south west] (mem0label) 
+    {Initial: 8,190~KB};
+
+% Stage 1 memory bar
+\node[membar, fill=red!40, minimum width=0.5cm, right=1.5cm of stage1.east] (mem1used) {};
+\node[membar, fill=green!30, minimum width=3.2cm, right=0cm of mem1used.east] (mem1free) {};
+\node[font=\scriptsize, right=0.05cm of mem1free.east] {7,095~KB};
+
+% Stage 2 memory bar
+\node[membar, fill=red!40, minimum width=1.8cm, right=1.5cm of stage2.east] (mem2used) {};
+\node[membar, fill=green!30, minimum width=1.9cm, right=0cm of mem2used.east] (mem2free) {};
+\node[font=\scriptsize, right=0.05cm of mem2free.east] {4,207~KB};
+
+% Stage 3 memory bar (fragmented)
+\node[membar, fill=red!40, minimum width=1.9cm, right=1.5cm of stage3.east] (mem3used) {};
+\node[membar, fill=green!40, minimum width=1.8cm, right=0cm of mem3used.east] (mem3free) {};
+\node[font=\scriptsize, right=0.05cm of mem3free.east, text width=1.8cm, align=left] {\textasciitilde3.9~MB};
+
+% Legend
+\node[font=\scriptsize, below=0.8cm of stage3.south west, anchor=north west] (legend) {
+    \textbf{Legend:} 
+    \colorbox{red!40}{\phantom{x}} Used \quad
+    \colorbox{green!30}{\phantom{x}} Free \quad
+};
+
+\end{tikzpicture}
+\caption{Initialization sequence and PSRAM utilization for model loading and camera initialization.}
+\label{fig:initialization_sequence}
+\end{figure}
+
 
 \subsection{Buffer Allocation and Zero-Copy Reuse Strategy}
 \label{subsec:buffer_allocation}
@@ -204,7 +384,7 @@ The complete inference pipeline orchestrates five sequential stages: camera acqu
 Image acquisition begins with the OV3660 camera module configured for VGA resolution ($640 \times 480$) with on-chip JPEG compression. Camera configuration prioritizes deployment robustness:
 
 \begin{itemize}
-    \item \textbf{Pixel format:} \texttt{PIXFORMAT\_JPEG} with quality setting 12 (scale 0--63, lower = higher quality), balancing compression ratio ($\sim$10:1) with minimal blocking artifacts that could degrade detection accuracy. Captured JPEG frames occupy typically 14--80~KB.
+    \item \textbf{Pixel format:} \texttt{PIXFORMAT\_JPEG} with quality setting 12 (scale 0--63, lower = higher quality), balancing compression ratio ($\sim$10:1) with minimal blocking artifacts that could degrade detection accuracy. Captured JPEG frames occupy typically 12--80~KB.
     \item \textbf{Automatic exposure and white balance:} Enabled via sensor control registers (\texttt{set\_exposure\_ctrl}, \texttt{set\_whitebal}, \texttt{set\_awb\_gain}) to adapt to varying vineyard lighting conditions without manual recalibration.
     \item \textbf{Frame buffering:} Dual-buffer mode (\texttt{fb\_count=2}) enables capture-while-processing: the camera populates buffer 1 while the inference pipeline processes buffer 0.
 \end{itemize}
