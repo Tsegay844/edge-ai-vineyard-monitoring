@@ -5,7 +5,7 @@ In this chapter, the complete embedded implementation of the Edge AI grape leaf 
 
 
 This chapter begins with a description of the chosen hardware and its development framework, including the ESP-IDF development framework,
-and the ESP-DL inference engine presented in Section~\ref{sec:hw_platform}. Section~\ref{sec:quantization_pipeline} details the procedures of post-training quantization pipeline that converts both models from floating point to INT8 integer representations compatible with the ESP-DL inference engine. Section~\ref{sec:firmware_memory}  discusses firmware architecture and memory management strategies, including challenges related to model storage, initialization sequence, and buffer allocation. Section~\ref{sec:inference_pipeline} demonstrates complete inference pipeline implementation, from image capturing through inference results aggregation. Finally, Section~\ref{sec:implementation_constraints} documents the key implementation constraints and design trade-offs.
+and the ESP-DL inference engine presented in Section~\ref{sec:hw_platform}. Section~\ref{sec:quantization_pipeline} details the procedures of post-training quantization pipeline that converts both models from floating point to INT8 integer representations compatible with the ESP-DL inference engine. Section~\ref{sec:firmware_memory}  discusses firmware architecture and memory management strategies, including challenges related to model storage, initialization sequence, and buffer allocation. Section~\ref{sec:inference_pipeline} demonstrates complete inference pipeline implementation, from image capturing through inference results aggregation. Finally, Section~\ref{sec:implementation_constraints} documented the key implementation constraints and design trade-offs.
 
 \section{Hardware and Development Framework}
 \label{sec:hw_platform}
@@ -41,7 +41,7 @@ ESP-DL~\cite{esp_dl} is Espressif's neural network inference library optimized f
     \item \textbf{Image preprocessing:}  (\texttt{dl::image::ImagePreprocessor}) class that handles input image transformations required by the models, including resizing, normalization, and color space conversion. The preprocessor supports various pixel formats; for this deployment, input images are processed in RGB888 format for hardware compatibility model input requirements.
     \item \textbf{Detection post-processing:} (\texttt{dl::detect::ESPDetPostProcessor}) class that uses the raw output tensors from the detection model to produce final bounding box predictions. The post-processor implements non-maximum suppression (NMS), confidence thresholding, and coordinate transformation for object detection models, handling INT8 dequantization internally.
     \item \textbf{Memory management:} The runtime allocates activation buffers in PSRAM and manages an LRU cache of weight tiles in SRAM to optimize inference performance while respecting memory constraints. The library provides APIs for explicit control over memory allocation and deallocation, enabling the zero-copy buffer reuse strategy described in Section~\ref{subsec:buffer_allocation}.
-    \item \textbf{Software JPEG decoder:} (\texttt{dl::image::sw\_decode\_jpeg()}) function that decodes JPEG-compressed camera frames to RGB888 format, as the ESP32-S3 lacks a dedicated hardware JPEG decoder.
+    \item \textbf{Software JPEG decoder:} (\texttt{dl::image::sw\_decode\_jpeg}) function that decodes JPEG-compressed camera frames to RGB888 format, as the ESP32-S3 lacks a dedicated hardware JPEG decoder.
 
 \end{itemize}
 
@@ -54,7 +54,7 @@ Deploying neural network models on microcontroller devices requires converting f
 \subsection{The ESP-PPQ Quantization Framework}
 \label{subsec:esp_ppq}
 
-Both models quantized using ESP-PPQ~\cite{esp_ppq2023}, Espressif's Post-Processing Quantization framework. ESP-PPQ is extended over the open-source PPQ library with hardware-specific quantization configurations targeting ESP-DL inference runtime. The framework applies per-tensor symmetric quantization with ($s = 2^e$) factors, where floating point values mapped to the 8-bit integer range $[-128, 127]$:
+Both models quantized using ESP-PPQ~\cite{esp_dl_mobilenetv2_tutorial}, Espressif's Post-Processing Quantization framework. ESP-PPQ is extended over the open-source PPQ library with hardware-specific quantization configurations targeting ESP-DL inference runtime. The framework applies per-tensor symmetric quantization with ($s = 2^e$) factors, where floating point values mapped to the 8-bit integer range $[-128, 127]$:
 
 \begin{equation}
 x_{\text{int8}} = \text{clamp}\left(\text{round}\left(\frac{x_{\text{float}}}{s}\right), -128, 127\right)
@@ -251,7 +251,7 @@ A key design decision in the firmware architecture is the strategy for storing a
 \begin{itemize}\itemsep2pt
     \item Both models packed into a single binary (\texttt{grape\_leaf\_detect.espdl}, 2.73~MB total) stored in flash memory
     \item PSRAM reserved for runtime tensors, activation buffers, and camera framebuffers
-    \item Models accessed directly from flash via memory-mapped I/O with SRAM caching
+  
 \end{itemize}
 
 \caption{\small Model storage and loading strategy for ESP32-S3 deployment. Both ESPDet-Pico and MobileNetV2 models are embedded in flash memory and loaded into PSRAM at runtime for inference execution.}
@@ -263,11 +263,11 @@ A key design decision in the firmware architecture is the strategy for storing a
 
 The strategy for loading model weights into the inference engine significantly affects initialization latency, runtime reliability, and PSRAM availability. Three distinct approaches were evaluated during firmware development:
 
-\textbf{1. Dedicated Flash Partition Loading:} Models stored in custom flash partitions at a fixed offset and loaded via \texttt{MODEL\_LOCATION\_IN\_FLASH\_PARTITION}. This approach introduces cache coherency issues and memory management unit (MMU) mapping conflicts when accessing partition data, resulting in non-deterministic model loading failures that preclude reliable autonomous deployment.
+\textbf{1. Dedicated Flash Partition Loading:} Models stored in custom flash partitions at a fixed offset and loaded from directly from the partition. This approach introduces cache coherency issues and memory management unit (MMU) mapping conflicts when accessing partition data, resulting in non-deterministic model loading failures that preclude reliable autonomous deployment.
 
 \textbf{2. Memory-Mapped Access:} Direct memory-mapped I/O with, reading model parameters directly from flash without copying into PSRAM. Although this approach minimizes memory footprint, it exhibits instability under high memory utilization and cache lines holding model parameters are thrown out when the camera DMA controller claims buffer regions, causing inference failures.
 
-\textbf{3. RODATA Embedding with Direct Flash Access (adopted):} Both models compiled into the firmware binary as constant arrays in the \texttt{.rodata} section. During the build process, the ESP-IDF build system uses the CMake function to convert the \texttt{.espdl} model files into object files linked directly into the final firmware image. The GCC linker automatically generates special symbols marking the memory addresses where each embedded binary begins and ends, following the naming convention \texttt{\_binary\_<filename>\_start} and \texttt{\_binary\_<filename>\_end}.  Models remain in flash and are accessed directly through the instruction cache without copying to PSRAM. The ESP-DL runtime internally caches frequently accessed weight tiles in SRAM via an LRU eviction policy (up to 64~KB), balancing flash access latency with memory capacity.
+\textbf{3. RODATA Embedding with Direct Flash Access:} Both models compiled into the firmware binary as constant arrays in the \texttt{.rodata} section. During the build process, the ESP-IDF build system uses the CMake function to convert the \texttt{.espdl} model files into object files linked directly into the final firmware image. The GCC linker automatically generates special symbols marking the memory addresses where each embedded binary begins and ends.  Models remain in flash and are accessed directly through the instruction cache without copying to PSRAM. The ESP-DL runtime internally caches frequently accessed weight tiles in SRAM via an LRU eviction policy (up to 64~KB), balancing flash access latency with memory capacity.
 
 
 
@@ -358,50 +358,127 @@ One of the most challenging issues faced during firmware deployment was the init
 \end{figure}
 
 
-\subsection{Buffer Allocation and Zero-Copy Reuse Strategy}
+\subsection{Buffer Allocation and Reuse Strategy}
 \label{subsec:buffer_allocation}
 
-To minimize runtime memory allocation overhead and prevent heap fragmentation during continuous operation, the inference pipeline employs a \textbf{single-allocation, zero-copy buffer strategy}:
+To minimize runtime memory allocation overhead and prevent heap fragmentation during continuous operation, the inference pipeline employs a \textbf{single-allocation, zero-copy buffer strategy}. This approach involves pre-allocating all necessary buffers for input images, intermediate activations, and output predictions in PSRAM during the initialization phase, and reusing these buffers across inference iterations without dynamic allocation or deallocation. The key buffers allocated are as follows:
 
 \begin{itemize}
-    \item \textbf{Classification input buffer (49~KB):} A single $128 \times 128 \times 3$ RGB888 buffer allocated in PSRAM during classifier initialization and reused across all detected leaf regions within a frame. This eliminates repeated \texttt{malloc}/\texttt{free} calls that would accumulate heap fragmentation over hours of operation.
-    \item \textbf{Camera framebuffers (122~KB):} Two framebuffers allocated by the camera driver in PSRAM via \texttt{CAMERA\_FB\_IN\_PSRAM}. The driver manages double-buffering internally: one buffer captures the next frame while the other undergoes processing.
+    \item \textbf{Classification input buffer (49~KB):} A single $128 \times 128 \times 3$ RGB888 buffer allocated in PSRAM during classifier initialization and reused across all detected leaf regions within a frame. This eliminates repeated memory allocation/free calls that would accumulate heap fragmentation over hours of operation.
+    \item \textbf{Camera framebuffers ($\sim$128~KB):} Two framebuffers allocated by the camera driver in PSRAM via \texttt{CAMERA\_FB\_IN\_PSRAM}. The driver manages double-buffering internally: one buffer captures the next frame while the other undergoes processing.
     \item \textbf{JPEG decode buffer ($\sim$900~KB):} The decoded RGB888 frame ($640 \times 480 \times 3 = 921{,}600$ bytes) is allocated dynamically by the software JPEG decoder. This temporary allocation is freed immediately after detection inference completes and leaf regions are extracted from the decoded buffer.
     \item \textbf{Model activation buffers ($\sim$2~MB total):} Intermediate feature maps allocated by the ESP-DL memory manager during model initialization. These buffers persist throughout execution using a static allocation plan computed offline during quantization.
 \end{itemize}
 
-The elimination of dynamic allocation in the inference loop ensures deterministic memory behavior and prevents the gradual heap degradation that would compromise long-term deployment stability.
+This buffer management strategy ensures that the PSRAM is utilized efficiently without fragmentation, enabling stable long-term operation of the inference pipeline while maintaining real-time performance.
+
+\subsection{Memory Utilization Summary}
+In the ESP32-S3-WROOM-1 development board 8~MB PSRAM and 16~MB Flash RAM are available for model storage and runtime operations. In table~\ref{tab:memory_utilization} summarizes the memory utilization for the deployed firmware, including model sizes, buffer allocations, and remaining free memory after initialization. After all allocations, approximately 3.9~MB of PSRAM remains free for runtime operations, providing  stable room for future feature additions.
+\begin{table}
+\centering
+\small
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+\textbf{Component} & \textbf{Size} & \textbf{Location} & \textbf{Usage} \\
+\midrule
+Bootloader & 23 KB & Flash & Boot sequence \\
+Partition Table & 3 KB & Flash & Memory map \\
+Application Code & 4.4 MB & Flash & Firmware \\
+\midrule
+ESPDet-Pico & 478 KB & Flash (packed) & Leaf detection \\
+MobileNetV2 & 2.27 MB & Flash (packed) & Disease classification \\
+\midrule
+DMA Buffers (16 nodes) & 16 KB & SRAM & Hardware staging \\
+JPEG Frame Buffers (2×) & 120 KB & PSRAM & Double buffering \\
+RGB888 Decoded & 921 KB & PSRAM & $640\times 480\times 3$ \\
+Detection Input & 492 KB & PSRAM & $416\times 320\times 3$ \\
+Classification Input & 49 KB & PSRAM & $128\times 128\times 3$ \\
+Model Activations & 2.6 MB & PSRAM & Runtime tensors \\
+\midrule
+\textbf{Total Used PSRAM} & \textbf{4.1 MB} & PSRAM & Active buffers \\
+\textbf{Free PSRAM} & \textbf{3.9 MB} & PSRAM & Available \\
+\bottomrule
+\end{tabular}
+\caption{Memory utilization summary for ESP32-S3 deployment firmware}
+\label{tab:memory_utilization}
+\end{table}
 
 
 \section{Inference Pipeline Implementation}
 \label{sec:inference_pipeline}
 
-The complete inference pipeline orchestrates five sequential stages: camera acquisition, JPEG decoding, leaf detection, region extraction with preprocessing, and disease classification, followed by cross-leaf aggregation for frame-level diagnosis.
+The complete inference pipeline starts with camera acquisition of JPEG-compressed frames, followed by software decoding to RGB888 format. The decoded image is then processed by the ESPDet-Pico model to detect leaf bounding boxes. Each detected leaf region is cropped and resized to $128 \times 128$ for input into the MobileNetV2 classifier, which outputs disease predictions. Finally, predictions from all detected leaves are aggregated to produce a frame-level diagnosis. Figure~\ref{fig:inference_flow} illustrates the complete data flow.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    data/.style={
+        rectangle, draw=black!60, thick, fill=blue!15,
+        minimum width=4.2cm, minimum height=1cm,
+        align=center, font=\scriptsize
+    },
+    op/.style={
+        trapezium, trapezium left angle=70, trapezium right angle=110,
+        draw=black!60, thick, fill=orange!20,
+        minimum width=2.8cm, minimum height=0.8cm,
+        align=center, font=\scriptsize
+    },
+    arr/.style={->, >=stealth, thick, black!70}
+]
+
+%%% Row coordinates (top to bottom) %%%
+%%% Col coordinates (left to right) %%%
+
+% Left column: Detection stage
+\node[data] at (0, 0)     (img)   {\textbf{Camera Image}\\ $H \times W \times 3$ RGB};
+\node[op]   at (0,-1.8)   (det)   {Detection\\Inference};
+\node[data] at (0,-3.6)   (boxes) {\textbf{Bounding Boxes}\\ N leaves [x1,y1,x2,y2,conf]};
+
+% Middle column: Preprocessing
+\node[op]   at (5.5,-3.6) (crop)  {Crop \&\\Resize};
+\node[op]   at (5.5,-5.4) (norm)  {Normalize \&\\Batch};
+\node[data] at (5.5,-7.2) (batch) {\textbf{Tensor Batch}\\ $[N, 3, 128, 128]$};
+
+% Right column: Classification stage
+\node[op]   at (11,-7.2)  (cls)   {Classification\\Inference};
+\node[data] at (11,-5.4)  (preds) {\textbf{Predictions}\\ $N \times$ [class, conf]};
+
+% Arrows — all identical style
+\draw[arr] (img)   -- (det);
+\draw[arr] (det)   -- (boxes);
+\draw[arr] (boxes) -- (crop);
+\draw[arr] (crop)  -- (norm);
+\draw[arr] (norm)  -- (batch);
+\draw[arr] (batch) -- (cls);
+\draw[arr] (cls)   -- (preds);
+
+% Model labels — consistent placement above-left
+\node[font=\tiny, anchor=east] at ([xshift=-0.15cm, yshift=0.35cm]det.north west) {ESPDet-Pico};
+\node[font=\tiny, anchor=east] at ([xshift=-0.15cm, yshift=0.35cm]cls.north west) {MobileNetV2};
+
+\end{tikzpicture}
+\caption{End-to-end inference pipeline showing detection, cropping, and classification stages for grape leaf disease detection}
+\label{fig:inference_flow}
+\end{figure}
+
+
+
 
 \subsection{Camera Acquisition and JPEG Decoding}
 \label{subsec:camera_acquisition}
+The inference pipeline begins with image acquisition using the OV3660 camera module, which is configured to capture frames at VGA resolution ($640 \times 480$) with JPEG compression. The OV3660's hardware JPEG encoder produces compressed frames that are significantly smaller than raw RGB data, reducing the bandwidth and latency of camera capture. However, the ESP32-S3 lacks a hardware JPEG decoder, necessitating software decoding. The ESP-DL library provides a software JPEG decoder function, which takes the compressed JPEG data and outputs a decoded RGB888 image.
 
-Image acquisition begins with the OV3660 camera module configured for VGA resolution ($640 \times 480$) with on-chip JPEG compression. Camera configuration prioritizes deployment robustness:
-
-\begin{itemize}
-    \item \textbf{Pixel format:} \texttt{PIXFORMAT\_JPEG} with quality setting 12 (scale 0--63, lower = higher quality), balancing compression ratio ($\sim$10:1) with minimal blocking artifacts that could degrade detection accuracy. Captured JPEG frames occupy typically 12--80~KB.
-    \item \textbf{Automatic exposure and white balance:} Enabled via sensor control registers (\texttt{set\_exposure\_ctrl}, \texttt{set\_whitebal}, \texttt{set\_awb\_gain}) to adapt to varying vineyard lighting conditions without manual recalibration.
-    \item \textbf{Frame buffering:} Dual-buffer mode (\texttt{fb\_count=2}) enables capture-while-processing: the camera populates buffer 1 while the inference pipeline processes buffer 0.
-\end{itemize}
-
-Captured JPEG frames are decoded to RGB888 format using ESP-DL's software JPEG decoder (\texttt{dl::image::sw\_decode\_jpeg()}), as the ESP32-S3 lacks hardware JPEG decoding. The decoder writes directly to a heap-allocated RGB888 buffer ($640 \times 480 \times 3 = 921{,}600$ bytes) in PSRAM, avoiding intermediate color space conversions.
-
-\subsection{Leaf Detection and Coordinate Mapping}
+\subsection{Leaf Localization and Coordinate Mapping}
 \label{subsec:leaf_detection_deployment}
 
-The decoded RGB888 frame undergoes ESPDet-Pico detection inference to localize individual leaf regions. The \texttt{dl::image::ImagePreprocessor} resizes the $640 \times 480$ input to $416 \times 320$ via letterbox padding with gray fill (RGB$=[114, 114, 114]$), preserving the original aspect ratio. Input pixels are normalized by scaling to $[0, 1]$ (mean$=[0,0,0]$, std$=[255,255,255]$), consistent with the model's training preprocessing.
+The decoded RGB888 frame undergoes ESPDet-Pico detection inference to localize individual leaf regions. The imagePreprocessor function from ESP-IDF resizes the $640 \times 480$ input to $416 \times 320$ via letterbox padding with gray fill (RGB$=[114, 114, 114]$), preserving the original aspect ratio. 
 
-Detection inference produces six output tensors (box and score predictions at three scales), processed by the \texttt{ESPDetPostProcessor} with the following parameters:
 
+Detection inference produces six output tensors (box and score predictions at three scales), processed with the following parameters: 
+ 
 \begin{itemize}
-    \item \textbf{Confidence threshold:} $\tau = 0.25$, tuned empirically to balance recall and computational cost.
+    \item \textbf{Confidence threshold:} $\tau >= 0.25$, tuned empirically to balance recall and computational cost.
     \item \textbf{NMS IoU threshold:} 0.7, eliminating duplicate detections of overlapping leaves.
-    \item \textbf{Maximum detections:} 10 per frame, limiting worst-case classification latency.
     \item \textbf{Anchor strides:} $\{8, 16, 32\}$ for the three detection scales, with grid sizes corresponding to P3/8, P4/16, and P5/32 feature maps.
 \end{itemize}
 
@@ -412,45 +489,84 @@ y_{\text{orig}} = \frac{(y_{\text{det}} - \text{pad}_y) \times H_{\text{orig}}}{
 \end{equation}
 This transformation ensures that cropped leaf regions align precisely with the original RGB888 frame for downstream classification.
 
-\subsection{Region Cropping and Classification Preprocessing}
+\subsection{Leaf Region Cropping and Preprocessing}
 \label{subsec:region_cropping}
 
-For each detected bounding box, the corresponding leaf region is extracted from the $640 \times 480$ RGB888 frame and prepared for MobileNetV2 classification. The cropping operation implements \textbf{square expansion with letterbox padding}: the rectangular bounding box is expanded to a square centered on the box's midpoint, with side length equal to $\max(\text{width}, \text{height})$. This preserves the leaf's aspect ratio and prevents distortion that could impair classification accuracy on elongated or irregularly shaped leaves.
+For each detected bounding box $(x_1, y_1, x_2, y_2)$ returned by ESPDet-Pico, the corresponding leaf region is cropped from the decoded $640 \times 480$ RGB888 frame and resized to $128 \times 128$ pixels for MobileNetV2 classification. The firmware implements this as a custom \texttt{crop\_and\_resize} function that performs cropping, square expansion, and resizing in a single pass, writing the result directly into the pre-allocated PSRAM classification buffer without any intermediate allocation.
 
-The squared region is resized to $128 \times 128$ pixels using \textbf{nearest-neighbor interpolation}:
+The function first clamps the bounding box coordinates to the frame boundaries. It then computes the box center $(c_x, c_y)$ and expands the rectangular region to a square with side length $L = \max(x_2 - x_1,\; y_2 - y_1)$, centered on the same midpoint:
 \begin{equation}
-I_{128}[y, x] = I_{\text{frame}}\!\left[\left\lfloor y \cdot s_y \right\rfloor,\; \left\lfloor x \cdot s_x \right\rfloor\right]
+c_x = \frac{x_1 + x_2}{2}, \quad c_y = \frac{y_1 + y_2}{2}, \quad
+x_1' = c_x - \frac{L}{2}, \quad y_1' = c_y - \frac{L}{2}
 \end{equation}
-where $s_x = W_{\text{bbox}} / 128$ and $s_y = H_{\text{bbox}} / 128$. Nearest-neighbor interpolation is chosen over bilinear interpolation to minimize per-crop preprocessing time (1--2~ms versus 10--12~ms per crop), a significant saving when processing up to 10 leaves per frame.
+This square expansion ensures that the leaf is not stretched or compressed when resized to the square $128 \times 128$ classifier input, preserving the original aspect ratio. The expanded square region is then sampled into the $128 \times 128$ output buffer using nearest-neighbor interpolation. For each output pixel $(x, y)$, the source pixel coordinates in the original frame are:
+\begin{equation}
+\text{src}_x = x_1' + \left\lfloor \frac{x \cdot L}{128} \right\rfloor, \quad
+\text{src}_y = y_1' + \left\lfloor \frac{y \cdot L}{128} \right\rfloor
+\end{equation}
+If the source pixel lies within the frame ($0 \leq \text{src}_x < 640$ and $0 \leq \text{src}_y < 480$), its RGB values are copied directly. Otherwise, if the square expansion extends beyond the image edges for leaves near the frame boundary, the pixel is filled with gray padding (RGB$=[127, 127, 127]$) to maintain a consistent input size. The final pixel value assignment is thus:
+\begin{equation}
+I_{128}[y, x] = 
+\begin{cases}
+I_{\text{frame}}[\text{src}_y,\; \text{src}_x] & \text{if } 0 \leq \text{src}_x < W \text{ and } 0 \leq \text{src}_y < H \\
+(127, 127, 127) & \text{otherwise (gray padding)}
+\end{cases}
+\end{equation}
 
-Cropped regions are written directly into the persistent $128 \times 128 \times 3$ classification input buffer in PSRAM, eliminating intermediate allocations. Pixels outside the original frame bounds (due to square expansion) are filled with gray padding (RGB$=[127, 127, 127]$), approximating ImageNet's mean pixel value.
+Figure\ref{fig:crop_resize_example} Illustrates the cropping and resizing process for a detected leaf region. The original bounding box (red dashed) is expanded to a square (blue) centered on the same point, then resized to $128 \times 128$ for classification input. Gray padding is applied if the square extends beyond frame boundaries.
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[scale=0.7]
+% Original frame
+\draw[thick] (0,0) rectangle (8,6);
+\node[font=\scriptsize, anchor=north west] at (0.1,5.9) {$640 \times 480$ frame};
+
+% Detected bbox (rectangular)
+\draw[dashed, thick, red] (1.5,1.5) rectangle (4.5,4.0);
+\node[font=\scriptsize, red, anchor=south] at (3.0,4.0) {bbox ($W \times H$)};
+
+% Square expansion
+\draw[thick, blue] (1.25,1.25) rectangle (4.75,4.75);
+\node[font=\scriptsize, blue, anchor=south east] at (4.75,4.75) {$L \times L$};
+
+% Center dot
+\fill[black] (3.0,2.75) circle (2pt);
+\node[font=\scriptsize, anchor=west] at (3.1,2.75) {$(c_x, c_y)$};
+
+% Arrow to output
+\draw[->, thick, >=stealth] (5.5,3.0) -- node[above, font=\scriptsize] {resize} (7.0,3.0);
+
+% 128x128 output (small square)
+\draw[thick] (7.5,2.0) rectangle (9.5,4.0);
+\node[font=\scriptsize, anchor=south] at (8.5,4.0) {$128 \times 128$};
+
+% Leaf sketch in output
+\fill[green!30] (7.8,2.3) -- (8.5,3.7) -- (9.2,2.3) -- cycle;
+\end{tikzpicture}
+\caption{The cropping and resizing process of the detected leaf region}
+\label{fig:crop_resize_example}
+\end{figure}
+
+The output is written directly into the persistent $128 \times 128 \times 3$ classification input buffer in PSRAM. This buffer is allocated once during initialization and reused for every detected leaf, as part of the buffer allocation and reuse strategy described in Section~\ref{subsec:buffer_allocation}.
 
 \subsection{Disease Classification and INT8 Dequantization}
 \label{subsec:classification_dequant}
 
-The cropped $128 \times 128$ RGB888 leaf image undergoes MobileNetV2 classification inference. The model's input tensor pointer is set directly to the pre-allocated classification buffer (\texttt{input->set\_element\_ptr(input\_buffer)}), and inference is triggered via \texttt{model->run()}, executing the quantized INT8 forward pass through 17 inverted residual blocks.
-
-The model outputs a 4-dimensional INT8 logit vector representing unnormalized class scores for \texttt{Black\_rot} (index 0), \texttt{Esca} (index 1), \texttt{Healthy} (index 2), and \texttt{Leaf\_blight} (index 3), ordered alphabetically per PyTorch's \texttt{ImageFolder} class indexing convention. The INT8 logits must be dequantized to floating-point before probability interpretation:
+The cropped leaf image undergoes MobileNetV2 classification inference. The model outputs a 4-dimensional INT8 logit vector representing class scores for \texttt{Black\_rot}, \texttt{Esca}, \texttt{Healthy}, and \texttt{Leaf\_blight}. The INT8 logits are dequantized to floating-point values. Then, the dequantized logits are passed through a softmax function to obtain class probabilities. The predicted class is selected as the one with the highest probability, along with its confidence score.
 
 \begin{equation}
 \text{logit}_{\text{float}}^{(c)} = \text{logit}_{\text{int8}}^{(c)} \times 2^{e}
 \label{eq:dequant}
 \end{equation}
 
-where $e$ denotes the quantization exponent embedded in the output tensor's metadata, retrieved via \texttt{output->exponent}. The scale factor $s = 2^e$ is computed using the ESP-DL macro \texttt{DL\_SCALE(e)}.
-
-A significant implementation constraint arises from the asymmetry in how the ESP-DL framework handles dequantization across model types. The detection model's \texttt{ESPDetPostProcessor} performs dequantization internally as part of its NMS pipeline, transparently converting INT8 outputs to floating-point coordinates and confidence scores. In contrast, the classification model outputs \textbf{raw INT8 logits} that require explicit dequantization before softmax computation. Omitting this dequantization step --- feeding raw INT8 values (range $[-128, 127]$) directly to the softmax function --- causes extreme probability concentration due to the large magnitude differences, resulting in near-100\% confidence on a single class regardless of input (Section~\ref{subsec:class_mapping}).
-
-Dequantized logits are converted to probabilities via numerically stable softmax:
-\begin{equation}
-p^{(c)} = \frac{\exp\!\left(\text{logit}^{(c)} - \max_j \text{logit}^{(j)}\right)}{\sum_{k=1}^{C} \exp\!\left(\text{logit}^{(k)} - \max_j \text{logit}^{(j)}\right)}
-\end{equation}
-where the subtraction of $\max_j \text{logit}^{(j)}$ prevents floating-point overflow in the exponential. The predicted class corresponds to $\arg\max_c\, p^{(c)}$, returned alongside the maximum probability as the classification confidence.
+where $e$ is the quantization exponent embedded in the output tensor's metadata. Unlike the detection model, whose post-processor handles dequantization internally, the classification model outputs raw INT8 logits that require explicit dequantization before applying softmax. The dequantized logits are then passed through a softmax function to obtain class probabilities, and the predicted class is selected as $\arg\max_c\, p^{(c)}$ along with its confidence score.
 
 \subsection{Multi-Leaf Aggregation Strategies}
 \label{subsec:aggregation_strategies}
 
-Since vineyard images typically contain multiple leaves (5--15 visible leaves per $640 \times 480$ frame in field conditions), frame-level disease assessment requires aggregating predictions across all detected instances. The aggregation module implements three strategies, drawing from multi-instance learning (MIL) principles~\cite{dietterich1997solving}:
+Since the grapevine images typically contain multiple leaves (>15 visible leaves per frame), the final frame-level disease diagnosis cannot rely on a single leaf prediction or transmit the prediction results of all leaves in not suitable for LoRaWAN communication. Instead, it must aggregate predictions across all detected leaves to produce a robust diagnosis for the entire frame and get a single prediction result for LoRaWAN transmission. 
+
+The aggregation module implements three strategies, drawing from multi-instance learning (MIL) principles~\cite{dietterich1997solving}:
 
 \textbf{1. Detection-Confidence Weighting (Baseline):} Each leaf's class probabilities are weighted by its detection confidence $c_{\text{det}}$:
 \begin{equation}
@@ -466,9 +582,9 @@ Leaves with low entropy (confident predictions) receive higher aggregation weigh
 \begin{equation}
 w_i = c_{\text{det}}^{(i)} \cdot \left(1 - \frac{H_i}{\log C}\right)
 \end{equation}
-where $\log C$ normalizes entropy to $[0, 1]$. This approach downweights leaves near class boundaries (e.g., Black Rot--Esca confusion) exhibiting high classification uncertainty.
+where $\log C$ normalizes entropy to $[0, 1]$. This approach downweights leaves near class boundaries (e.g., Black Rot OR Esca confusion) exhibiting high classification uncertainty.
 
-\textbf{3. Hybrid Spatial-Quality Weighting (Production):} Bounding box geometry provides additional quality indicators, combined with detection confidence and entropy:
+\textbf{3. Hybrid Spatial-Quality Weighting:} Bounding box geometry provides additional quality indicators, combined with detection confidence and entropy:
 
 \begin{itemize}
     \item \textbf{Relative size:} $r_{\text{size}} = A_{\text{bbox}} / A_{\text{frame}}$, penalizing excessively small (noise) or large (misdetections) boxes outside the range $[0.005, 0.5]$ of frame area.
@@ -483,26 +599,37 @@ w_i^{\text{hybrid}} = c_{\text{det}}^{(i)} \cdot \left(1 - \frac{H_i}{\log C}\ri
 
 The frame-level diagnosis selects the class $c^* = \arg\max_c\, p_{\text{frame}}^{(c)}$ with the aggregated confidence as the final output.
 
-
 \section{Implementation Constraints and Design Trade-offs}
 \label{sec:implementation_constraints}
 
-\subsection{Build System and Model Embedding Constraints}
-\label{subsec:build_constraints}
+Developing and deploying an Edge AI system on the ESP32-S3 microcontroller imposed high resource constraints that required careful design trade-offs. Some from the most significant constraints were the limited 8~MB PSRAM, lack of floating-point SIMD acceleration, low LoRaWAN bandwidth, and power limitations of battery operation.
 
-Embedding neural network models as RODATA in the firmware binary introduces build system constraints that affect the development workflow. Both \texttt{.espdl} model files are referenced via GCC inline assembly directives (\texttt{asm("\_binary\_custom\_detect\_espdl\_start")}) that resolve at link time. Any modification to model files --- including re-quantization with different calibration data, architecture changes, or weight updates --- requires a full clean build (\texttt{idf.py fullclean}) to ensure the linker symbol references point to the updated model binaries. Incremental builds may silently retain stale model data, leading to initialization failures or incorrect inference results that are difficult to diagnose.
+One from the most significant constraints was the PSRAM limit. Even though higher input resolutions improve detection accuracy for small or distant leaves, they increase peak memory usage quadratically ($\mathcal{O}(N^2)$). For this reason, the system restricted its input to $416 \times 320$. While a higher resolution (e.g., $800 \times 600$) would improve detection of smaller leaves at a distance, it would exceed the PSRAM capacity when combined with the classification model buffers. Hence, This resolution was selected as a trade-off optimal point, maximizing detection performance while maintaining some free memory space to prevent from crashes during operation. 
 
-The production v29 firmware binary occupies 4,356,032 bytes (4.15~MB), comprising 2,971,836 bytes of memory-mapped model data (segment 0, mapped to virtual address \texttt{0x3c140020}) and 1,268,968 bytes of application code (segment 3). This binary size fits within the 5~MB factory partition but leaves limited margin for firmware expansion, such as the addition of communication stacks (WiFi, LoRaWAN) or additional model variants.
+Another critical constraint is the lack of floating point SIMD acceleration on the ESP32-S3's Xtensa LX7 cores. Therefore, the system  adopted INT8 quantization via the ESP-PPQ framework (Section~\ref{sec:quantization_pipeline}), reducing model size and leveraging the ESP32-S3's vector instructions for integer arithmetic. The trade-off was a minor degradation in classification accuracy, which is operationally acceptable compared to the non-viability of FP32 deployment on this hardware.
 
-Binary size verification serves as a critical deployment check: a firmware binary substantially smaller than expected (e.g., 1.28~MB instead of 4.15~MB) indicates that model embedding failed silently, and the system will crash at boot with null pointer access when attempting to load models from \texttt{.rodata}.
 
-\subsection{Class Index Mapping and Framework Compatibility}
-\label{subsec:class_mapping}
 
-Deploying PyTorch-trained models on the ESP-DL runtime introduces a cross-framework interoperability challenge in class label ordering. PyTorch's \texttt{ImageFolder} dataset loader assigns class indices based on alphabetical directory sorting: \texttt{Black\_rot}$\rightarrow$0, \texttt{Esca}$\rightarrow$1, \texttt{Healthy}$\rightarrow$2, \texttt{Leaf\_blight}$\rightarrow$3. The class name array in the ESP32 firmware must replicate this exact ordering for correct label assignment from model output indices.
+Additionally, the communication constraint of LoRaWAN network, It is impractical to transmit raw images or even intermediate feature vectors over LoRaWAN due to its limited payload size. Therefore, the system performs complete inference and aggregation on-device, transmitting only the final diagnosis. This design choice sacrifices the ability of detection but enables deployment in remote vineyard locations, where LoRaWAN is the only viable communication option.
 
-A related challenge concerns the dequantization interface asymmetry in the ESP-DL framework. The detection post-processor (\texttt{ESPDetPostProcessor}) handles INT8-to-float conversion internally, transparently returning floating-point confidence scores and bounding box coordinates. The classification model, however, outputs raw INT8 logit values through the \texttt{dl::Model} interface, requiring explicit dequantization via multiplication by $2^{\text{exponent}}$ (Equation~\ref{eq:dequant}) before softmax probability computation. Without this step, raw INT8 values in the range $[-128, 127]$ produce extreme softmax outputs (near-100\% for a single class) due to the exponential amplification of large magnitude differences.
 
-As a concrete illustration, consider an output tensor with exponent $e = -7$ (scale $= 0.0078125$). Raw INT8 logits $[23, -15, 87, 12]$ should dequantize to $[0.180, -0.117, 0.680, 0.094]$, yielding a meaningful probability distribution via softmax. Without dequantization, softmax of $[23, -15, 87, 12]$ produces $[\approx 0\%, \approx 0\%, \approx 100\%, \approx 0\%]$, masking any meaningful class discrimination. These constraints underscore the importance of end-to-end integration testing when deploying quantized models across heterogeneous frameworks.
+The final and most critically, the battery power constraint required careful management of the inference duty cycle. This duty-cycled operation is essential for achieving months of operation on a single battery charge. 
+\vspace{3mm}
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Design Property} & \textbf{Constraint} & \textbf{Adopted Trade-off} \\
+\midrule
+Model Precision & No FP32 SIMD acceleration & INT8 Quantization \\
+Input Resolution & 8~MB PSRAM limit & $416 \times 320$ detection input \\
+Communication & Low LoRaWAN bandwidth & Edge aggregation (local decisions) \\
+Power & Battery & Duty-cycled sleep architecture \\
+\bottomrule
+\end{tabular}
+\caption{Implementation constraints and design trade-offs of deploying Edge AI system on ESP32-S3}
+\label{tab:design_tradeoffs}
+\end{table}
 
-Having described the complete deployment pipeline and the practical challenges encountered, the next chapter evaluates the system's performance in terms of inference latency, classification accuracy, memory utilization, power consumption, and comparison with alternative edge computing platforms.
+Having described the complete deployment pipeline, the implementation constraints, and the design trade-offs encountered during firmware development, the next chapter evaluates the system's performance in terms of inference latency, classification accuracy, and memory utilization.

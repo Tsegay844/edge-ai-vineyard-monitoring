@@ -19,5 +19,7 @@
 \contentsline {figure}{\numberline {4.2}{\ignorespaces MobileNetV2 quantization pipeline from dataset preparation to ESP32-S3 deployment-ready INT8 model\relax }}{36}{figure.caption.29}%
 \contentsline {figure}{\numberline {4.3}{\ignorespaces \small Model storage and loading strategy for ESP32-S3 deployment. Both ESPDet-Pico and MobileNetV2 models are embedded in flash memory and loaded into PSRAM at runtime for inference execution.\relax }}{37}{figure.caption.30}%
 \contentsline {figure}{\numberline {4.4}{\ignorespaces Initialization sequence and PSRAM utilization for model loading and camera initialization.\relax }}{39}{figure.caption.31}%
+\contentsline {figure}{\numberline {4.5}{\ignorespaces End-to-end inference pipeline showing detection, cropping, and classification stages for grape leaf disease detection\relax }}{40}{figure.caption.33}%
+\contentsline {figure}{\numberline {4.6}{\ignorespaces The cropping and resizing process of the detected leaf region\relax }}{42}{figure.caption.34}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
