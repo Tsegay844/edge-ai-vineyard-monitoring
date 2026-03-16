@@ -1,0 +1,18 @@
+{
+  "github.copilot.enable": {
+    "*": true,
+    "python": true,
+    "jupyter": true,
+    "yaml": true,
+    "markdown": true,
+    "plaintext": false
+  },
+  "github.copilot.editor.enableAutoCompletions": true,
+  "github.copilot.chat.localeOverride": "auto",
+  "editor.inlineSuggest.enabled": true,
+  "python.defaultInterpreterPath": "python3",
+  "python.analysis.typeCheckingMode": "basic",
+  "files.associations": {
+    "*.ipynb": "jupyter"
+  }
+}
