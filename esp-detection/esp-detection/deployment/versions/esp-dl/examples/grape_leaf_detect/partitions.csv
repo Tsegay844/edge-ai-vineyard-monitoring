@@ -1,0 +1,8 @@
+# Name,   Type, SubType, Offset,  Size, Flags
+# Note: if you change the phy_init or app partition offset, make sure to change the offset in Kconfig.projbuild
+# v17: Increased factory to 5MB to accommodate detection + disease classification models (4.3MB binary)
+# Removed SPIFFS partition (no longer saving crops to flash)
+
+nvs,       data,  nvs,      0x9000,      24K,
+phy_init,  data,  phy,      0xf000,      4K,
+factory,   app,   factory,  0x010000,    5M,

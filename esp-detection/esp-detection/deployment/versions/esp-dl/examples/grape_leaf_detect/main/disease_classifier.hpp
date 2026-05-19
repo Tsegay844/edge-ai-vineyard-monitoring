@@ -1,0 +1,318 @@
+#pragma once
+
+#include "dl_model_base.hpp"
+#include "esp_log.h"
+#include "esp_heap_caps.h"
+#include "dl_image_jpeg.hpp"
+#include <cmath>
+#include <vector>
+#include <algorithm>
+
+struct DiseaseResult {
+    int class_id;
+    float confidence;
+    const char* class_name;
+    std::vector<std::pair<int, float>> all_classes; // All classes with their probabilities
+    
+    // Timing breakdown (microseconds)
+    int64_t setup_us;       // Input tensor setup
+    int64_t inference_us;   // Model forward pass
+    int64_t postprocess_us; // Softmax + sorting
+};
+
+class DiseaseClassifier {
+private:
+    static constexpr const char* TAG = "DiseaseClassifier";
+    
+    // Disease class names (MUST match ImageFolder training order: alphabetical)
+    // Training order from /dd_cnn/dataset/grape_dataset/train/:
+    // 0: Black_rot, 1: Esca, 2: Healthy, 3: Leaf_blight
+    static constexpr const char* CLASS_NAMES[] = {
+        "Black_rot",     // Index 0
+        "Esca",          // Index 1
+        "Healthy",       // Index 2
+        "Leaf_blight"    // Index 3
+    };
+    static constexpr int NUM_CLASSES = sizeof(CLASS_NAMES) / sizeof(CLASS_NAMES[0]);
+    
+    dl::Model *model;
+    uint8_t *input_buffer_128x128;  // PSRAM buffer for 128x128x3 RGB888, allocated once
+    
+    int input_width;
+    int input_height;
+    int input_channels;
+    
+public:
+    DiseaseClassifier() : model(nullptr), input_buffer_128x128(nullptr) {}
+    // Destructor
+    // Cleans up model and input buffer
+    ~DiseaseClassifier() {
+        if (model) {
+            delete model;
+            model = nullptr;
+        }
+        if (input_buffer_128x128) {
+            heap_caps_free(input_buffer_128x128);
+            input_buffer_128x128 = nullptr;
+        }
+    }
+    
+    // Static method to get class name by ID
+    static const char* get_class_name(int class_id) {
+        if (class_id >= 0 && class_id < NUM_CLASSES) {
+            return CLASS_NAMES[class_id];
+        }
+        return "unknown";
+    }
+    
+    // Initialize model and allocate 128x128 buffer
+    esp_err_t init(const char *model_name) {
+        ESP_LOGI(TAG, "Loading MobileNetV2 model: %s", model_name);
+        ESP_LOGI(TAG, "Attempting to load from packed binary: grape_leaf_detect");
+        ESP_LOGI(TAG, "Model location: FLASH_RODATA");
+        
+        // Debug: Check if embedded binary symbols exist
+        extern const uint8_t grape_leaf_detect_espdl_start[] asm("_binary_grape_leaf_detect_espdl_start");
+        extern const uint8_t grape_leaf_detect_espdl_end[] asm("_binary_grape_leaf_detect_espdl_end");
+        
+        size_t packed_size = grape_leaf_detect_espdl_end - grape_leaf_detect_espdl_start;
+        ESP_LOGI(TAG, "📦 Packed binary found:");
+        ESP_LOGI(TAG, "   Start: %p", grape_leaf_detect_espdl_start);
+        ESP_LOGI(TAG, "   End:   %p", grape_leaf_detect_espdl_end);
+        ESP_LOGI(TAG, "   Size:  %u bytes (%.2f MB)", packed_size, packed_size / (1024.0 * 1024.0));
+        
+        if (packed_size == 0) {
+            ESP_LOGE(TAG, "Packed binary is empty! Model not embedded correctly.");
+            return ESP_FAIL;
+        }
+        
+        // Print first 32 bytes of packed binary header
+        ESP_LOGI(TAG, "   Header (first 32 bytes):");
+        for (int i = 0; i < 32 && i < packed_size; i += 16) {
+            ESP_LOGI(TAG, "   %04x: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x",
+                     i,
+                     grape_leaf_detect_espdl_start[i+0], grape_leaf_detect_espdl_start[i+1],
+                     grape_leaf_detect_espdl_start[i+2], grape_leaf_detect_espdl_start[i+3],
+                     grape_leaf_detect_espdl_start[i+4], grape_leaf_detect_espdl_start[i+5],
+                     grape_leaf_detect_espdl_start[i+6], grape_leaf_detect_espdl_start[i+7],
+                     grape_leaf_detect_espdl_start[i+8], grape_leaf_detect_espdl_start[i+9],
+                     grape_leaf_detect_espdl_start[i+10], grape_leaf_detect_espdl_start[i+11],
+                     grape_leaf_detect_espdl_start[i+12], grape_leaf_detect_espdl_start[i+13],
+                     grape_leaf_detect_espdl_start[i+14], grape_leaf_detect_espdl_start[i+15]);
+        }
+        
+        // Attempt model loading - use pointer to embedded binary (same as detection model)
+        ESP_LOGI(TAG, "🔄 Creating dl::Model instance...");
+        model = new dl::Model((const char *)grape_leaf_detect_espdl_start, model_name, fbs::MODEL_LOCATION_IN_FLASH_RODATA);
+        
+        // Check if model loaded successfully by trying to get input
+        // If model is invalid, get_input() will return nullptr or crash
+        dl::TensorBase *input_info = nullptr;
+        bool model_valid = false;
+        
+        if (model) {
+            ESP_LOGI(TAG, "Validating model by getting input shape...");
+            input_info = model->get_input();
+            if (input_info && input_info->shape.size() >= 4) {
+                model_valid = true;
+                ESP_LOGI(TAG, "Model loaded and validated successfully");
+            } else {
+                ESP_LOGE(TAG, "Model validation failed - get_input() returned invalid tensor");
+                delete model;
+                model = nullptr;
+            }
+        }
+        
+        if (!model_valid || !model) {
+            ESP_LOGE(TAG, "Failed to load model");
+            return ESP_FAIL;
+        }
+        
+        // Get input shape
+        input_height = input_info->shape[1];
+        input_width = input_info->shape[2];
+        input_channels = input_info->shape[3];
+        
+        ESP_LOGI(TAG, "Model input shape: [1, %d, %d, %d]", input_height, input_width, input_channels);
+        
+        // Validate expected dimensions
+        if (input_height != 128 || input_width != 128 || input_channels != 3) {
+            ESP_LOGW(TAG, "Unexpected input shape! Expected [1, 128, 128, 3]");
+        } 
+        
+        // Allocate 128x128x3 RGB888 buffer in PSRAM
+        size_t buffer_size = input_height * input_width * input_channels;
+        input_buffer_128x128 = (uint8_t*)heap_caps_malloc(buffer_size, MALLOC_CAP_SPIRAM);
+        if (!input_buffer_128x128) {
+            ESP_LOGE(TAG, "Failed to allocate %d bytes in PSRAM for input buffer", buffer_size);
+            ESP_LOGE(TAG, "Free PSRAM: %u bytes", heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
+            delete model;
+            model = nullptr;
+            return ESP_FAIL;
+        }
+        
+        ESP_LOGI(TAG, "Allocated %d bytes in PSRAM for 128x128x3 input buffer", buffer_size);
+        ESP_LOGI(TAG, "Disease classifier initialization complete!");
+        //ready to initiate the model inference
+        return ESP_OK;
+    }
+    
+    // Crop bounding box from full frame and resize to 128x128 (nearest neighbor)
+    // Writes directly into input_buffer_128x128 (no intermediate allocations)
+    // Returns: crop+resize time in microseconds
+    int64_t crop_and_resize(const uint8_t *frame, int frame_w, int frame_h,
+                            int x1, int y1, int x2, int y2) {
+        int64_t start = esp_timer_get_time();
+        
+        // Clamp bbox to frame bounds
+        x1 = std::max(0, std::min(x1, frame_w - 1));
+        y1 = std::max(0, std::min(y1, frame_h - 1));
+        x2 = std::max(0, std::min(x2, frame_w));
+        y2 = std::max(0, std::min(y2, frame_h));
+        
+        int bbox_w = x2 - x1;
+        int bbox_h = y2 - y1;
+        
+        // Expand bbox to square while maintaining aspect ratio (letterbox)
+        int bbox_size = std::max(bbox_w, bbox_h);
+        int x_offset = (bbox_size - bbox_w) / 2;
+        int y_offset = (bbox_size - bbox_h) / 2;
+        
+        // Adjust bbox center to create square crop
+        int cx = (x1 + x2) / 2;
+        int cy = (y1 + y2) / 2;
+        int new_x1 = cx - bbox_size / 2;
+        int new_y1 = cy - bbox_size / 2;
+        int new_x2 = new_x1 + bbox_size;
+        int new_y2 = new_y1 + bbox_size;
+        
+        // Resize square bbox to 128x128 with padding (letterbox style)
+        for (int y = 0; y < 128; y++) {
+            for (int x = 0; x < 128; x++) {
+                // Map 128x128 output to square bbox coordinates
+                int src_x = new_x1 + (x * bbox_size) / 128;
+                int src_y = new_y1 + (y * bbox_size) / 128;
+                
+                int dst_offset = (y * 128 + x) * 3;
+                
+                // Check if source pixel is within frame bounds
+                if (src_x >= 0 && src_x < frame_w && src_y >= 0 && src_y < frame_h) {
+                    // Copy RGB888 pixel from frame
+                    int src_offset = (src_y * frame_w + src_x) * 3;
+                    input_buffer_128x128[dst_offset + 0] = frame[src_offset + 0];  // R
+                    input_buffer_128x128[dst_offset + 1] = frame[src_offset + 1];  // G
+                    input_buffer_128x128[dst_offset + 2] = frame[src_offset + 2];  // B
+                } else {
+                    // Padding with gray (ImageNet mean ~ 127)
+                    input_buffer_128x128[dst_offset + 0] = 127;  // R
+                    input_buffer_128x128[dst_offset + 1] = 127;  // G
+                    input_buffer_128x128[dst_offset + 2] = 127;  // B
+                }
+            }
+        }
+        
+        return esp_timer_get_time() - start;
+    }
+    
+    // Run inference on the 128x128 buffer and return disease classification
+    // Returns: {result, setup_us, inference_us, postprocess_us}
+    DiseaseResult infer() {
+        // Timing variables for inference 
+        int64_t t1 = esp_timer_get_time();
+        
+        // Get input tensor and set data pointer
+        dl::TensorBase *input = model->get_input();
+        input->set_element_ptr(input_buffer_128x128);
+        
+        int64_t t2 = esp_timer_get_time();
+        
+        // Run inference
+        model->run();
+        
+        int64_t t3 = esp_timer_get_time();
+        
+        // Get output tensor (int8 quantized logits)
+        dl::TensorBase *output = model->get_output();
+        if (!output) {
+            ESP_LOGE(TAG, "Failed to get model output");
+            return {-1, 0.0f, "error"};
+        }
+        
+        // Extract int8 logits and convert to float
+        int8_t *output_data = (int8_t*)output->get_element_ptr();
+        int num_classes = output->get_size();  // Should be NUM_CLASSES
+        
+        if (num_classes != NUM_CLASSES) {
+            ESP_LOGW(TAG, "Model output size (%d) != expected classes (%d)", num_classes, NUM_CLASSES);
+        }
+        
+        // Get quantization exponent for dequantization
+        int exponent = output->exponent;
+        float scale = DL_SCALE(exponent);  // scale = 2^exponent
+        
+        ESP_LOGD(TAG, "Output exponent: %d, scale: %f", exponent, scale);
+        ESP_LOGD(TAG, "Raw INT8 logits: [%d, %d, %d, %d]", 
+                 output_data[0], output_data[1], output_data[2], output_data[3]);
+        
+        // Dequantize INT8 → float and apply softmax
+        // Formula: float_value = int8_value × scale (scale = 2^exponent)
+        std::vector<float> logits(num_classes);
+        for (int i = 0; i < num_classes; i++) {
+            logits[i] = (float)output_data[i] * scale;  // Proper dequantization
+        }
+        
+        ESP_LOGD(TAG, "Dequantized logits: [%.3f, %.3f, %.3f, %.3f]", 
+                 logits[0], logits[1], logits[2], logits[3]);
+        
+        softmax(logits.data(), num_classes);
+        
+        ESP_LOGD(TAG, "After softmax: [%.4f, %.4f, %.4f, %.4f]", 
+                 logits[0], logits[1], logits[2], logits[3]);
+        
+        // Find class with maximum probability
+        int best_class = 0;
+        float best_conf = logits[0];
+        for (int i = 1; i < num_classes; i++) {
+            if (logits[i] > best_conf) {
+                best_conf = logits[i];
+                best_class = i;
+            }
+        }
+        
+        // Store all class probabilities (sorted by confidence)
+        std::vector<std::pair<int, float>> all_probs;
+        for (int i = 0; i < num_classes; i++) {
+            all_probs.push_back({i, logits[i]});
+        }
+        // Sort by confidence descending
+        std::sort(all_probs.begin(), all_probs.end(), 
+                  [](const auto& a, const auto& b) { return a.second > b.second; });
+        
+        int64_t t4 = esp_timer_get_time();
+        
+        return {best_class, best_conf, CLASS_NAMES[best_class], all_probs,
+                t2 - t1, t3 - t2, t4 - t3};
+    }
+    
+private:
+    // Numerically stable softmax
+    void softmax(float *x, int n) {
+        // Find max for numerical stability
+        float max_val = x[0];
+        for (int i = 1; i < n; i++) {
+            if (x[i] > max_val) max_val = x[i];
+        }
+        
+        // Compute exp(x - max) and sum
+        float sum = 0.0f;
+        for (int i = 0; i < n; i++) {
+            x[i] = std::exp(x[i] - max_val);
+            sum += x[i];
+        }
+        
+        // Normalize
+        for (int i = 0; i < n; i++) {
+            x[i] /= sum;
+        }
+    }
+};

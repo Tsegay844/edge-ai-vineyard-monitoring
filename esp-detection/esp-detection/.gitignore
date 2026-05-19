@@ -1,7 +1,0 @@
-**/*.onnx
-**/__pycache__/
-.venv/
-runs/
-.vscode/
-build/
-.idea/
